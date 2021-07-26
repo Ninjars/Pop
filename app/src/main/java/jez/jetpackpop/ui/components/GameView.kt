@@ -24,13 +24,14 @@ fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
     Log.w("JEZTAG", "GameView invoked $isRunning $configuration")
 
     val density = LocalDensity.current
+    var dims by remember { mutableStateOf(Pair(0f, 0f))}
     var gameState by rememberSaveable {
         Log.w("JEZTAG", "created gamestate $configuration")
         mutableStateOf(
             GameState(
-                width = 0f,
-                height = 0f,
-                processState = GameProcessState.CONFIGURED,
+                width = dims.first,
+                height = dims.second,
+                processState = GameProcessState.INSTANTIATED,
                 config = configuration,
                 targets = emptyList(),
             )
@@ -43,13 +44,13 @@ fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
             val nextFrame = awaitFrame() / 100_000L
             if (lastFrame != 0L) {
                 gameState = when (gameState.processState) {
+                    GameProcessState.WAITING_MEASURE,
                     GameProcessState.READY -> gameState.start()
                     GameProcessState.RUNNING -> {
                         val period = nextFrame - lastFrame
                         gameState.update(period / 1000f)
                     }
                     GameProcessState.INSTANTIATED,
-                    GameProcessState.CONFIGURED,
                     GameProcessState.PAUSED -> {
                         Log.w("JEZTAG", "pendin ${gameState.processState}")
                         gameState
@@ -72,6 +73,7 @@ fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
             .onSizeChanged {
                 with(density) {
                     Log.i("JEZTAG", "onSizeChanged $it")
+                    dims = Pair(it.width.toDp().value, it.height.toDp().value)
                     gameState = gameState.onMeasured(it.width.toDp().value, it.height.toDp().value)
                 }
             }

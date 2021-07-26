@@ -1,7 +1,6 @@
 package jez.jetpackpop.model
 
 import android.os.Parcelable
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -15,7 +14,16 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 enum class GameProcessState {
-    INSTANTIATED, CONFIGURED, READY, RUNNING, PAUSED
+    // GameState exists
+    INSTANTIATED,
+    // GameState has a configuration and is ready to start
+    READY,
+    // GameState has been started but doesn't have dimensions yet; start delayed
+    WAITING_MEASURE,
+    // Game is running
+    RUNNING,
+    // Game is not updating
+    PAUSED
 }
 
 @Parcelize
@@ -31,10 +39,7 @@ data class GameState(
         return copy(
             width = width,
             height = height,
-            processState = if (processState == GameProcessState.CONFIGURED)
-                GameProcessState.READY
-            else
-                processState
+            processState = GameProcessState.READY
         )
     }
 
@@ -42,8 +47,7 @@ data class GameState(
         return when (processState) {
             GameProcessState.INSTANTIATED ->
                 throw IllegalStateException("attempted to start before GameState was ready")
-            GameProcessState.CONFIGURED ->
-                throw IllegalStateException("attempted to start before GameState was configured")
+            GameProcessState.WAITING_MEASURE,
             GameProcessState.READY ->
                 startGame()
             GameProcessState.PAUSED ->
@@ -55,6 +59,9 @@ data class GameState(
 
     private fun startGame(): GameState {
         if (config == null) throw IllegalStateException("started game before configured")
+        if (width == 0f) {
+            return copy(processState = GameProcessState.WAITING_MEASURE)
+        }
 
         val random = Random(config.randomSeed)
         val targets = config.targetConfigurations.flatMap { targetConfig ->
@@ -91,6 +98,8 @@ data class GameState(
 
     fun update(deltaSeconds: Float): GameState {
         return when (processState) {
+            GameProcessState.WAITING_MEASURE ->
+                start()
             GameProcessState.RUNNING ->
                 copy(
                     targets = targets.map {
