@@ -16,12 +16,16 @@ import kotlin.random.Random
 enum class GameProcessState {
     // GameState exists
     INSTANTIATED,
+
     // GameState has a configuration and is ready to start
     READY,
+
     // GameState has been started but doesn't have dimensions yet; start delayed
     WAITING_MEASURE,
+
     // Game is running
     RUNNING,
+
     // Game is not updating
     PAUSED
 }
@@ -67,6 +71,7 @@ data class GameState(
         val targets = config.targetConfigurations.flatMap { targetConfig ->
             (0..targetConfig.count).map {
                 TargetData(
+                    id = it,
                     color = targetConfig.color,
                     radius = targetConfig.radius,
                     center = Offset(
@@ -109,10 +114,16 @@ data class GameState(
             else -> this
         }
     }
+
+    fun onTargetTapped(data: TargetData): GameState {
+        return copy(targets = targets.filter { it.id != data.id || it.color != data.color }
+            .toList())
+    }
 }
 
 @Parcelize
 data class TargetData(
+    val id: Int,
     val color: Color,
     val radius: Dp,
     val center: Offset,

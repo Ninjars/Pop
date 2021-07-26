@@ -79,7 +79,7 @@ fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
             }
         ) {
             gameState.targets.forEach {
-                Target(it) { data: TargetData -> }
+                Target(it) { data: TargetData -> gameState = gameState.onTargetTapped(data) }
             }
         }
     }
