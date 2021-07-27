@@ -11,7 +11,7 @@ import jez.jetpackpop.ui.components.MainMenu
 @Composable
 fun PreviewMainMenu() {
     AppTheme {
-        MainMenu(show = true) {}
+        MainMenu() {}
     }
 }
 

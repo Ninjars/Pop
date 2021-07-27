@@ -15,7 +15,7 @@ import jez.jetpackpop.model.GameConfiguration
 import jez.jetpackpop.model.GameEndState
 import jez.jetpackpop.model.TargetConfiguration
 import jez.jetpackpop.ui.components.GameEndMenu
-import jez.jetpackpop.ui.components.GameView
+import jez.jetpackpop.ui.components.GameScreen
 import jez.jetpackpop.ui.components.MainMenu
 
 @Composable
@@ -29,20 +29,28 @@ fun App() {
             var isRunning by rememberSaveable { mutableStateOf(false) }
             var endGameState by rememberSaveable { mutableStateOf<GameEndState?>(null) }
 
-            GameView(gameConfiguration, isRunning) {
-                isRunning = false
-                endGameState = it
+            val configuration = gameConfiguration
+            if (configuration != null) {
+                GameScreen(configuration, isRunning) {
+                    isRunning = false
+                    endGameState = it
+                }
             }
 
-            MainMenu(!isRunning && endGameState == null) {
-                gameConfiguration = demoConfiguration
-                isRunning = true
+            if (!isRunning && endGameState == null) {
+                MainMenu {
+                    gameConfiguration = demoConfiguration
+                    isRunning = true
+                }
             }
 
-            GameEndMenu(endGameState) {
-                gameConfiguration = demoConfiguration
-                endGameState = null
-                isRunning = true
+            val endState = endGameState
+            if (endState != null) {
+                GameEndMenu(endState) {
+                    gameConfiguration = demoConfiguration
+                    endGameState = null
+                    isRunning = true
+                }
             }
         }
     }
@@ -51,7 +59,7 @@ fun App() {
 private val demoConfiguration: GameConfiguration =
     GameConfiguration(
         randomSeed = 0,
-        timeLimitSeconds = -1f,
+        timeLimitSeconds = 30f,
         targetConfigurations = listOf(
             TargetConfiguration(
                 color = Color.Red,

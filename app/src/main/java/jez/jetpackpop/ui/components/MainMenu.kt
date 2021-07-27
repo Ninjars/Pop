@@ -14,11 +14,8 @@ import jez.jetpackpop.ui.overlay
 
 @Composable
 fun MainMenu(
-    show: Boolean,
     startAction: () -> Unit
 ) {
-    if (!show) return
-
     Box(
         modifier = Modifier
             .fillMaxSize()

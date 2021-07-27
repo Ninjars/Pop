@@ -15,11 +15,9 @@ import jez.jetpackpop.ui.overlay
 
 @Composable
 fun GameEndMenu(
-    endState: GameEndState?,
+    endState: GameEndState,
     startAction: () -> Unit,
 ) {
-    if (endState == null) return
-
     Box(
         modifier = Modifier
             .fillMaxSize()
