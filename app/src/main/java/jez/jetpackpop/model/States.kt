@@ -7,10 +7,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
-import kotlin.math.PI
-import kotlin.math.absoluteValue
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 import kotlin.random.Random
 
 enum class GameProcessState {
@@ -27,7 +24,11 @@ enum class GameProcessState {
     RUNNING,
 
     // Game is not updating
-    PAUSED
+    PAUSED,
+
+    END_WIN,
+
+    END_LOSE,
 }
 
 @Parcelize
@@ -37,6 +38,8 @@ data class GameState(
     val processState: GameProcessState,
     val config: GameConfiguration?,
     val targets: List<TargetData>,
+    val remainingTime: Float,
+    val score: Int,
 ) : Parcelable {
 
     fun onMeasured(width: Float, height: Float): GameState {
@@ -49,8 +52,6 @@ data class GameState(
 
     fun start(): GameState {
         return when (processState) {
-            GameProcessState.INSTANTIATED ->
-                throw IllegalStateException("attempted to start before GameState was ready")
             GameProcessState.WAITING_MEASURE,
             GameProcessState.READY ->
                 startGame()
@@ -58,6 +59,10 @@ data class GameState(
                 return copy(processState = GameProcessState.RUNNING)
             GameProcessState.RUNNING ->
                 this
+            GameProcessState.INSTANTIATED,
+            GameProcessState.END_WIN,
+            GameProcessState.END_LOSE ->
+                throw IllegalStateException("attempted to start game when in state $processState")
         }
     }
 
@@ -89,6 +94,7 @@ data class GameState(
         return copy(
             processState = GameProcessState.RUNNING,
             targets = targets,
+            remainingTime = config.timeLimitSeconds
         )
     }
 
@@ -103,21 +109,34 @@ data class GameState(
 
     fun update(deltaSeconds: Float): GameState {
         return when (processState) {
-            GameProcessState.WAITING_MEASURE ->
-                start()
-            GameProcessState.RUNNING ->
-                copy(
-                    targets = targets.map {
-                        it.update(deltaSeconds, this)
-                    }
-                )
+            GameProcessState.WAITING_MEASURE -> start()
+            GameProcessState.RUNNING -> iterateState(deltaSeconds)
             else -> this
         }
     }
 
+    private fun iterateState(deltaSeconds: Float): GameState {
+        val nextRemainingTime = if (remainingTime == -1f) -1f else max(0f, remainingTime - deltaSeconds)
+
+        val nextProcessState = when{
+            nextRemainingTime == 0f -> GameProcessState.END_LOSE
+            targets.isEmpty() -> GameProcessState.END_WIN
+            else -> processState
+        }
+        return copy(
+            remainingTime = nextRemainingTime,
+            processState = nextProcessState,
+            targets = targets.map {
+                it.update(deltaSeconds, this)
+            }
+        )
+    }
+
     fun onTargetTapped(data: TargetData): GameState {
-        return copy(targets = targets.filter { it.id != data.id || it.color != data.color }
-            .toList())
+        return copy(
+            score = score + 1,
+            targets = targets.filter { it.id != data.id || it.color != data.color }.toList()
+        )
     }
 }
 
@@ -155,3 +174,10 @@ data class TargetData(
         )
     }
 }
+
+@Parcelize
+data class GameEndState(
+    val remainingTime: Float,
+    val score: Int,
+    val didWin: Boolean,
+): Parcelable

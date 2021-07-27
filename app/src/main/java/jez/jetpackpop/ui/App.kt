@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.model.GameConfiguration
+import jez.jetpackpop.model.GameEndState
 import jez.jetpackpop.model.TargetConfiguration
+import jez.jetpackpop.ui.components.GameEndMenu
 import jez.jetpackpop.ui.components.GameView
 import jez.jetpackpop.ui.components.MainMenu
 
@@ -23,11 +25,25 @@ fun App() {
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
         ) {
-            var gameConfiguration by rememberSaveable { mutableStateOf(demoConfiguration) }
+            var gameConfiguration by rememberSaveable { mutableStateOf<GameConfiguration?>(null) }
             var isRunning by rememberSaveable { mutableStateOf(false) }
+            var endGameState by rememberSaveable { mutableStateOf<GameEndState?>(null) }
 
-            GameView(gameConfiguration, isRunning)
-            MainMenu(!isRunning) { isRunning = true }
+            GameView(gameConfiguration, isRunning) {
+                isRunning = false
+                endGameState = it
+            }
+
+            MainMenu(!isRunning && endGameState == null) {
+                gameConfiguration = demoConfiguration
+                isRunning = true
+            }
+
+            GameEndMenu(endGameState) {
+                gameConfiguration = demoConfiguration
+                endGameState = null
+                isRunning = true
+            }
         }
     }
 }

@@ -10,19 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.model.GameEndState
 import jez.jetpackpop.ui.overlay
 
 @Composable
-fun MainMenu(
-    show: Boolean,
-    startAction: () -> Unit
+fun GameEndMenu(
+    endState: GameEndState?,
+    startAction: () -> Unit,
 ) {
-    if (!show) return
+    if (endState == null) return
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colors.overlay)
+            .background(color = MaterialTheme.colors.overlay),
     ) {
         Column(
             modifier = Modifier
@@ -32,20 +33,19 @@ fun MainMenu(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                text = "POP",
+                text = if (endState.didWin) "WIN" else "LOSE",
                 style = MaterialTheme.typography.h1,
-                modifier = Modifier.wrapContentSize()
+                modifier = Modifier
+                    .wrapContentSize()
             )
             Button(
                 shape = CircleShape,
-                modifier = Modifier
-                    .wrapContentSize(),
                 onClick = {
                     startAction()
                 },
             ) {
                 Text(
-                    text = "Start",
+                    text = if (endState.didWin) "PLAY" else "RETRY",
                     style = MaterialTheme.typography.h3,
                     modifier = Modifier.wrapContentSize()
                 )

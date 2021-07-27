@@ -6,25 +6,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import jez.jetpackpop.model.GameConfiguration
-import jez.jetpackpop.model.GameProcessState
-import jez.jetpackpop.model.GameState
-import jez.jetpackpop.model.TargetData
+import androidx.compose.ui.unit.dp
+import jez.jetpackpop.model.*
 import kotlinx.coroutines.android.awaitFrame
+import kotlin.math.ceil
 
 @Composable
-fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
+fun GameView(
+    configuration: GameConfiguration?,
+    isRunning: Boolean,
+    gameEndAction: (GameEndState) -> Unit
+) {
     Log.w("JEZTAG", "GameView invoked $isRunning $configuration")
+    if (configuration == null) return
 
     val density = LocalDensity.current
-    var dims by remember { mutableStateOf(Pair(0f, 0f))}
+    var dims by remember { mutableStateOf(Pair(0f, 0f)) }
     var gameState by rememberSaveable {
         Log.w("JEZTAG", "created gamestate $configuration")
         mutableStateOf(
@@ -34,6 +40,8 @@ fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
                 processState = GameProcessState.INSTANTIATED,
                 config = configuration,
                 targets = emptyList(),
+                remainingTime = -1f,
+                score = 0,
             )
         )
     }
@@ -55,6 +63,26 @@ fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
                         Log.w("JEZTAG", "pendin ${gameState.processState}")
                         gameState
                     }
+                    GameProcessState.END_WIN -> {
+                        gameEndAction(
+                            GameEndState(
+                                gameState.remainingTime,
+                                gameState.score,
+                                true
+                            )
+                        )
+                        gameState
+                    }
+                    GameProcessState.END_LOSE -> {
+                        gameEndAction(
+                            GameEndState(
+                                gameState.remainingTime,
+                                gameState.score,
+                                false
+                            )
+                        )
+                        gameState
+                    }
                 }
             }
             lastFrame = nextFrame
@@ -65,10 +93,6 @@ fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.secondary)
-    ) {
-
-        Box(modifier = Modifier
-            .fillMaxSize()
             .clipToBounds()
             .onSizeChanged {
                 with(density) {
@@ -77,10 +101,29 @@ fun GameView(configuration: GameConfiguration, isRunning: Boolean) {
                     gameState = gameState.onMeasured(it.width.toDp().value, it.height.toDp().value)
                 }
             }
+    ) {
+        gameState.targets.forEach {
+            Target(it) { data: TargetData -> gameState = gameState.onTargetTapped(data) }
+        }
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
         ) {
-            gameState.targets.forEach {
-                Target(it) { data: TargetData -> gameState = gameState.onTargetTapped(data) }
-            }
+            Text(
+                text = gameState.score.toString(),
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier
+                    .wrapContentSize(Alignment.CenterStart)
+                    .weight(1f)
+            )
+            Text(
+                text = ceil(gameState.remainingTime).toInt().toString(),
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier
+                    .wrapContentSize(Alignment.CenterEnd)
+                    .weight(1f)
+            )
         }
     }
 }
