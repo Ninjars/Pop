@@ -39,7 +39,7 @@ fun App() {
 
             if (!isRunning && endGameState == null) {
                 MainMenu {
-                    gameConfiguration = demoConfiguration
+                    gameConfiguration = demoConfiguration(target1)
                     isRunning = true
                 }
             }
@@ -47,7 +47,7 @@ fun App() {
             val endState = endGameState
             if (endState != null) {
                 GameEndMenu(endState) {
-                    gameConfiguration = demoConfiguration
+                    gameConfiguration = demoConfiguration(target1)
                     endGameState = null
                     isRunning = true
                 }
@@ -56,13 +56,13 @@ fun App() {
     }
 }
 
-private val demoConfiguration: GameConfiguration =
+private fun demoConfiguration(targetColor: Color): GameConfiguration =
     GameConfiguration(
         randomSeed = 0,
         timeLimitSeconds = 30f,
         targetConfigurations = listOf(
             TargetConfiguration(
-                color = Color.Red,
+                color = targetColor,
                 radius = 30.dp,
                 count = 10,
                 minSpeed = 8.dp,

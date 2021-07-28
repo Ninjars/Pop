@@ -29,7 +29,7 @@ fun GameRenderer(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.secondary)
+            .background(MaterialTheme.colors.surface)
             .clipToBounds()
             .onSizeChanged {
                 with(density) {
@@ -70,6 +70,7 @@ fun GameInfo(
         Text(
             text = gameState.score.toString(),
             style = MaterialTheme.typography.h3,
+            color = MaterialTheme.colors.onSurface,
             modifier = Modifier
                 .wrapContentSize(Alignment.CenterStart)
                 .weight(1f)
@@ -77,6 +78,7 @@ fun GameInfo(
         Text(
             text = ceil(gameState.remainingTime).toInt().toString(),
             style = MaterialTheme.typography.h3,
+            color = MaterialTheme.colors.onSurface,
             modifier = Modifier
                 .wrapContentSize(Alignment.CenterEnd)
                 .weight(1f)
