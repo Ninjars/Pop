@@ -76,13 +76,27 @@ fun GameScreen(
         }
     }
 
-    GameRenderer(
-        showInfo = true,
-        gameState = gameState,
-        measureListener = { width, height ->
-            dims = Pair(width, height)
-            gameState = gameState.onMeasured(width, height)
-        },
-        targetTapListener = { target -> gameState = gameState.onTargetTapped(target) }
-    )
+    fun onMeasure(width: Float, height: Float) {
+        dims = Pair(width, height)
+        gameState = gameState.onMeasured(width, height)
+    }
+
+    val density = LocalDensity.current
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.surface)
+            .clipToBounds()
+            .onSizeChanged {
+                with(density) {
+                    onMeasure(it.width.toDp().value, it.height.toDp().value)
+                }
+            }
+    ) {
+        GameRenderer(
+            showInfo = true,
+            gameState = gameState,
+            targetTapListener = { target -> gameState = gameState.onTargetTapped(target) }
+        )
+    }
 }

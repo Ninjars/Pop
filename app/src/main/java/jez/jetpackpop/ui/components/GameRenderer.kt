@@ -10,9 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.model.GameState
 import jez.jetpackpop.model.TargetData
@@ -22,27 +19,13 @@ import kotlin.math.ceil
 fun GameRenderer(
     showInfo: Boolean,
     gameState: GameState,
-    measureListener: (Float, Float) -> Unit,
     targetTapListener: (TargetData) -> Unit,
 ) {
-    val density = LocalDensity.current
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.surface)
-            .clipToBounds()
-            .onSizeChanged {
-                with(density) {
-                    measureListener(it.width.toDp().value, it.height.toDp().value)
-                }
-            }
-    ) {
-        gameState.targets.forEach {
-            Target(it, targetTapListener)
-        }
-        if (showInfo) {
-            GameInfo(gameState)
-        }
+    gameState.targets.forEach {
+        Target(it, targetTapListener)
+    }
+    if (showInfo) {
+        GameInfo(gameState)
     }
 }
 
