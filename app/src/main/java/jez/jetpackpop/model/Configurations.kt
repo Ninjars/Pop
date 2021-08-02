@@ -19,4 +19,5 @@ data class TargetConfiguration(
     val count: Int,
     val minSpeed: Dp,
     val maxSpeed: Dp,
+    val clickable: Boolean,
 ) : Parcelable

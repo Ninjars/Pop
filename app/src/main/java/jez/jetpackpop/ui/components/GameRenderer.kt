@@ -31,14 +31,24 @@ fun GameRenderer(
 
 @Composable
 fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(data.radius * 2f)
-            .offset(data.xOffset, data.yOffset)
-            .clip(CircleShape)
-            .background(data.color)
-            .clickable { onClick(data) }
-    )
+    if (data.clickable) {
+        Box(
+            modifier = Modifier
+                .size(data.radius * 2f)
+                .offset(data.xOffset, data.yOffset)
+                .clip(CircleShape)
+                .background(data.color)
+                .clickable { onClick(data) }
+        )
+    } else {
+        Box(
+            modifier = Modifier
+                .size(data.radius * 2f)
+                .offset(data.xOffset, data.yOffset)
+                .clip(CircleShape)
+                .background(data.color)
+        )
+    }
 }
 
 @Composable

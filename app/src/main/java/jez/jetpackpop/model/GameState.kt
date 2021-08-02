@@ -88,6 +88,7 @@ data class GameState(
                         targetConfig.minSpeed.value,
                         targetConfig.maxSpeed.value
                     ),
+                    clickable = targetConfig.clickable,
                 )
             }
         }
@@ -146,6 +147,7 @@ data class TargetData(
     val color: Color,
     val radius: Dp,
     val center: Offset,
+    val clickable: Boolean,
     private val velocity: Offset
 ) : Parcelable {
     @IgnoredOnParcel

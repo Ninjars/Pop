@@ -1,10 +1,12 @@
 package jez.jetpackpop.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -135,6 +137,7 @@ private fun demoConfiguration(targetColor: Color): GameConfiguration =
                 count = 10,
                 minSpeed = 8.dp,
                 maxSpeed = 16.dp,
+                clickable = false,
             )
         )
     )
@@ -150,6 +153,7 @@ private fun lvlConfiguration(targetColor: Color): GameConfiguration =
                 count = 20,
                 minSpeed = 32.dp,
                 maxSpeed = 64.dp,
+                clickable = true,
             )
         )
     )
