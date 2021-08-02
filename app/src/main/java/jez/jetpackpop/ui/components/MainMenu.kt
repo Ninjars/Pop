@@ -31,6 +31,7 @@ fun MainMenu(
             Text(
                 text = "POP",
                 style = MaterialTheme.typography.h1,
+                color = MaterialTheme.colors.onBackground,
                 modifier = Modifier.wrapContentSize()
             )
             Button(

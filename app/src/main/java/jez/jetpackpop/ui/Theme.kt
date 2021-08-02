@@ -25,8 +25,8 @@ private val AppColors = lightColors(
     secondaryVariant = Color(0xFF5F1830),
     onSecondary = Color.White,
 
-    background = Color(0xFF3C3C3B),
-    onBackground = Color.White,
+    background = Color(0xFFEBEBD3),
+    onBackground = Color(0xFF3C3C3B),
 
     surface = Color(0xFFEBEBD3),
     onSurface = Color(0xFF3C3C3B),

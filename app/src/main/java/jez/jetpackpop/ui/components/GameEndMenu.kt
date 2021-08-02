@@ -33,6 +33,7 @@ fun GameEndMenu(
             Text(
                 text = if (endState.didWin) "WIN" else "LOSE",
                 style = MaterialTheme.typography.h1,
+                color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
                     .wrapContentSize()
             )
