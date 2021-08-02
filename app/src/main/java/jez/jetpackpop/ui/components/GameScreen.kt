@@ -115,7 +115,7 @@ fun GameScreen(
             }
     ) {
         GameRenderer(
-            showInfo = true,
+            showInfo = configuration.timeLimitSeconds >= 0,
             gameState = gameState,
             targetTapListener = { target -> gameState = gameState.onTargetTapped(target) }
         )
