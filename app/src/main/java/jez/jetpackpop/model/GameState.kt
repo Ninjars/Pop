@@ -174,10 +174,3 @@ data class TargetData(
         )
     }
 }
-
-@Parcelize
-data class GameEndState(
-    val remainingTime: Float,
-    val score: Int,
-    val didWin: Boolean,
-): Parcelable

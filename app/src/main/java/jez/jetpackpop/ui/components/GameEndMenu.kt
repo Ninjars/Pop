@@ -16,7 +16,7 @@ import jez.jetpackpop.ui.overlay
 @Composable
 fun GameEndMenu(
     endState: GameEndState,
-    startAction: () -> Unit,
+    startGameAction: (GameEndState) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -39,7 +39,7 @@ fun GameEndMenu(
             Button(
                 shape = CircleShape,
                 onClick = {
-                    startAction()
+                    startGameAction(endState)
                 },
             ) {
                 Text(

@@ -1,8 +1,16 @@
 package jez.jetpackpop.ui.components
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import jez.jetpackpop.model.GameConfiguration
 import jez.jetpackpop.model.GameEndState
 import jez.jetpackpop.model.GameProcessState
@@ -13,6 +21,7 @@ import kotlinx.coroutines.android.awaitFrame
 fun GameScreen(
     configuration: GameConfiguration,
     isRunning: Boolean,
+    shouldReset: Boolean,
     gameEndAction: (GameEndState) -> Unit,
 ) {
     Log.w("JEZTAG", "GameView invoked $isRunning $configuration")
@@ -30,6 +39,18 @@ fun GameScreen(
                 remainingTime = -1f,
                 score = 0,
             )
+        )
+    }
+
+    if (shouldReset) {
+        gameState = GameState(
+            width = dims.first,
+            height = dims.second,
+            processState = GameProcessState.READY,
+            config = configuration,
+            targets = emptyList(),
+            remainingTime = -1f,
+            score = 0,
         )
     }
 
