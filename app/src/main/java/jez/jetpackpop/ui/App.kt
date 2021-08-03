@@ -1,10 +1,11 @@
 package jez.jetpackpop.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -27,103 +28,91 @@ fun App() {
                 .background(MaterialTheme.colors.background)
         ) {
             val appState = rememberSaveable { mutableStateOf<AppState>(AppState.InitialisingState) }
-
-//            when (appState.value) {
-//                AppState.InitialisingState -> {
-//                    appState.value = AppState.MainMenuState(demoConfiguration(target1)) {
-//                        appState.value = AppState.StartGameState(lvlConfiguration(target1))
-//                    }
-//                }
-//                is AppState.MainMenuState -> {
-//                    ShowMainMenu(appState.value)
-//                }
-//                is AppState.StartGameState -> {
-//                    InitialiseGame(appState)
-//                }
-//                is AppState.InGameState -> {
-//                    ShowGame(appState)
-//                }
-//                is AppState.EndMenuState -> {
-//                    ShowEndMenu(appState)
-//                }
-//            }
-            if (appState.value is AppState.InitialisingState) {
-                appState.value = AppState.MainMenuState(demoConfiguration(target1)) {
-                    appState.value = AppState.StartGameState(lvlConfiguration(target1))
+            LaunchedEffect(Unit) {
+                if (appState.value is AppState.InitialisingState) {
+                    appState.value = AppState.MainMenuState(demoConfiguration(target1)) {
+                        appState.value = AppState.StartGameState(lvlConfiguration(target1))
+                    }
                 }
             }
-            ShowMainMenu(appState.value)
-            InitialiseGame(appState)
-            ShowGame(appState)
-            ShowEndMenu(appState)
+
+            when (val currentAppState = appState.value) {
+                is AppState.MainMenuState ->
+                    ShowMainMenu(appState.value as AppState.MainMenuState)
+
+                is AppState.StartGameState ->
+                    InitialiseGame(currentAppState) { appState.value = it }
+
+                is AppState.InGameState ->
+                    ShowGame(currentAppState)
+
+                is AppState.EndMenuState ->
+                    ShowEndMenu(currentAppState) { appState.value = it }
+
+                else ->
+                    Log.e("App", "No ui for app state $currentAppState")
+            }
         }
     }
 }
 
 @Composable
-private fun ShowMainMenu(state: AppState) {
-    if (state is AppState.MainMenuState) {
-        GameScreen(
-            state.gameConfiguration,
-            isRunning = true,
-            shouldReset = false,
-            gameEndAction = { },
-        )
-        MainMenu(state.startAction)
-    }
+private fun ShowMainMenu(state: AppState.MainMenuState) {
+    GameScreen(
+        state.gameConfiguration,
+        isRunning = true,
+        shouldReset = false,
+        gameEndAction = { },
+    )
+    MainMenu(state.startAction)
 }
 
 @Composable
 fun InitialiseGame(
-    appState: MutableState<AppState>,
+    state: AppState.StartGameState,
+    stateChangeListener: (AppState) -> Unit,
 ) {
-    val state = appState.value
-    if (state is AppState.StartGameState) {
-        GameScreen(
-            state.gameConfiguration,
-            isRunning = false,
-            shouldReset = true,
-            gameEndAction = { appState.value = AppState.EndMenuState(it) },
-        )
+    GameScreen(
+        state.gameConfiguration,
+        isRunning = false,
+        shouldReset = true,
+        gameEndAction = {
+            stateChangeListener(AppState.EndMenuState(it))
+        },
+    )
 
-        appState.value = AppState.InGameState(
-            state.gameConfiguration,
-            isRunning = true,
-            endGameAction = {
-                appState.value = AppState.EndMenuState(it)
-            }
-        )
-    }
+    stateChangeListener(AppState.InGameState(
+        state.gameConfiguration,
+        isRunning = true,
+        endGameAction = {
+            stateChangeListener(AppState.EndMenuState(it))
+        }
+    ))
 }
 
 @Composable
 fun ShowGame(
-    appState: MutableState<AppState>,
+    state: AppState.InGameState,
 ) {
-    val state = appState.value
-    if (state is AppState.InGameState) {
-        GameScreen(
-            state.gameConfiguration,
-            isRunning = state.isRunning,
-            shouldReset = false,
-            gameEndAction = state.endGameAction,
-        )
-    }
+    GameScreen(
+        state.gameConfiguration,
+        isRunning = state.isRunning,
+        shouldReset = false,
+        gameEndAction = state.endGameAction,
+    )
 }
 
 @Composable
 private fun ShowEndMenu(
-    appState: MutableState<AppState>,
+    state: AppState.EndMenuState,
+    stateChangeListener: (AppState) -> Unit,
 ) {
-    val state = appState.value
-    if (state is AppState.EndMenuState) {
-        GameEndMenu(
-            endState = state.endState,
-            startGameAction = {
-                appState.value = AppState.StartGameState(lvlConfiguration(target1))
-            }
-        )
-    }
+    GameEndMenu(
+        endState = state.endState,
+        startGameAction = {
+            stateChangeListener(AppState.StartGameState(lvlConfiguration(target1)))
+        }
+    )
 }
 
 private fun demoConfiguration(targetColor: Color): GameConfiguration =
