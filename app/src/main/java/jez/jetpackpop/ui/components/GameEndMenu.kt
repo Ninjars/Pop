@@ -9,11 +9,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.R
 import jez.jetpackpop.model.GameEndState
 import jez.jetpackpop.ui.lose
 import jez.jetpackpop.ui.onEnd
-import jez.jetpackpop.ui.overlay
 import jez.jetpackpop.ui.win
 
 @Composable
@@ -24,7 +25,6 @@ fun GameEndMenu(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colors.overlay),
     ) {
         Column(
             modifier = Modifier
@@ -47,7 +47,10 @@ fun GameEndMenu(
                     .aspectRatio(1f, true)
             ) {
                 Text(
-                    text = if (endState.didWin) "WOO!" else "OOP!",
+                    text = if (endState.didWin)
+                        stringResource(R.string.game_end_lose_title)
+                    else
+                        stringResource(R.string.game_end_win_title),
                     style = MaterialTheme.typography.h1,
                     color = MaterialTheme.colors.onEnd,
                     modifier = Modifier
@@ -61,7 +64,10 @@ fun GameEndMenu(
                 },
             ) {
                 Text(
-                    text = if (endState.didWin) "PLAY" else "RETRY",
+                    text = if (endState.didWin)
+                        stringResource(R.string.game_end_win_start)
+                    else
+                        stringResource(R.string.game_end_lose_start),
                     style = MaterialTheme.typography.h3,
                     modifier = Modifier.wrapContentSize()
                 )

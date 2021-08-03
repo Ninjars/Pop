@@ -9,7 +9,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.R
 import jez.jetpackpop.ui.overlay
 
 @Composable
@@ -39,7 +41,7 @@ fun MainMenu(
                     .aspectRatio(1f, true)
             ) {
                 Text(
-                    text = "POP",
+                    text = stringResource(R.string.main_menu_title),
                     style = MaterialTheme.typography.h1,
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier.wrapContentSize()
@@ -54,7 +56,7 @@ fun MainMenu(
                 },
             ) {
                 Text(
-                    text = "Start",
+                    text = stringResource(R.string.main_menu_start),
                     style = MaterialTheme.typography.h3,
                     modifier = Modifier.wrapContentSize()
                 )
