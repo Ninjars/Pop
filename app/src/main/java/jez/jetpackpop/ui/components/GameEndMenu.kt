@@ -11,7 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.model.GameEndState
+import jez.jetpackpop.ui.lose
+import jez.jetpackpop.ui.onEnd
 import jez.jetpackpop.ui.overlay
+import jez.jetpackpop.ui.win
 
 @Composable
 fun GameEndMenu(
@@ -30,13 +33,27 @@ fun GameEndMenu(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(
-                text = if (endState.didWin) "WIN" else "LOSE",
-                style = MaterialTheme.typography.h1,
-                color = MaterialTheme.colors.onBackground,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .wrapContentSize()
-            )
+                    .background(
+                        color = if (endState.didWin)
+                            MaterialTheme.colors.win
+                        else
+                            MaterialTheme.colors.lose,
+                        shape = CircleShape
+                    )
+                    .fillMaxWidth(0.8f)
+                    .aspectRatio(1f, true)
+            ) {
+                Text(
+                    text = if (endState.didWin) "WOO!" else "OOP!",
+                    style = MaterialTheme.typography.h1,
+                    color = MaterialTheme.colors.onEnd,
+                    modifier = Modifier
+                        .wrapContentSize()
+                )
+            }
             Button(
                 shape = CircleShape,
                 onClick = {

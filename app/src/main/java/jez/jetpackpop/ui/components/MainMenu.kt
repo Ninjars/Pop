@@ -28,12 +28,23 @@ fun MainMenu(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(
-                text = "POP",
-                style = MaterialTheme.typography.h1,
-                color = MaterialTheme.colors.onBackground,
-                modifier = Modifier.wrapContentSize()
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colors.primaryVariant,
+                        shape = CircleShape
+                    )
+                    .fillMaxWidth(0.8f)
+                    .aspectRatio(1f, true)
+            ) {
+                Text(
+                    text = "POP",
+                    style = MaterialTheme.typography.h1,
+                    color = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.wrapContentSize()
+                )
+            }
             Button(
                 shape = CircleShape,
                 modifier = Modifier

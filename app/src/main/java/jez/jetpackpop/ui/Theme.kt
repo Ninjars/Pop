@@ -37,6 +37,10 @@ private val AppColors = lightColors(
 
 val Colors.overlay: Color @Composable get() = Color(0f, 0f, 0f, 0.33f)
 
+val Colors.win: Color @Composable get() = Color(0xFF239643)
+val Colors.lose: Color @Composable get() = Color(0xFFA71B4A)
+val Colors.onEnd: Color @Composable get() = Color.White
+
 val target1: Color = Color(0xFFDB3069)
 val target2: Color = Color(0xFFF5D547)
 val target3: Color = Color(0xFF31C059)
