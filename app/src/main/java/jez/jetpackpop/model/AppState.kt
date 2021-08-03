@@ -20,7 +20,6 @@ sealed class AppState : Parcelable {
     data class InGameState(
         val gameConfiguration: GameConfiguration,
         val isRunning: Boolean,
-        val endGameAction: (GameEndState) -> Unit,
     ) : AppState()
 
     @Parcelize

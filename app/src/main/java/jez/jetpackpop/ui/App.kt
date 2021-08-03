@@ -38,16 +38,30 @@ fun App() {
 
             when (val currentAppState = appState.value) {
                 is AppState.MainMenuState ->
-                    ShowMainMenu(appState.value as AppState.MainMenuState)
+                    MainMenu(appState.value as AppState.MainMenuState)
 
-                is AppState.StartGameState ->
-                    InitialiseGame(currentAppState) { appState.value = it }
+                is AppState.StartGameState ->{
+                    ShowGame(
+                        gameConfiguration = currentAppState.gameConfiguration,
+                        reset = false,
+                        running = false,
+                    ) { appState.value = it }
+
+                    appState.value = AppState.InGameState(
+                        currentAppState.gameConfiguration,
+                        isRunning = true,
+                    )
+                }
 
                 is AppState.InGameState ->
-                    ShowGame(currentAppState)
+                    ShowGame(
+                        gameConfiguration = currentAppState.gameConfiguration,
+                        reset = false,
+                        running = currentAppState.isRunning,
+                    ) { appState.value = it }
 
                 is AppState.EndMenuState ->
-                    ShowEndMenu(currentAppState) { appState.value = it }
+                    EndMenu(currentAppState) { appState.value = it }
 
                 else ->
                     Log.e("App", "No ui for app state $currentAppState")
@@ -57,7 +71,7 @@ fun App() {
 }
 
 @Composable
-private fun ShowMainMenu(state: AppState.MainMenuState) {
+private fun MainMenu(state: AppState.MainMenuState) {
     GameScreen(
         state.gameConfiguration,
         isRunning = true,
@@ -68,42 +82,24 @@ private fun ShowMainMenu(state: AppState.MainMenuState) {
 }
 
 @Composable
-fun InitialiseGame(
-    state: AppState.StartGameState,
+fun ShowGame(
+    gameConfiguration: GameConfiguration,
+    reset: Boolean,
+    running: Boolean,
     stateChangeListener: (AppState) -> Unit,
 ) {
     GameScreen(
-        state.gameConfiguration,
-        isRunning = false,
-        shouldReset = true,
+        gameConfiguration,
+        isRunning = running,
+        shouldReset = reset,
         gameEndAction = {
             stateChangeListener(AppState.EndMenuState(it))
         },
     )
-
-    stateChangeListener(AppState.InGameState(
-        state.gameConfiguration,
-        isRunning = true,
-        endGameAction = {
-            stateChangeListener(AppState.EndMenuState(it))
-        }
-    ))
 }
 
 @Composable
-fun ShowGame(
-    state: AppState.InGameState,
-) {
-    GameScreen(
-        state.gameConfiguration,
-        isRunning = state.isRunning,
-        shouldReset = false,
-        gameEndAction = state.endGameAction,
-    )
-}
-
-@Composable
-private fun ShowEndMenu(
+private fun EndMenu(
     state: AppState.EndMenuState,
     stateChangeListener: (AppState) -> Unit,
 ) {
