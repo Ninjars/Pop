@@ -25,35 +25,26 @@ fun App() {
                 .background(MaterialTheme.colors.background)
         ) {
             val appState = rememberSaveable { mutableStateOf<AppState>(AppState.InitialisingState) }
-
-//            when (appState.value) {
-//                AppState.InitialisingState -> {
-//                    appState.value = AppState.MainMenuState(demoConfiguration(target1)) {
-//                        appState.value = AppState.StartGameState(lvlConfiguration(target1))
-//                    }
-//                }
-//                is AppState.MainMenuState -> {
-//                    ShowMainMenu(appState.value)
-//                }
-//                is AppState.StartGameState -> {
-//                    InitialiseGame(appState)
-//                }
-//                is AppState.InGameState -> {
-//                    ShowGame(appState)
-//                }
-//                is AppState.EndMenuState -> {
-//                    ShowEndMenu(appState)
-//                }
-//            }
             if (appState.value is AppState.InitialisingState) {
                 appState.value = AppState.MainMenuState(demoConfiguration(target1)) {
                     appState.value = AppState.StartGameState(lvlConfiguration(target1))
                 }
             }
-            ShowMainMenu(appState.value)
-            InitialiseGame(appState)
-            ShowGame(appState)
-            ShowEndMenu(appState)
+
+            when (appState.value) {
+                is AppState.MainMenuState -> {
+                    ShowMainMenu(appState.value)
+                }
+                is AppState.StartGameState -> {
+                    InitialiseGame(appState)
+                }
+                is AppState.InGameState -> {
+                    ShowGame(appState)
+                }
+                is AppState.EndMenuState -> {
+                    ShowEndMenu(appState)
+                }
+            }
         }
     }
 }
