@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,11 +27,9 @@ fun App() {
                 .background(MaterialTheme.colors.background)
         ) {
             val appState = rememberSaveable { mutableStateOf<AppState>(AppState.InitialisingState) }
-            LaunchedEffect(Unit) {
-                if (appState.value is AppState.InitialisingState) {
-                    appState.value = AppState.MainMenuState(demoConfiguration(target1)) {
-                        appState.value = AppState.StartGameState(lvlConfiguration(target1))
-                    }
+            if (appState.value is AppState.InitialisingState) {
+                appState.value = AppState.MainMenuState(demoConfiguration(target1)) {
+                    appState.value = AppState.StartGameState(lvlConfiguration(target1))
                 }
             }
 
@@ -40,7 +37,7 @@ fun App() {
                 is AppState.MainMenuState ->
                     MainMenu(appState.value as AppState.MainMenuState)
 
-                is AppState.StartGameState ->{
+                is AppState.StartGameState -> {
                     ShowGame(
                         gameConfiguration = currentAppState.gameConfiguration,
                         reset = false,
