@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Jetpack Pop</string>
-    <string name="main_menu_title">Pop</string>
+    <string name="main_menu_title">POP</string>
     <string name="main_menu_start">PLAY</string>
     <string name="game_end_lose_title">AWW!</string>
     <string name="game_end_lose_start">RETRY</string>

@@ -9,11 +9,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import jez.jetpackpop.model.AppState
-import jez.jetpackpop.model.GameConfiguration
-import jez.jetpackpop.model.TargetConfiguration
+import jez.jetpackpop.model.*
 import jez.jetpackpop.ui.components.GameEndMenu
 import jez.jetpackpop.ui.components.GameScreen
 import jez.jetpackpop.ui.components.MainMenu
@@ -28,8 +25,9 @@ fun App() {
         ) {
             val appState = rememberSaveable { mutableStateOf<AppState>(AppState.InitialisingState) }
             if (appState.value is AppState.InitialisingState) {
-                appState.value = AppState.MainMenuState(demoConfiguration(target1)) {
-                    appState.value = AppState.StartGameState(lvlConfiguration(target1))
+                appState.value = AppState.MainMenuState(demoConfiguration()) {
+                    appState.value =
+                        AppState.StartGameState(getGameConfiguration(GameConfigId(0))!!)
                 }
             }
 
@@ -100,40 +98,37 @@ private fun EndMenu(
     state: AppState.EndMenuState,
     stateChangeListener: (AppState) -> Unit,
 ) {
-    GameEndMenu(
-        endState = state.endState,
-        startGameAction = {
-            stateChangeListener(AppState.StartGameState(lvlConfiguration(target1)))
+    val nextGame =
+        if (state.endState.didWin) {
+            getNextGameConfiguration(state.endState.gameConfigId)
+        } else {
+            getGameConfiguration(state.endState.gameConfigId)
         }
-    )
+    if (nextGame == null) {
+
+    } else {
+        GameEndMenu(
+            endState = state.endState,
+            startGameAction = {
+                stateChangeListener(AppState.StartGameState(nextGame))
+
+            }
+        )
+    }
 }
 
-private fun demoConfiguration(targetColor: Color): GameConfiguration =
+private fun demoConfiguration(): GameConfiguration =
     GameConfiguration(
+        id = GameConfigId(-1),
         timeLimitSeconds = -1f,
         targetConfigurations = listOf(
             TargetConfiguration(
-                color = targetColor,
+                color = target1,
                 radius = 30.dp,
                 count = 10,
                 minSpeed = 8.dp,
                 maxSpeed = 16.dp,
                 clickable = false,
-            )
-        )
-    )
-
-private fun lvlConfiguration(targetColor: Color): GameConfiguration =
-    GameConfiguration(
-        timeLimitSeconds = 30f,
-        targetConfigurations = listOf(
-            TargetConfiguration(
-                color = targetColor,
-                radius = 20.dp,
-                count = 20,
-                minSpeed = 32.dp,
-                maxSpeed = 64.dp,
-                clickable = true,
             )
         )
     )

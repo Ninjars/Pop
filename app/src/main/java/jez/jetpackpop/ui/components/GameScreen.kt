@@ -74,6 +74,7 @@ fun GameScreen(
                     GameProcessState.END_WIN -> {
                         gameEndAction(
                             GameEndState(
+                                configuration.id,
                                 gameState.remainingTime,
                                 gameState.score,
                                 true
@@ -84,6 +85,7 @@ fun GameScreen(
                     GameProcessState.END_LOSE -> {
                         gameEndAction(
                             GameEndState(
+                                configuration.id,
                                 gameState.remainingTime,
                                 gameState.score,
                                 false
