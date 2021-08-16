@@ -2,7 +2,6 @@ package jez.jetpackpop.model
 
 import android.os.Parcelable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.parcelize.IgnoredOnParcel
@@ -117,9 +116,10 @@ data class GameState(
     }
 
     private fun iterateState(deltaSeconds: Float): GameState {
-        val nextRemainingTime = if (remainingTime == -1f) -1f else max(0f, remainingTime - deltaSeconds)
+        val nextRemainingTime =
+            if (remainingTime == -1f) -1f else max(0f, remainingTime - deltaSeconds)
 
-        val nextProcessState = when{
+        val nextProcessState = when {
             nextRemainingTime == 0f -> GameProcessState.END_LOSE
             targets.none { it.clickable } -> GameProcessState.END_WIN
             else -> processState
@@ -144,7 +144,7 @@ data class GameState(
 @Parcelize
 data class TargetData(
     val id: Int,
-    val color: Color,
+    val color: TargetColor,
     val radius: Dp,
     val center: Offset,
     val clickable: Boolean,

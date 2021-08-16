@@ -14,7 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.model.GameState
+import jez.jetpackpop.model.TargetColor
 import jez.jetpackpop.model.TargetData
+import jez.jetpackpop.ui.target1
+import jez.jetpackpop.ui.target2
 import kotlin.math.ceil
 
 @Composable
@@ -39,7 +42,7 @@ fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
                 .size(data.radius * 2f)
                 .offset(data.xOffset, data.yOffset)
                 .clip(CircleShape)
-                .background(data.color)
+                .background(data.color.toColor())
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -51,7 +54,7 @@ fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
                 .size(data.radius * 2f)
                 .offset(data.xOffset, data.yOffset)
                 .clip(CircleShape)
-                .background(data.color)
+                .background(data.color.toColor())
         )
     }
 }
@@ -83,3 +86,9 @@ fun GameInfo(
         )
     }
 }
+
+private fun TargetColor.toColor() =
+    when (this) {
+        TargetColor.TARGET -> target1
+        TargetColor.DECOY -> target2
+    }

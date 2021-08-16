@@ -1,7 +1,6 @@
 package jez.jetpackpop.model
 
 import android.os.Parcelable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import jez.jetpackpop.data.gameConfigurations
 import kotlinx.parcelize.Parcelize
@@ -21,7 +20,7 @@ data class GameConfigId(
 
 @Parcelize
 data class TargetConfiguration(
-    val color: Color,
+    val color: TargetColor,
     val radius: Dp,
     val count: Int,
     val minSpeed: Dp,
@@ -32,6 +31,11 @@ data class TargetConfiguration(
 enum class GameChapter {
     SIMPLE_SINGLE,
     SIMPLE_DECOY,
+}
+
+enum class TargetColor {
+    TARGET,
+    DECOY,
 }
 
 fun getGameConfiguration(configId: GameConfigId): GameConfiguration? =

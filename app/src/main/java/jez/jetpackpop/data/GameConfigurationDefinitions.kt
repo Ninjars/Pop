@@ -1,12 +1,7 @@
 package jez.jetpackpop.data
 
 import androidx.compose.ui.unit.dp
-import jez.jetpackpop.model.GameChapter
-import jez.jetpackpop.model.GameConfigId
-import jez.jetpackpop.model.GameConfiguration
-import jez.jetpackpop.model.TargetConfiguration
-import jez.jetpackpop.ui.target1
-import jez.jetpackpop.ui.target2
+import jez.jetpackpop.model.*
 
 private const val SIMPLE_SINGLE_LEVEL_COUNT = 10
 private const val SIMPLE_DECOY_LEVEL_COUNT = 10
@@ -21,7 +16,7 @@ val gameConfigurations = hashMapOf(
                 timeLimitSeconds = 15 + 15 * inverseFraction,
                 targetConfigurations = listOf(
                     TargetConfiguration(
-                        color = target1,
+                        color = TargetColor.TARGET,
                         radius = (15 + 25 * inverseFraction).dp,
                         count = (5 + 25 * progressFraction).toInt(),
                         minSpeed = (20 + 60 * progressFraction).dp,
@@ -41,7 +36,7 @@ val gameConfigurations = hashMapOf(
                 timeLimitSeconds = 20 + 15 * inverseFraction,
                 targetConfigurations = listOf(
                     TargetConfiguration(
-                        color = target1,
+                        color = TargetColor.TARGET,
                         radius = (15 + 25 * inverseFraction).dp,
                         count = (5 + 25 * progressFraction).toInt(),
                         minSpeed = (20 + 60 * progressFraction).dp,
@@ -49,7 +44,7 @@ val gameConfigurations = hashMapOf(
                         clickable = true,
                     ),
                     TargetConfiguration(
-                        color = target2,
+                        color = TargetColor.DECOY,
                         radius = (25 + 40 * progressFraction).dp,
                         count = (1 + 5 * progressFraction).toInt(),
                         minSpeed = (10 + 30 * progressFraction).dp,

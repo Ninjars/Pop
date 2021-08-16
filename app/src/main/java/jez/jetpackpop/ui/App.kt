@@ -134,7 +134,7 @@ private fun demoConfiguration(): GameConfiguration =
         timeLimitSeconds = -1f,
         targetConfigurations = listOf(
             TargetConfiguration(
-                color = target1,
+                color = TargetColor.TARGET,
                 radius = 30.dp,
                 count = 10,
                 minSpeed = 8.dp,
