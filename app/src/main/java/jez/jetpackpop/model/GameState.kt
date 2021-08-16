@@ -74,7 +74,7 @@ data class GameState(
 
         val random = Random(config.randomSeed)
         val targets = config.targetConfigurations.flatMap { targetConfig ->
-            (0..targetConfig.count).map {
+            (0 until targetConfig.count).map {
                 TargetData(
                     id = it,
                     color = targetConfig.color,
