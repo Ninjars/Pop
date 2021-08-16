@@ -48,9 +48,9 @@ fun GameEndMenu(
             ) {
                 Text(
                     text = if (endState.didWin)
-                        stringResource(R.string.game_end_lose_title)
+                        stringResource(R.string.game_end_win_title)
                     else
-                        stringResource(R.string.game_end_win_title),
+                        stringResource(R.string.game_end_lose_title),
                     style = MaterialTheme.typography.h1,
                     color = MaterialTheme.colors.onEnd,
                     modifier = Modifier
