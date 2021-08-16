@@ -110,7 +110,6 @@ private fun EndMenu(
 
 private fun demoConfiguration(targetColor: Color): GameConfiguration =
     GameConfiguration(
-        randomSeed = 0,
         timeLimitSeconds = -1f,
         targetConfigurations = listOf(
             TargetConfiguration(
@@ -126,7 +125,6 @@ private fun demoConfiguration(targetColor: Color): GameConfiguration =
 
 private fun lvlConfiguration(targetColor: Color): GameConfiguration =
     GameConfiguration(
-        randomSeed = 0,
         timeLimitSeconds = 30f,
         targetConfigurations = listOf(
             TargetConfiguration(

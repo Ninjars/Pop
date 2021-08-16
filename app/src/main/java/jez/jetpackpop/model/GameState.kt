@@ -72,7 +72,7 @@ data class GameState(
             return copy(processState = GameProcessState.WAITING_MEASURE)
         }
 
-        val random = Random(config.randomSeed)
+        val random = Random.Default
         val targets = config.targetConfigurations.flatMap { targetConfig ->
             (0 until targetConfig.count).map {
                 TargetData(

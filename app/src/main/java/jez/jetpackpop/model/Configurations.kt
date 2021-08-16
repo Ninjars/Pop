@@ -7,7 +7,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GameConfiguration(
-    val randomSeed: Long,
     val timeLimitSeconds: Float,
     val targetConfigurations: List<TargetConfiguration>,
 ) : Parcelable
