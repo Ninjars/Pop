@@ -14,6 +14,7 @@ import jez.jetpackpop.model.*
 import jez.jetpackpop.ui.components.GameEndMenu
 import jez.jetpackpop.ui.components.GameScreen
 import jez.jetpackpop.ui.components.MainMenu
+import jez.jetpackpop.ui.components.VictoryMenu
 
 @Composable
 @Stable
@@ -105,6 +106,16 @@ private fun EndMenu(
             getGameConfiguration(state.endState.gameConfigId)
         }
     if (nextGame == null) {
+        VictoryMenu(
+            configId = state.endState.gameConfigId,
+            mainMenuAction = {
+                stateChangeListener(AppState.MainMenuState(demoConfiguration()) {
+                    stateChangeListener(
+                        AppState.StartGameState(getGameConfiguration(GameConfigId(0))!!))
+                })
+            },
+            nextGameAction = null
+        )
 
     } else {
         GameEndMenu(

@@ -6,6 +6,7 @@ import jez.jetpackpop.model.GameConfigId
 import jez.jetpackpop.model.GameEndState
 import jez.jetpackpop.ui.components.GameEndMenu
 import jez.jetpackpop.ui.components.MainMenu
+import jez.jetpackpop.ui.components.VictoryMenu
 
 
 @Preview("MainMenu")
@@ -43,5 +44,17 @@ fun PreviewGameEndMenuLose() {
                 didWin = false,
             )
         ) {}
+    }
+}
+
+@Preview("Victory")
+@Composable
+fun PreviewVictory() {
+    AppTheme {
+        VictoryMenu(
+            configId = GameConfigId(0),
+            mainMenuAction = { /*TODO*/ },
+            nextGameAction = null
+        )
     }
 }

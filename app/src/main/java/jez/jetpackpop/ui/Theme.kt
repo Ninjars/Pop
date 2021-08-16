@@ -1,9 +1,9 @@
 package jez.jetpackpop.ui
 
-import androidx.compose.material.Colors
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.lightColors
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.Color
 
 @Composable
@@ -45,3 +45,26 @@ val target1: Color = Color(0xFFDB3069)
 val target2: Color = Color(0xFFF5D547)
 val target3: Color = Color(0xFF31C059)
 
+class VictoryContinueButtonColours() : ButtonColors {
+    @Composable
+    override fun backgroundColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(
+            if (enabled) {
+                AppColors.win
+            } else {
+                AppColors.win.copy(alpha = ContentAlpha.disabled)
+            }
+        )
+    }
+
+    @Composable
+    override fun contentColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(
+            if (enabled) {
+                AppColors.onEnd
+            } else {
+                AppColors.onEnd.copy(alpha = ContentAlpha.disabled)
+            }
+        )
+    }
+}
