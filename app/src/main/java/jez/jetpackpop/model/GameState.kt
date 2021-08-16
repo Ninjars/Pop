@@ -121,7 +121,7 @@ data class GameState(
 
         val nextProcessState = when{
             nextRemainingTime == 0f -> GameProcessState.END_LOSE
-            targets.isEmpty() -> GameProcessState.END_WIN
+            targets.none { it.clickable } -> GameProcessState.END_WIN
             else -> processState
         }
         return copy(

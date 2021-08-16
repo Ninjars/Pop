@@ -28,7 +28,7 @@ fun App() {
             if (appState.value is AppState.InitialisingState) {
                 appState.value = AppState.MainMenuState(demoConfiguration()) {
                     appState.value =
-                        AppState.StartGameState(getGameConfiguration(GameConfigId(0))!!)
+                        AppState.StartGameState(getGameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, 0))!!)
                 }
             }
 
@@ -111,7 +111,7 @@ private fun EndMenu(
             mainMenuAction = {
                 stateChangeListener(AppState.MainMenuState(demoConfiguration()) {
                     stateChangeListener(
-                        AppState.StartGameState(getGameConfiguration(GameConfigId(0))!!))
+                        AppState.StartGameState(getGameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, 0))!!))
                 })
             },
             nextGameAction = null
@@ -130,7 +130,7 @@ private fun EndMenu(
 
 private fun demoConfiguration(): GameConfiguration =
     GameConfiguration(
-        id = GameConfigId(-1),
+        id = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
         timeLimitSeconds = -1f,
         targetConfigurations = listOf(
             TargetConfiguration(

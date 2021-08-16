@@ -3,8 +3,7 @@ package jez.jetpackpop.model
 import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import jez.jetpackpop.ui.target1
+import jez.jetpackpop.data.gameConfigurations
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -16,7 +15,8 @@ data class GameConfiguration(
 
 @Parcelize
 data class GameConfigId(
-    val id: Int
+    val chapter: GameChapter,
+    val id: Int,
 ) : Parcelable
 
 @Parcelize
@@ -29,76 +29,51 @@ data class TargetConfiguration(
     val clickable: Boolean,
 ) : Parcelable
 
+enum class GameChapter {
+    SIMPLE_SINGLE,
+    SIMPLE_DECOY,
+}
+
 fun getGameConfiguration(configId: GameConfigId): GameConfiguration? =
-    when (configId.id) {
-        0 ->
-            GameConfiguration(
-                id = configId,
-                timeLimitSeconds = 20f,
-                targetConfigurations = listOf(
-                    TargetConfiguration(
-                        color = target1,
-                        radius = 20.dp,
-                        count = 5,
-                        minSpeed = 32.dp,
-                        maxSpeed = 64.dp,
-                        clickable = true,
-                    )
-                )
-            )
-        1 ->
-            GameConfiguration(
-                id = configId,
-                timeLimitSeconds = 20f,
-                targetConfigurations = listOf(
-                    TargetConfiguration(
-                        color = target1,
-                        radius = 20.dp,
-                        count = 10,
-                        minSpeed = 32.dp,
-                        maxSpeed = 64.dp,
-                        clickable = true,
-                    )
-                )
-            )
-        2 ->
-            GameConfiguration(
-                id = configId,
-                timeLimitSeconds = 20f,
-                targetConfigurations = listOf(
-                    TargetConfiguration(
-                        color = target1,
-                        radius = 20.dp,
-                        count = 15,
-                        minSpeed = 50.dp,
-                        maxSpeed = 80.dp,
-                        clickable = true,
-                    )
-                )
-            )
-        3 ->
-            GameConfiguration(
-                id = configId,
-                timeLimitSeconds = 20f,
-                targetConfigurations = listOf(
-                    TargetConfiguration(
-                        color = target1,
-                        radius = 20.dp,
-                        count = 20,
-                        minSpeed = 60.dp,
-                        maxSpeed = 90.dp,
-                        clickable = true,
-                    )
-                )
-            )
-        else -> null
-    }
+    gameConfigurations.getOrDefault(configId.chapter, emptyList()).getOrNull(configId.id)
 
 fun getNextGameConfiguration(currentConfiguration: GameConfigId?): GameConfiguration? {
-    return if (currentConfiguration == null) {
+    if (currentConfiguration == null) {
+        return null
+    }
+
+    val chapter = currentConfiguration.chapter
+    val chapterItems = gameConfigurations.getOrDefault(chapter, emptyList())
+    val nextId = currentConfiguration.id + 1
+
+    val nextConfigId = if (nextId < chapterItems.size) {
+        GameConfigId(
+            chapter = chapter,
+            id = nextId,
+        )
+
+    } else {
+        getNextChapter(chapter)?.let {
+            val nextChapterItems = gameConfigurations.getOrDefault(chapter, emptyList())
+            if (nextChapterItems.isEmpty()) {
+                null
+            } else {
+                GameConfigId(
+                    chapter = it,
+                    id = 0
+                )
+            }
+        }
+    }
+    return if (nextConfigId == null) {
         null
     } else {
-        val nextConfigId = GameConfigId(currentConfiguration.id + 1)
         getGameConfiguration(nextConfigId)
     }
 }
+
+fun getNextChapter(chapter: GameChapter): GameChapter? =
+    when (chapter) {
+        GameChapter.SIMPLE_SINGLE -> GameChapter.SIMPLE_DECOY
+        GameChapter.SIMPLE_DECOY -> null
+    }
