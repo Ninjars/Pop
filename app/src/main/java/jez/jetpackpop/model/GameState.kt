@@ -170,8 +170,12 @@ data class TargetData(
             newVelocity = Offset(velocity.x, -velocity.y.absoluteValue)
         }
 
+        val intendedPos = center + newVelocity * deltaTime
         return copy(
-            center = center + newVelocity * deltaTime,
+            center = Offset(
+                x = max(radius.value, min(state.width - radius.value, intendedPos.x)),
+                y = max(radius.value, min(state.height - radius.value, intendedPos.y)),
+            ),
             velocity = newVelocity,
         )
     }
