@@ -9,9 +9,9 @@ class RandomSoundEffectPlayer {
     private var currentIndex = 0
 
     fun initialise(context: Context, countPerSound: Int, soundResources: List<Int>) {
-        managedMediaPlayers = soundResources.flatMap {
+        managedMediaPlayers = soundResources.flatMap { rawResourceId ->
             (0 until countPerSound).map {
-                MediaPlayer.create(context, it).also { player -> player.prepareAsync() }
+                MediaPlayer.create(context, rawResourceId)
             }
         }.shuffled()
     }
