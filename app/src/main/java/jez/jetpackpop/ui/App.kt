@@ -29,7 +29,14 @@ fun App(soundManager: SoundManager) {
             if (appState.value is AppState.InitialisingState) {
                 appState.value = AppState.MainMenuState(demoConfiguration()) {
                     appState.value =
-                        AppState.StartGameState(getGameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, 0))!!)
+                        AppState.StartGameState(
+                            getGameConfiguration(
+                                GameConfigId(
+                                    GameChapter.SIMPLE_SINGLE,
+                                    0
+                                )
+                            )!!
+                        )
                 }
             }
 
@@ -123,7 +130,15 @@ private fun EndMenu(
             mainMenuAction = {
                 stateChangeListener(AppState.MainMenuState(demoConfiguration()) {
                     stateChangeListener(
-                        AppState.StartGameState(getGameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, 0))!!))
+                        AppState.StartGameState(
+                            getGameConfiguration(
+                                GameConfigId(
+                                    GameChapter.SIMPLE_SINGLE,
+                                    0
+                                )
+                            )!!
+                        )
+                    )
                 })
             },
             nextGameAction = null

@@ -1,7 +1,6 @@
 package jez.jetpackpop.audio
 
 import android.content.Context
-import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import android.util.Log
 
@@ -25,13 +24,19 @@ class MusicPlayer(private val context: Context, private val musicResourceIds: Li
 
         val player = mediaPlayer
         if (player == null) {
-            mediaPlayer = MediaPlayer.create(context, musicResourceIds[currentIndex % musicResourceIds.size]).apply {
-                setOnCompletionListener {
-                    currentIndex++
-                    prepareTrack(context, it, musicResourceIds[currentIndex % musicResourceIds.size])
-                }
-                setOnPreparedListener { onPrepared(it) }
-            }
+            mediaPlayer =
+                MediaPlayer.create(context, musicResourceIds[currentIndex % musicResourceIds.size])
+                    .apply {
+                        setOnCompletionListener {
+                            currentIndex++
+                            prepareTrack(
+                                context,
+                                it,
+                                musicResourceIds[currentIndex % musicResourceIds.size]
+                            )
+                        }
+                        setOnPreparedListener { onPrepared(it) }
+                    }
         } else {
             player.start()
         }
