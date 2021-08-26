@@ -33,7 +33,6 @@ class SoundManager(private val context: Context) : LifecycleEventObserver {
     }
 
     fun playPop() {
-        Log.w("SoundManager", "playPop")
         popEffectPlayer.play()
     }
 }
