@@ -18,7 +18,6 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         PopServices.popSoundEffects.initialise(
             this,
-            3,
             listOf(
                 R.raw.pop1,
                 R.raw.pop2,

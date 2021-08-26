@@ -1,47 +1,47 @@
 package jez.jetpackpop.audio
 
 import android.content.Context
-import android.media.MediaPlayer
+import android.media.AudioAttributes
+import android.media.AudioAttributes.USAGE_GAME
+import android.media.SoundPool
 import android.util.Log
 
 class RandomSoundEffectPlayer {
-    private var managedMediaPlayers: List<MediaPlayer> = emptyList()
-    private var currentIndex = 0
+    private lateinit var soundPool: SoundPool
+    private var soundIds: List<Int> = emptyList()
 
-    fun initialise(context: Context, countPerSound: Int, soundResources: List<Int>) {
-        managedMediaPlayers = soundResources.flatMap { rawResourceId ->
-            (0 until countPerSound).map {
-                MediaPlayer.create(context, rawResourceId)
-            }
-        }.shuffled()
+    fun initialise(context: Context, soundResources: List<Int>) {
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(6)
+            .setAudioAttributes(AudioAttributes.Builder().setUsage(USAGE_GAME).build())
+            .build()
+
+        soundIds = soundResources.map {
+            soundPool.load(context, it, 1)
+        }
     }
 
     fun tearDown() {
-        for (player in managedMediaPlayers) {
-            player.release()
-        }
-        managedMediaPlayers = emptyList()
+        soundPool.release()
     }
 
     /**
-     * Attempt to play a sound effect. If no player is available or all players are current playing
-     * then there will be no effect.
+     * Attempt to play a random sound effect.
      */
     fun play() {
-        if (managedMediaPlayers.isEmpty()) {
-            Log.w("RandomSoundEffectPlayer", "play() invoked with empty managedMediaPlayers")
+        if (soundIds.isEmpty()) {
+            Log.w("RandomSoundEffectPlayer", "play() invoked with empty sound effect list")
             return
         }
 
-        for (i in managedMediaPlayers.indices) {
-            val index = (currentIndex + i) % managedMediaPlayers.size
-            val player = managedMediaPlayers[index]
-            if (!player.isPlaying) {
-                player.seekTo(0)
-                player.start()
-                currentIndex = index
-                break
-            }
-        }
+        val soundId = soundIds.random()
+        soundPool.play(
+            soundId,
+            1f,
+            1f,
+            1,
+            0,
+            0.8f + Math.random().toFloat() * 0.4f
+        )
     }
 }
