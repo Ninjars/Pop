@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.model.*
 import jez.jetpackpop.ui.components.GameEndMenu
 import jez.jetpackpop.ui.components.GameScreen
@@ -18,7 +19,7 @@ import jez.jetpackpop.ui.components.VictoryMenu
 
 @Composable
 @Stable
-fun App() {
+fun App(soundManager: SoundManager) {
     AppTheme {
         Box(
             modifier = Modifier
@@ -34,10 +35,14 @@ fun App() {
 
             when (val currentAppState = appState.value) {
                 is AppState.MainMenuState ->
-                    MainMenu(appState.value as AppState.MainMenuState)
+                    MainMenu(
+                        soundManager = soundManager,
+                        appState.value as AppState.MainMenuState
+                    )
 
                 is AppState.StartGameState -> {
                     ShowGame(
+                        soundManager = soundManager,
                         gameConfiguration = currentAppState.gameConfiguration,
                         reset = false,
                         running = false,
@@ -51,6 +56,7 @@ fun App() {
 
                 is AppState.InGameState ->
                     ShowGame(
+                        soundManager = soundManager,
                         gameConfiguration = currentAppState.gameConfiguration,
                         reset = false,
                         running = currentAppState.isRunning,
@@ -67,8 +73,12 @@ fun App() {
 }
 
 @Composable
-private fun MainMenu(state: AppState.MainMenuState) {
+private fun MainMenu(
+    soundManager: SoundManager,
+    state: AppState.MainMenuState
+) {
     GameScreen(
+        soundManager,
         state.gameConfiguration,
         isRunning = true,
         shouldReset = false,
@@ -79,12 +89,14 @@ private fun MainMenu(state: AppState.MainMenuState) {
 
 @Composable
 fun ShowGame(
+    soundManager: SoundManager,
     gameConfiguration: GameConfiguration,
     reset: Boolean,
     running: Boolean,
     stateChangeListener: (AppState) -> Unit,
 ) {
     GameScreen(
+        soundManager,
         gameConfiguration,
         isRunning = running,
         shouldReset = reset,

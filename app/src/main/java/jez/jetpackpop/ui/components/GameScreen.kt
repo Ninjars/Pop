@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.model.GameConfiguration
 import jez.jetpackpop.model.GameEndState
 import jez.jetpackpop.model.GameProcessState
@@ -19,6 +20,7 @@ import kotlinx.coroutines.android.awaitFrame
 
 @Composable
 fun GameScreen(
+    soundManager: SoundManager,
     configuration: GameConfiguration,
     isRunning: Boolean,
     shouldReset: Boolean,
@@ -119,7 +121,10 @@ fun GameScreen(
         GameRenderer(
             showInfo = configuration.timeLimitSeconds >= 0,
             gameState = gameState,
-            targetTapListener = { target -> gameState = gameState.onTargetTapped(target) }
+            targetTapListener = { target ->
+                soundManager.playPop()
+                gameState = gameState.onTargetTapped(target)
+            }
         )
     }
 }
