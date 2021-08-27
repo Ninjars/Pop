@@ -6,8 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.audio.SoundManager
@@ -19,15 +18,19 @@ import jez.jetpackpop.ui.components.VictoryMenu
 
 @Composable
 @Stable
-fun App(soundManager: SoundManager) {
+fun App(
+    soundManager: SoundManager,
+    viewModel: PopViewModel,
+    stateChangeListener: (AppState) -> Unit
+) {
     AppTheme {
         Box(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
         ) {
-            val appState = rememberSaveable { mutableStateOf<AppState>(AppState.InitialisingState) }
+            val appState = viewModel.appState.collectAsState()
             if (appState.value is AppState.InitialisingState) {
-                appState.value = mainMenuState { state -> appState.value = state }
+                stateChangeListener(mainMenuState(stateChangeListener))
             }
 
             when (val currentAppState = appState.value) {
@@ -43,11 +46,14 @@ fun App(soundManager: SoundManager) {
                         gameConfiguration = currentAppState.gameConfiguration,
                         reset = false,
                         running = false,
-                    ) { appState.value = it }
+                        stateChangeListener = stateChangeListener,
+                    )
 
-                    appState.value = AppState.InGameState(
-                        currentAppState.gameConfiguration,
-                        isRunning = true,
+                    stateChangeListener(
+                        AppState.InGameState(
+                            currentAppState.gameConfiguration,
+                            isRunning = true,
+                        )
                     )
                 }
 
@@ -57,10 +63,11 @@ fun App(soundManager: SoundManager) {
                         gameConfiguration = currentAppState.gameConfiguration,
                         reset = false,
                         running = currentAppState.isRunning,
-                    ) { appState.value = it }
+                        stateChangeListener = stateChangeListener
+                    )
 
                 is AppState.EndMenuState ->
-                    EndMenu(currentAppState) { appState.value = it }
+                    EndMenu(currentAppState, stateChangeListener)
 
                 else ->
                     Log.e("App", "No ui for app state $currentAppState")
@@ -135,20 +142,20 @@ private fun EndMenu(
 }
 
 private fun mainMenuState(stateChangeListener: (AppState) -> Unit) = AppState.MainMenuState(
-        demoConfiguration(),
-        startAction = {
-            stateChangeListener(
-                AppState.StartGameState(
-                    getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE)
-                )
+    demoConfiguration(),
+    startAction = {
+        stateChangeListener(
+            AppState.StartGameState(
+                getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE)
             )
-        },
-        chapterSelectAction = {
-            stateChangeListener(
-                AppState.StartGameState(getFirstGameConfiguration(it))
-            )
-        }
-    )
+        )
+    },
+    chapterSelectAction = {
+        stateChangeListener(
+            AppState.StartGameState(getFirstGameConfiguration(it))
+        )
+    }
+)
 
 private fun demoConfiguration(): GameConfiguration =
     GameConfiguration(
