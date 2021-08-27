@@ -38,6 +38,9 @@ enum class TargetColor {
     DECOY,
 }
 
+fun getFirstGameConfiguration(chapter: GameChapter): GameConfiguration =
+    gameConfigurations[chapter]!![0]
+
 fun getGameConfiguration(configId: GameConfigId): GameConfiguration? =
     gameConfigurations.getOrDefault(configId.chapter, emptyList()).getOrNull(configId.id)
 

@@ -11,6 +11,7 @@ sealed class AppState : Parcelable {
     data class MainMenuState(
         val gameConfiguration: GameConfiguration,
         val startAction: () -> Unit,
+        val chapterSelectAction: (GameChapter) -> Unit,
     ) : AppState()
 
     @Parcelize

@@ -14,7 +14,10 @@ import jez.jetpackpop.ui.components.VictoryMenu
 @Composable
 fun PreviewMainMenu() {
     AppTheme {
-        MainMenu() {}
+        MainMenu(
+            startAction = {},
+            chapterSelectAction = {}
+        )
     }
 }
 

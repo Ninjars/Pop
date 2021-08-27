@@ -27,17 +27,7 @@ fun App(soundManager: SoundManager) {
         ) {
             val appState = rememberSaveable { mutableStateOf<AppState>(AppState.InitialisingState) }
             if (appState.value is AppState.InitialisingState) {
-                appState.value = AppState.MainMenuState(demoConfiguration()) {
-                    appState.value =
-                        AppState.StartGameState(
-                            getGameConfiguration(
-                                GameConfigId(
-                                    GameChapter.SIMPLE_SINGLE,
-                                    0
-                                )
-                            )!!
-                        )
-                }
+                appState.value = mainMenuState { state -> appState.value = state }
             }
 
             when (val currentAppState = appState.value) {
@@ -91,7 +81,7 @@ private fun MainMenu(
         shouldReset = false,
         gameEndAction = { },
     )
-    MainMenu(state.startAction)
+    MainMenu(state.startAction, state.chapterSelectAction)
 }
 
 @Composable
@@ -128,18 +118,7 @@ private fun EndMenu(
         VictoryMenu(
             configId = state.endState.gameConfigId,
             mainMenuAction = {
-                stateChangeListener(AppState.MainMenuState(demoConfiguration()) {
-                    stateChangeListener(
-                        AppState.StartGameState(
-                            getGameConfiguration(
-                                GameConfigId(
-                                    GameChapter.SIMPLE_SINGLE,
-                                    0
-                                )
-                            )!!
-                        )
-                    )
-                })
+                stateChangeListener(mainMenuState(stateChangeListener))
             },
             nextGameAction = null
         )
@@ -154,6 +133,22 @@ private fun EndMenu(
         )
     }
 }
+
+private fun mainMenuState(stateChangeListener: (AppState) -> Unit) = AppState.MainMenuState(
+        demoConfiguration(),
+        startAction = {
+            stateChangeListener(
+                AppState.StartGameState(
+                    getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE)
+                )
+            )
+        },
+        chapterSelectAction = {
+            stateChangeListener(
+                AppState.StartGameState(getFirstGameConfiguration(it))
+            )
+        }
+    )
 
 private fun demoConfiguration(): GameConfiguration =
     GameConfiguration(
