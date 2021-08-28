@@ -5,11 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import jez.jetpackpop.audio.SoundManager
+import jez.jetpackpop.model.GameViewModel
 import jez.jetpackpop.model.PopViewModel
 
 class MainActivity : ComponentActivity() {
     private val soundManager = SoundManager(this)
-    private val viewModel: PopViewModel by viewModels()
+    private val appViewModel: PopViewModel by viewModels()
+    private val gameViewModel: GameViewModel by viewModels()
 
     init {
         lifecycle.addObserver(soundManager)
@@ -20,9 +22,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             App(
                 soundManager,
-                viewModel,
+                gameViewModel,
+                appViewModel,
             ) {
-                viewModel.onNewState(it)
+                appViewModel.onNewState(it)
             }
         }
     }

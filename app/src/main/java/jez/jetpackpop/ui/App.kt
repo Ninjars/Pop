@@ -20,6 +20,7 @@ import jez.jetpackpop.ui.components.VictoryMenu
 @Stable
 fun App(
     soundManager: SoundManager,
+    gameViewModel: GameViewModel,
     viewModel: PopViewModel,
     stateChangeListener: (AppState) -> Unit
 ) {
@@ -33,22 +34,21 @@ fun App(
                 stateChangeListener(mainMenuState(stateChangeListener))
             }
 
+            GameScreen(
+                soundManager = soundManager,
+                gameViewModel = gameViewModel,
+                gameState = gameViewModel.gameState.collectAsState().value,
+            ) {
+                stateChangeListener(AppState.EndMenuState(it))
+            }
+
             when (val currentAppState = appState.value) {
                 is AppState.MainMenuState ->
                     MainMenu(
-                        soundManager = soundManager,
                         appState.value as AppState.MainMenuState
                     )
 
                 is AppState.StartGameState -> {
-                    ShowGame(
-                        soundManager = soundManager,
-                        gameConfiguration = currentAppState.gameConfiguration,
-                        reset = false,
-                        running = false,
-                        stateChangeListener = stateChangeListener,
-                    )
-
                     stateChangeListener(
                         AppState.InGameState(
                             currentAppState.gameConfiguration,
@@ -57,14 +57,8 @@ fun App(
                     )
                 }
 
-                is AppState.InGameState ->
-                    ShowGame(
-                        soundManager = soundManager,
-                        gameConfiguration = currentAppState.gameConfiguration,
-                        reset = false,
-                        running = currentAppState.isRunning,
-                        stateChangeListener = stateChangeListener
-                    )
+                is AppState.InGameState -> {
+                }
 
                 is AppState.EndMenuState ->
                     EndMenu(currentAppState, stateChangeListener)
@@ -78,36 +72,9 @@ fun App(
 
 @Composable
 private fun MainMenu(
-    soundManager: SoundManager,
     state: AppState.MainMenuState
 ) {
-    GameScreen(
-        soundManager,
-        state.gameConfiguration,
-        isRunning = true,
-        shouldReset = false,
-        gameEndAction = { },
-    )
     MainMenu(state.startAction, state.chapterSelectAction)
-}
-
-@Composable
-fun ShowGame(
-    soundManager: SoundManager,
-    gameConfiguration: GameConfiguration,
-    reset: Boolean,
-    running: Boolean,
-    stateChangeListener: (AppState) -> Unit,
-) {
-    GameScreen(
-        soundManager,
-        gameConfiguration,
-        isRunning = running,
-        shouldReset = reset,
-        gameEndAction = {
-            stateChangeListener(AppState.EndMenuState(it))
-        },
-    )
 }
 
 @Composable

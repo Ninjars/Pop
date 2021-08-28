@@ -26,105 +26,105 @@ fun GameScreen(
     shouldReset: Boolean,
     gameEndAction: (GameEndState) -> Unit,
 ) {
-    Log.w("JEZTAG", "GameView invoked $isRunning $configuration")
-
-    var dims by remember { mutableStateOf(Pair(0f, 0f)) }
-    var gameState by rememberSaveable {
-        Log.w("JEZTAG", "created gamestate $configuration")
-        mutableStateOf(
-            GameState(
-                width = dims.first,
-                height = dims.second,
-                processState = GameProcessState.READY,
-                config = configuration,
-                targets = emptyList(),
-                remainingTime = -1f,
-                score = 0,
-            )
-        )
-    }
-
-    if (shouldReset) {
-        gameState = GameState(
-            width = dims.first,
-            height = dims.second,
-            processState = GameProcessState.READY,
-            config = configuration,
-            targets = emptyList(),
-            remainingTime = -1f,
-            score = 0,
-        )
-    }
-
-    LaunchedEffect(isRunning) {
-        var lastFrame = 0L
-        while (isRunning) {
-            val nextFrame = awaitFrame() / 1000_000L
-            if (lastFrame != 0L) {
-                gameState = when (gameState.processState) {
-                    GameProcessState.WAITING_MEASURE,
-                    GameProcessState.READY -> gameState.start()
-                    GameProcessState.RUNNING -> {
-                        val period = nextFrame - lastFrame
-                        gameState.update(period / 1000f)
-                    }
-                    GameProcessState.INSTANTIATED,
-                    GameProcessState.PAUSED -> {
-                        Log.w("JEZTAG", "pending ${gameState.processState}")
-                        gameState
-                    }
-                    GameProcessState.END_WIN -> {
-                        gameEndAction(
-                            GameEndState(
-                                configuration.id,
-                                gameState.remainingTime,
-                                gameState.score,
-                                true
-                            )
-                        )
-                        gameState
-                    }
-                    GameProcessState.END_LOSE -> {
-                        gameEndAction(
-                            GameEndState(
-                                configuration.id,
-                                gameState.remainingTime,
-                                gameState.score,
-                                false
-                            )
-                        )
-                        gameState
-                    }
-                }
-            }
-            lastFrame = nextFrame
-        }
-    }
-
-    fun onMeasure(width: Float, height: Float) {
-        dims = Pair(width, height)
-        gameState = gameState.onMeasured(width, height)
-    }
-
-    val density = LocalDensity.current
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.surface)
-            .clipToBounds()
-            .onSizeChanged {
-                with(density) {
-                    onMeasure(it.width.toDp().value, it.height.toDp().value)
-                }
-            }
-    ) {
-        GameRenderer(
-            showInfo = configuration.timeLimitSeconds >= 0,
-            gameState = gameState,
-            targetTapListener = { target ->
-                soundManager.playPop()
-                gameState = gameState.onTargetTapped(target)
-            }
-        )
-    }
+//    Log.w("JEZTAG", "GameView invoked $isRunning $configuration")
+//
+//    var dims by remember { mutableStateOf(Pair(0f, 0f)) }
+//    var gameState by rememberSaveable {
+//        Log.w("JEZTAG", "created gamestate $configuration")
+//        mutableStateOf(
+//            GameState(
+//                width = dims.first,
+//                height = dims.second,
+//                processState = GameProcessState.READY,
+//                config = configuration,
+//                targets = emptyList(),
+//                remainingTime = -1f,
+//                score = 0,
+//            )
+//        )
+//    }
+//
+//    if (shouldReset) {
+//        gameState = GameState(
+//            width = dims.first,
+//            height = dims.second,
+//            processState = GameProcessState.READY,
+//            config = configuration,
+//            targets = emptyList(),
+//            remainingTime = -1f,
+//            score = 0,
+//        )
+//    }
+//
+//    LaunchedEffect(isRunning) {
+//        var lastFrame = 0L
+//        while (isRunning) {
+//            val nextFrame = awaitFrame() / 1000_000L
+//            if (lastFrame != 0L) {
+//                gameState = when (gameState.processState) {
+//                    GameProcessState.WAITING_MEASURE,
+//                    GameProcessState.READY -> gameState.start()
+//                    GameProcessState.RUNNING -> {
+//                        val period = nextFrame - lastFrame
+//                        gameState.update(period / 1000f)
+//                    }
+//                    GameProcessState.INSTANTIATED,
+//                    GameProcessState.PAUSED -> {
+//                        Log.w("JEZTAG", "pending ${gameState.processState}")
+//                        gameState
+//                    }
+//                    GameProcessState.END_WIN -> {
+//                        gameEndAction(
+//                            GameEndState(
+//                                configuration.id,
+//                                gameState.remainingTime,
+//                                gameState.score,
+//                                true
+//                            )
+//                        )
+//                        gameState
+//                    }
+//                    GameProcessState.END_LOSE -> {
+//                        gameEndAction(
+//                            GameEndState(
+//                                configuration.id,
+//                                gameState.remainingTime,
+//                                gameState.score,
+//                                false
+//                            )
+//                        )
+//                        gameState
+//                    }
+//                }
+//            }
+//            lastFrame = nextFrame
+//        }
+//    }
+//
+//    fun onMeasure(width: Float, height: Float) {
+//        dims = Pair(width, height)
+//        gameState = gameState.onMeasured(width, height)
+//    }
+//
+//    val density = LocalDensity.current
+//    BoxWithConstraints(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(MaterialTheme.colors.surface)
+//            .clipToBounds()
+//            .onSizeChanged {
+//                with(density) {
+//                    onMeasure(it.width.toDp().value, it.height.toDp().value)
+//                }
+//            }
+//    ) {
+//        GameRenderer(
+//            showInfo = configuration.timeLimitSeconds >= 0,
+//            gameState = gameState,
+//            targetTapListener = { target ->
+//                soundManager.playPop()
+//                gameState = gameState.onTargetTapped(target)
+//            }
+//        )
+//    }
 }
