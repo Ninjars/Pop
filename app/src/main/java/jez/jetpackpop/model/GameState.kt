@@ -8,8 +8,7 @@ import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 enum class GameProcessState {
-    // GameState exists
-    INSTANTIATED,
+    INITIALISED,
 
     // GameState has a configuration and is ready to start
     READY,
@@ -33,7 +32,7 @@ data class GameState(
     val width: Float,
     val height: Float,
     val processState: GameProcessState,
-    val config: GameConfiguration?,
+    val config: GameConfiguration,
     val targets: List<TargetData>,
     val remainingTime: Float,
     val score: Int,

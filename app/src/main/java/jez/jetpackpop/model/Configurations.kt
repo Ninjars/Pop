@@ -10,7 +10,13 @@ data class GameConfiguration(
     val id: GameConfigId,
     val timeLimitSeconds: Float,
     val targetConfigurations: List<TargetConfiguration>,
-) : Parcelable
+    val isDemo: Boolean = false,
+) : Parcelable {
+    companion object {
+        val DEFAULT = GameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, -1), -1f, emptyList(), false)
+    }
+}
+
 
 @Parcelize
 data class GameConfigId(

@@ -31,7 +31,7 @@ fun App(
         ) {
             val appState = viewModel.appState.collectAsState()
             if (appState.value is AppState.InitialisingState) {
-                stateChangeListener(mainMenuState(stateChangeListener))
+                stateChangeListener(mainMenuState())
             }
 
             GameScreen(
@@ -43,22 +43,20 @@ fun App(
             }
 
             when (val currentAppState = appState.value) {
-                is AppState.MainMenuState ->
+                is AppState.MainMenuState -> {
+                    gameViewModel.start(demoConfiguration())
+
                     MainMenu(
-                        appState.value as AppState.MainMenuState
+                        stateChangeListener,
                     )
+                }
 
                 is AppState.StartGameState -> {
-                    stateChangeListener(
-                        AppState.InGameState(
-                            currentAppState.gameConfiguration,
-                            isRunning = true,
-                        )
-                    )
+                    gameViewModel.start(currentAppState.gameConfiguration)
+                    stateChangeListener(AppState.InGameState)
                 }
 
-                is AppState.InGameState -> {
-                }
+                is AppState.InGameState -> { }
 
                 is AppState.EndMenuState ->
                     EndMenu(currentAppState, stateChangeListener)
@@ -72,9 +70,22 @@ fun App(
 
 @Composable
 private fun MainMenu(
-    state: AppState.MainMenuState
+    stateChangeListener: (AppState) -> Unit,
 ) {
-    MainMenu(state.startAction, state.chapterSelectAction)
+    MainMenu(
+        startAction = {
+            stateChangeListener(
+                AppState.StartGameState(
+                    getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE)
+                )
+            )
+        },
+        chapterSelectAction = {
+            stateChangeListener(
+                AppState.StartGameState(getFirstGameConfiguration(it))
+            )
+        }
+    )
 }
 
 @Composable
@@ -92,7 +103,7 @@ private fun EndMenu(
         VictoryMenu(
             configId = state.endState.gameConfigId,
             mainMenuAction = {
-                stateChangeListener(mainMenuState(stateChangeListener))
+                stateChangeListener(mainMenuState())
             },
             nextGameAction = null
         )
@@ -108,25 +119,12 @@ private fun EndMenu(
     }
 }
 
-private fun mainMenuState(stateChangeListener: (AppState) -> Unit) = AppState.MainMenuState(
-    demoConfiguration(),
-    startAction = {
-        stateChangeListener(
-            AppState.StartGameState(
-                getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE)
-            )
-        )
-    },
-    chapterSelectAction = {
-        stateChangeListener(
-            AppState.StartGameState(getFirstGameConfiguration(it))
-        )
-    }
-)
+private fun mainMenuState() = AppState.MainMenuState(demoConfiguration())
 
 private fun demoConfiguration(): GameConfiguration =
     GameConfiguration(
         id = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
+        isDemo = true,
         timeLimitSeconds = -1f,
         targetConfigurations = listOf(
             TargetConfiguration(

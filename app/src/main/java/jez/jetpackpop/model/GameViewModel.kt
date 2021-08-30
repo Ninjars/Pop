@@ -12,8 +12,8 @@ class GameViewModel : ViewModel() {
         GameState(
             width = 0f,
             height = 0f,
-            processState = GameProcessState.INSTANTIATED,
-            config = null,
+            processState = GameProcessState.INITIALISED,
+            config = GameConfiguration.DEFAULT,
             targets = emptyList(),
             remainingTime = -1f,
             score = 0,
@@ -22,31 +22,83 @@ class GameViewModel : ViewModel() {
     val gameState: StateFlow<GameState> = _gameState
 
     fun onMeasured(width: Float, height: Float) {
-        _gameState.value = gameState.value.copy(
-            width = width,
-            height = height,
-            processState = if (gameState.value.processState == GameProcessState.WAITING_MEASURE)
-                GameProcessState.READY
-            else
-                gameState.value.processState
-        )
-    }
-
-    fun start() {
         val currentState = gameState.value
         _gameState.value = when (currentState.processState) {
-            GameProcessState.WAITING_MEASURE,
-            GameProcessState.READY ->
-                currentState.startGame()
+            GameProcessState.INITIALISED ->
+                currentState.copy(
+                    width = width,
+                    height = height,
+                    processState = GameProcessState.READY,
+                )
+            GameProcessState.WAITING_MEASURE ->
+                currentState.copy(
+                    width = width,
+                    height = height,
+                    processState = GameProcessState.RUNNING,
+                )
+            else ->
+                currentState.copy(
+                    width = width,
+                    height = height,
+                )
+        }
+    }
+
+    fun start(config: GameConfiguration) {
+        val currentState = gameState.value
+        if (config == currentState.config) return
+
+        _gameState.value = when (currentState.processState) {
+            GameProcessState.INITIALISED ->
+                if (currentState.width == 0f) {
+                    currentState.copy(
+                        config = config,
+                        processState = GameProcessState.WAITING_MEASURE
+                    )
+                } else {
+                    currentState.startGame(config, currentState.width, currentState.height)
+                }
+            GameProcessState.WAITING_MEASURE ->
+                currentState.copy(
+                    config = config,
+                )
+
+            else ->
+                currentState.startGame(config, currentState.width, currentState.height)
+        }
+    }
+
+    fun resume() {
+        val currentState = gameState.value
+        _gameState.value = when (currentState.processState) {
             GameProcessState.PAUSED ->
                 currentState.copy(processState = GameProcessState.RUNNING)
-            GameProcessState.RUNNING ->
-                currentState
-            GameProcessState.INSTANTIATED,
-            GameProcessState.END_WIN,
-            GameProcessState.END_LOSE ->
-                throw IllegalStateException("attempted to start game when in state $currentState.processState")
+            else ->
+                throw IllegalStateException("attempted to pause when in state $currentState.processState")
         }
+    }
+
+    fun pause() {
+        val currentState = gameState.value
+        _gameState.value = when (currentState.processState) {
+            GameProcessState.RUNNING ->
+                currentState.copy(processState = GameProcessState.PAUSED)
+            else ->
+                throw IllegalStateException("attempted to pause when in state $currentState.processState")
+        }
+    }
+
+    fun clear() {
+        val currentState = gameState.value
+        _gameState.value = GameState(
+            width = currentState.width,
+            height = currentState.height,
+            processState = GameProcessState.INITIALISED,
+            config = GameConfiguration.DEFAULT,
+            targets = emptyList(),
+            remainingTime = -1f,
+            score = 0,
+        )
     }
 
     fun onTargetTapped(data: TargetData) {
@@ -62,19 +114,20 @@ class GameViewModel : ViewModel() {
     fun update(deltaSeconds: Float) {
         val currentState = gameState.value
         when (currentState.processState) {
-            GameProcessState.WAITING_MEASURE -> start()
+            GameProcessState.INITIALISED,
+            GameProcessState.READY,
+            GameProcessState.WAITING_MEASURE -> start(currentState.config)
             GameProcessState.RUNNING -> _gameState.value = currentState.iterateState(deltaSeconds)
             else -> {
             }
         }
     }
 
-    private fun GameState.startGame(): GameState {
-        if (config == null) throw IllegalStateException("started game before configured")
-        if (width == 0f) {
-            return copy(processState = GameProcessState.WAITING_MEASURE)
-        }
-
+    private fun GameState.startGame(
+        config: GameConfiguration,
+        width: Float,
+        height: Float
+    ): GameState {
         val random = Random.Default
         val targets = config.targetConfigurations.flatMap { targetConfig ->
             (0 until targetConfig.count).map {
@@ -96,9 +149,13 @@ class GameViewModel : ViewModel() {
             }
         }
         return copy(
+            config = config,
             processState = GameProcessState.RUNNING,
             targets = targets,
-            remainingTime = config.timeLimitSeconds
+            remainingTime = config.timeLimitSeconds,
+            width = width,
+            height = height,
+            score = 0,
         )
     }
 
@@ -112,12 +169,15 @@ class GameViewModel : ViewModel() {
     }
 
     private fun GameState.iterateState(deltaSeconds: Float): GameState {
+        if (processState != GameProcessState.RUNNING) return this
+
         val nextRemainingTime =
             if (remainingTime == -1f) -1f else max(0f, remainingTime - deltaSeconds)
 
+        val isDemo = config.isDemo
         val nextProcessState = when {
-            nextRemainingTime == 0f -> GameProcessState.END_LOSE
-            targets.none { it.clickable } -> GameProcessState.END_WIN
+            nextRemainingTime <= 0f && !isDemo -> GameProcessState.END_LOSE
+            targets.none { it.clickable } && !isDemo -> GameProcessState.END_WIN
             else -> processState
         }
         return copy(
