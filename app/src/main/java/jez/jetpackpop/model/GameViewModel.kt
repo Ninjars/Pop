@@ -103,6 +103,8 @@ class GameViewModel : ViewModel() {
 
     fun onTargetTapped(data: TargetData) {
         val currentState = gameState.value
+        if (currentState.processState != GameProcessState.RUNNING) return
+
         _gameState.value = currentState.run {
             copy(
                 score = score + 1,
@@ -117,6 +119,8 @@ class GameViewModel : ViewModel() {
             GameProcessState.INITIALISED,
             GameProcessState.READY,
             GameProcessState.WAITING_MEASURE -> start(currentState.config)
+
+            GameProcessState.END_LOSE,
             GameProcessState.RUNNING -> _gameState.value = currentState.iterateState(deltaSeconds)
             else -> {
             }
@@ -169,8 +173,6 @@ class GameViewModel : ViewModel() {
     }
 
     private fun GameState.iterateState(deltaSeconds: Float): GameState {
-        if (processState != GameProcessState.RUNNING) return this
-
         val nextRemainingTime =
             if (remainingTime == -1f) -1f else max(0f, remainingTime - deltaSeconds)
 

@@ -53,18 +53,11 @@ fun GameScreen(
                         false
                     )
                 )
+                runGameLoop(gameViewModel)
             }
 
             GameProcessState.RUNNING -> {
-                var lastFrame = 0L
-                while (true) {
-                    val nextFrame = awaitFrame() / 1000_000L
-                    if (lastFrame != 0L) {
-                        val deltaMillis = nextFrame - lastFrame
-                        gameViewModel.update(deltaMillis / 1000f)
-                    }
-                    lastFrame = nextFrame
-                }
+                runGameLoop(gameViewModel)
             }
         }
     }
@@ -89,5 +82,19 @@ fun GameScreen(
                 gameViewModel.onTargetTapped(target)
             }
         )
+    }
+}
+
+private suspend fun runGameLoop(
+    gameViewModel: GameViewModel,
+) {
+    var lastFrame = 0L
+    while (true) {
+        val nextFrame = awaitFrame() / 1000_000L
+        if (lastFrame != 0L) {
+            val deltaMillis = nextFrame - lastFrame
+            gameViewModel.update(deltaMillis / 1000f)
+        }
+        lastFrame = nextFrame
     }
 }

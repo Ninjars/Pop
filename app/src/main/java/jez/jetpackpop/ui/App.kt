@@ -52,6 +52,7 @@ fun App(
                 }
 
                 is AppState.StartGameState -> {
+                    gameViewModel.clear()
                     gameViewModel.start(currentAppState.gameConfiguration)
                     stateChangeListener(AppState.InGameState)
                 }
