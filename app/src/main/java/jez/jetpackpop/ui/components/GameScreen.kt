@@ -1,109 +1,72 @@
 package jez.jetpackpop.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import jez.jetpackpop.audio.SoundManager
-import jez.jetpackpop.model.GameConfiguration
 import jez.jetpackpop.model.GameEndState
 import jez.jetpackpop.model.GameProcessState
 import jez.jetpackpop.model.GameState
+import jez.jetpackpop.model.GameViewModel
 import kotlinx.coroutines.android.awaitFrame
 
 @Composable
 fun GameScreen(
     soundManager: SoundManager,
-    configuration: GameConfiguration,
-    isRunning: Boolean,
-    shouldReset: Boolean,
+    gameViewModel: GameViewModel,
+    gameState: GameState,
     gameEndAction: (GameEndState) -> Unit,
 ) {
-    Log.w("JEZTAG", "GameView invoked $isRunning $configuration")
+//    Log.w("GameScreen", "invoked $gameViewModel $gameState")
+    LaunchedEffect(gameState.processState) {
+//        Log.w("GameScreen", "$gameState.processState")
+        when (gameState.processState) {
+            GameProcessState.INITIALISED,
+            GameProcessState.WAITING_MEASURE,
+            GameProcessState.READY -> {
+            }
+            GameProcessState.PAUSED -> {
+            }
+            GameProcessState.END_WIN -> {
+                gameEndAction(
+                    GameEndState(
+                        gameState.config.id,
+                        gameState.remainingTime,
+                        gameState.score,
+                        true
+                    )
+                )
+            }
+            GameProcessState.END_LOSE -> {
+                gameEndAction(
+                    GameEndState(
+                        gameState.config.id,
+                        gameState.remainingTime,
+                        gameState.score,
+                        false
+                    )
+                )
+            }
 
-    var dims by remember { mutableStateOf(Pair(0f, 0f)) }
-    var gameState by rememberSaveable {
-        Log.w("JEZTAG", "created gamestate $configuration")
-        mutableStateOf(
-            GameState(
-                width = dims.first,
-                height = dims.second,
-                processState = GameProcessState.READY,
-                config = configuration,
-                targets = emptyList(),
-                remainingTime = -1f,
-                score = 0,
-            )
-        )
-    }
-
-    if (shouldReset) {
-        gameState = GameState(
-            width = dims.first,
-            height = dims.second,
-            processState = GameProcessState.READY,
-            config = configuration,
-            targets = emptyList(),
-            remainingTime = -1f,
-            score = 0,
-        )
-    }
-
-    LaunchedEffect(isRunning) {
-        var lastFrame = 0L
-        while (isRunning) {
-            val nextFrame = awaitFrame() / 1000_000L
-            if (lastFrame != 0L) {
-                gameState = when (gameState.processState) {
-                    GameProcessState.WAITING_MEASURE,
-                    GameProcessState.READY -> gameState.start()
-                    GameProcessState.RUNNING -> {
-                        val period = nextFrame - lastFrame
-                        gameState.update(period / 1000f)
+            GameProcessState.RUNNING -> {
+                var lastFrame = 0L
+                while (true) {
+                    val nextFrame = awaitFrame() / 1000_000L
+                    if (lastFrame != 0L) {
+                        val deltaMillis = nextFrame - lastFrame
+                        gameViewModel.update(deltaMillis / 1000f)
                     }
-                    GameProcessState.INSTANTIATED,
-                    GameProcessState.PAUSED -> {
-                        Log.w("JEZTAG", "pending ${gameState.processState}")
-                        gameState
-                    }
-                    GameProcessState.END_WIN -> {
-                        gameEndAction(
-                            GameEndState(
-                                configuration.id,
-                                gameState.remainingTime,
-                                gameState.score,
-                                true
-                            )
-                        )
-                        gameState
-                    }
-                    GameProcessState.END_LOSE -> {
-                        gameEndAction(
-                            GameEndState(
-                                configuration.id,
-                                gameState.remainingTime,
-                                gameState.score,
-                                false
-                            )
-                        )
-                        gameState
-                    }
+                    lastFrame = nextFrame
                 }
             }
-            lastFrame = nextFrame
         }
-    }
-
-    fun onMeasure(width: Float, height: Float) {
-        dims = Pair(width, height)
-        gameState = gameState.onMeasured(width, height)
     }
 
     val density = LocalDensity.current
@@ -114,16 +77,16 @@ fun GameScreen(
             .clipToBounds()
             .onSizeChanged {
                 with(density) {
-                    onMeasure(it.width.toDp().value, it.height.toDp().value)
+                    gameViewModel.onMeasured(it.width.toDp().value, it.height.toDp().value)
                 }
             }
     ) {
         GameRenderer(
-            showInfo = configuration.timeLimitSeconds >= 0,
+            showInfo = gameState.config.timeLimitSeconds.let { it >= 0 },
             gameState = gameState,
             targetTapListener = { target ->
                 soundManager.playPop()
-                gameState = gameState.onTargetTapped(target)
+                gameViewModel.onTargetTapped(target)
             }
         )
     }
