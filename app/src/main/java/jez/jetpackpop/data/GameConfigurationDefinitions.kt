@@ -17,7 +17,7 @@ val gameConfigurations = hashMapOf(
                 targetConfigurations = listOf(
                     TargetConfiguration(
                         color = TargetColor.TARGET,
-                        radius = (15 + 25 * inverseFraction).dp,
+                        radius = (20 + 25 * inverseFraction).dp,
                         count = (5 + 25 * progressFraction).toInt(),
                         minSpeed = (20 + 60 * progressFraction).dp,
                         maxSpeed = (30 + 80 * progressFraction).dp,
@@ -37,7 +37,7 @@ val gameConfigurations = hashMapOf(
                 targetConfigurations = listOf(
                     TargetConfiguration(
                         color = TargetColor.TARGET,
-                        radius = (15 + 25 * inverseFraction).dp,
+                        radius = (20 + 25 * inverseFraction).dp,
                         count = (5 + 25 * progressFraction).toInt(),
                         minSpeed = (20 + 60 * progressFraction).dp,
                         maxSpeed = (30 + 80 * progressFraction).dp,
@@ -45,10 +45,10 @@ val gameConfigurations = hashMapOf(
                     ),
                     TargetConfiguration(
                         color = TargetColor.DECOY,
-                        radius = (25 + 40 * progressFraction).dp,
-                        count = (1 + 5 * progressFraction).toInt(),
-                        minSpeed = (10 + 30 * progressFraction).dp,
-                        maxSpeed = (15 + 40 * progressFraction).dp,
+                        radius = (80 + 25 * progressFraction).dp,
+                        count = (2 + 5 * progressFraction).toInt(),
+                        minSpeed = (20 + 30 * progressFraction).dp,
+                        maxSpeed = (25 + 50 * progressFraction).dp,
                         clickable = false,
                     )
                 )
