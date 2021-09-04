@@ -10,6 +10,7 @@ data class GameConfiguration(
     val id: GameConfigId,
     val timeLimitSeconds: Float,
     val targetConfigurations: List<TargetConfiguration>,
+    val isLastInChapter: Boolean,
     val isDemo: Boolean = false,
 ) : Parcelable {
     companion object {

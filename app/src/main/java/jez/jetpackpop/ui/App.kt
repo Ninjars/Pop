@@ -141,5 +141,6 @@ private fun demoConfiguration(): GameConfiguration =
                 maxSpeed = 16.dp,
                 clickable = false,
             )
-        )
+        ),
+        isLastInChapter = false,
     )
