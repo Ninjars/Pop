@@ -16,7 +16,7 @@ class GameViewModel : ViewModel() {
             config = GameConfiguration.DEFAULT,
             targets = emptyList(),
             remainingTime = -1f,
-            score = 0,
+            scoreData = createGameScore(0),
         )
     )
     val gameState: StateFlow<GameState> = _gameState
@@ -88,7 +88,7 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    fun clear() {
+    fun clear(clearScore: Boolean) {
         val currentState = gameState.value
         _gameState.value = GameState(
             width = currentState.width,
@@ -97,7 +97,7 @@ class GameViewModel : ViewModel() {
             config = GameConfiguration.DEFAULT,
             targets = emptyList(),
             remainingTime = -1f,
-            score = 0,
+            scoreData = createGameScore(if (clearScore) 0 else currentState.scoreData.totalScore),
         )
     }
 
@@ -107,7 +107,7 @@ class GameViewModel : ViewModel() {
 
         _gameState.value = currentState.run {
             copy(
-                score = score + 1,
+                scoreData = currentState.scoreData.createUpdate(true),
                 targets = targets.filter { it.id != data.id || it.color != data.color }.toList()
             )
         }
@@ -159,7 +159,7 @@ class GameViewModel : ViewModel() {
             remainingTime = config.timeLimitSeconds,
             width = width,
             height = height,
-            score = 0,
+            scoreData = createGameScore(scoreData.startingScore),
         )
     }
 
@@ -212,6 +212,32 @@ class GameViewModel : ViewModel() {
                 y = max(radius.value, min(state.height - radius.value, intendedPos.y)),
             ),
             velocity = newVelocity,
+        )
+    }
+
+    private fun createGameScore(initialScore: Int) =
+        GameScoreData(
+            startingScore = initialScore,
+            tapHistory = emptyList(),
+            gameScore = 0,
+            currentMultiplier = 1,
+        )
+
+    private fun GameScoreData.createUpdate(targetTapped: Boolean): GameScoreData {
+        val newHistory = tapHistory + listOf(targetTapped)
+        val scoreComboPair = newHistory.fold(Pair(0, 0)) { scoreComboPair, isSuccessfulTap ->
+            if (isSuccessfulTap) {
+                val tapScore = max(1, scoreComboPair.second * 2)
+                Pair(scoreComboPair.first + tapScore, min(4, scoreComboPair.second + 1))
+            } else {
+                Pair(scoreComboPair.first, 0)
+            }
+        }
+        return GameScoreData(
+            startingScore = startingScore,
+            tapHistory = newHistory,
+            gameScore = scoreComboPair.first,
+            currentMultiplier = max(1, scoreComboPair.second * 2)
         )
     }
 }

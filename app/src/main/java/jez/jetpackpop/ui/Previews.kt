@@ -5,6 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import jez.jetpackpop.model.GameChapter
 import jez.jetpackpop.model.GameConfigId
 import jez.jetpackpop.model.GameEndState
+import jez.jetpackpop.model.GameScoreData
 import jez.jetpackpop.ui.components.GameEndMenu
 import jez.jetpackpop.ui.components.MainMenu
 import jez.jetpackpop.ui.components.VictoryMenu
@@ -29,7 +30,12 @@ fun PreviewGameEndMenuWin() {
             endState = GameEndState(
                 gameConfigId = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
                 remainingTime = 10f,
-                score = 22,
+                score = GameScoreData(
+                    startingScore = 22,
+                    tapHistory = emptyList(),
+                    gameScore = 10,
+                    currentMultiplier = 4,
+                ),
                 didWin = true,
             )
         ) {}
@@ -44,7 +50,12 @@ fun PreviewGameEndMenuLose() {
             endState = GameEndState(
                 gameConfigId = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
                 remainingTime = 0f,
-                score = 11,
+                score = GameScoreData(
+                    startingScore = 22,
+                    tapHistory = emptyList(),
+                    gameScore = 10,
+                    currentMultiplier = 4,
+                ),
                 didWin = false,
             )
         ) {}

@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.model.GameScoreData
 import jez.jetpackpop.model.GameState
 import jez.jetpackpop.model.TargetColor
 import jez.jetpackpop.model.TargetData
@@ -68,10 +69,8 @@ fun GameInfo(
             .padding(8.dp)
             .fillMaxWidth()
     ) {
-        Text(
-            text = gameState.score.toString(),
-            style = MaterialTheme.typography.h3,
-            color = MaterialTheme.colors.onSurface,
+        ScoreReadout(
+            gameScoreData = gameState.scoreData,
             modifier = Modifier
                 .wrapContentSize(Alignment.CenterStart)
                 .weight(1f)
@@ -83,6 +82,33 @@ fun GameInfo(
             modifier = Modifier
                 .wrapContentSize(Alignment.CenterEnd)
                 .weight(1f)
+        )
+    }
+}
+
+@Composable
+fun ScoreReadout(
+    gameScoreData: GameScoreData,
+    modifier: Modifier,
+) {
+    Row(modifier = modifier) {
+        Text(
+            text = gameScoreData.totalScore.toString(),
+            style = MaterialTheme.typography.h3,
+            color = MaterialTheme.colors.onSurface,
+        )
+        Text(
+            text = "x",
+            style = MaterialTheme.typography.h3,
+            color = MaterialTheme.colors.onSurface,
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(8.dp, 0.dp)
+        )
+        Text(
+            text = gameScoreData.currentMultiplier.toString(),
+            style = MaterialTheme.typography.h3,
+            color = MaterialTheme.colors.onSurface,
         )
     }
 }

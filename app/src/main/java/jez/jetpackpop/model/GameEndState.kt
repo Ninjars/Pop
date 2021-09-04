@@ -7,6 +7,6 @@ import kotlinx.parcelize.Parcelize
 data class GameEndState(
     val gameConfigId: GameConfigId,
     val remainingTime: Float,
-    val score: Int,
+    val score: GameScoreData,
     val didWin: Boolean,
 ): Parcelable

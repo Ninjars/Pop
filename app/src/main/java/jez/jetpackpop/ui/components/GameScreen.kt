@@ -39,7 +39,7 @@ fun GameScreen(
                     GameEndState(
                         gameState.config.id,
                         gameState.remainingTime,
-                        gameState.score,
+                        gameState.scoreData,
                         true
                     )
                 )
@@ -49,7 +49,7 @@ fun GameScreen(
                     GameEndState(
                         gameState.config.id,
                         gameState.remainingTime,
-                        gameState.score,
+                        gameState.scoreData,
                         false
                     )
                 )

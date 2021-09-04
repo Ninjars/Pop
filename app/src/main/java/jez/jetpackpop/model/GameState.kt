@@ -35,7 +35,7 @@ data class GameState(
     val config: GameConfiguration,
     val targets: List<TargetData>,
     val remainingTime: Float,
-    val score: Int,
+    val scoreData: GameScoreData,
 ) : Parcelable
 
 @Parcelize
@@ -52,4 +52,15 @@ data class TargetData(
 
     @IgnoredOnParcel
     val yOffset: Dp = center.y.dp - radius
+}
+
+@Parcelize
+data class GameScoreData(
+    val startingScore: Int,
+    val tapHistory: List<Boolean>,
+    val gameScore: Int,
+    val currentMultiplier: Int,
+) : Parcelable {
+    @IgnoredOnParcel
+    val totalScore: Int = startingScore + gameScore
 }
