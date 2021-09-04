@@ -1,6 +1,7 @@
 package jez.jetpackpop.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
@@ -68,6 +69,7 @@ fun GameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.surface)
             .clipToBounds()
+            .clickable { gameViewModel.onBackgroundTapped() }
             .onSizeChanged {
                 with(density) {
                     gameViewModel.onMeasured(it.width.toDp().value, it.height.toDp().value)

@@ -113,6 +113,17 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun onBackgroundTapped() {
+        val currentState = gameState.value
+        if (currentState.processState != GameProcessState.RUNNING) return
+
+        _gameState.value = currentState.run {
+            copy(
+                scoreData = currentState.scoreData.createUpdate(false),
+            )
+        }
+    }
+
     fun update(deltaSeconds: Float) {
         val currentState = gameState.value
         when (currentState.processState) {
