@@ -27,7 +27,7 @@ fun PreviewMainMenu() {
 fun PreviewGameEndMenuWin() {
     AppTheme {
         GameEndMenu(
-            endState = GameEndState(
+            endState = GameEndState.LevelEndState(
                 gameConfigId = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
                 remainingTime = 10f,
                 score = GameScoreData(
@@ -47,7 +47,7 @@ fun PreviewGameEndMenuWin() {
 fun PreviewGameEndMenuLose() {
     AppTheme {
         GameEndMenu(
-            endState = GameEndState(
+            endState = GameEndState.LevelEndState(
                 gameConfigId = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
                 remainingTime = 0f,
                 score = GameScoreData(

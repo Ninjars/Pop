@@ -36,24 +36,10 @@ fun GameScreen(
             GameProcessState.PAUSED -> {
             }
             GameProcessState.END_WIN -> {
-                gameEndAction(
-                    GameEndState(
-                        gameState.config.id,
-                        gameState.remainingTime,
-                        gameState.scoreData,
-                        true
-                    )
-                )
+                gameEndAction(gameState.toEndState(true))
             }
             GameProcessState.END_LOSE -> {
-                gameEndAction(
-                    GameEndState(
-                        gameState.config.id,
-                        gameState.remainingTime,
-                        gameState.scoreData,
-                        false
-                    )
-                )
+                gameEndAction(gameState.toEndState(false))
                 runGameLoop(gameViewModel)
             }
 
@@ -86,6 +72,24 @@ fun GameScreen(
         )
     }
 }
+
+private fun GameState.toEndState(didWin: Boolean): GameEndState =
+    if (config.isLastInChapter) {
+        GameEndState.ChapterEndState(
+            config.id,
+            remainingTime,
+            scoreData,
+            didWin,
+            highScores.chapterScores.getOrDefault(config.id.chapter, 0),
+        )
+    } else {
+        GameEndState.LevelEndState(
+            config.id,
+            remainingTime,
+            scoreData,
+            didWin,
+        )
+    }
 
 private suspend fun runGameLoop(
     gameViewModel: GameViewModel,
