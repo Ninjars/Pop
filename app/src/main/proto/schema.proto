@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "jez.jetpackpop";
+option java_multiple_files = true;
+
+message HighScoresProto {
+  repeated ChapterScoreProto scores = 1;
+}
+
+message ChapterScoreProto {
+  string chapterName = 1;
+  int32 score = 2;
+}

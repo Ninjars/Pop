@@ -34,9 +34,9 @@ data class TargetConfiguration(
     val clickable: Boolean,
 ) : Parcelable
 
-enum class GameChapter {
-    SIMPLE_SINGLE,
-    SIMPLE_DECOY,
+enum class GameChapter(val persistenceName: String) {
+    SIMPLE_SINGLE("SIMPLE"),
+    SIMPLE_DECOY("MASKED"),
 }
 
 enum class TargetColor {
