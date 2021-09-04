@@ -2,12 +2,17 @@ package jez.jetpackpop.model
 
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import jez.jetpackpop.data.HighScores
+import jez.jetpackpop.data.HighScoresRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.*
 import kotlin.random.Random
 
-class GameViewModel : ViewModel() {
+class GameViewModel(
+    private val highScoresRepository: HighScoresRepository
+) : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState(
             width = 0f,
@@ -256,5 +261,17 @@ class GameViewModel : ViewModel() {
             gameScore = scoreComboPair.first,
             currentMultiplier = max(1, scoreComboPair.second * 2)
         )
+    }
+}
+
+class GameViewModelFactory(
+    private val highScoresRepository: HighScoresRepository,
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return GameViewModel(highScoresRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
