@@ -29,4 +29,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onPause() {
+        gameViewModel.onLifecyclePause()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        gameViewModel.onLifecycleResume()
+    }
 }

@@ -68,14 +68,21 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun onLifecycleResume() {
+        resume()
+    }
+
     fun resume() {
         val currentState = gameState.value
         _gameState.value = when (currentState.processState) {
             GameProcessState.PAUSED ->
                 currentState.copy(processState = GameProcessState.RUNNING)
-            else ->
-                throw IllegalStateException("attempted to pause when in state $currentState.processState")
+            else -> currentState
         }
+    }
+
+    fun onLifecyclePause() {
+        pause()
     }
 
     fun pause() {
@@ -83,8 +90,7 @@ class GameViewModel : ViewModel() {
         _gameState.value = when (currentState.processState) {
             GameProcessState.RUNNING ->
                 currentState.copy(processState = GameProcessState.PAUSED)
-            else ->
-                throw IllegalStateException("attempted to pause when in state $currentState.processState")
+            else -> currentState
         }
     }
 
