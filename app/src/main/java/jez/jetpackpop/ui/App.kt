@@ -52,7 +52,7 @@ fun App(
                 }
 
                 is AppState.StartGameState -> {
-                    gameViewModel.clear(false)
+                    gameViewModel.clear(currentAppState.isNewChapter)
                     gameViewModel.start(currentAppState.gameConfiguration)
                     stateChangeListener(AppState.InGameState)
                 }
@@ -77,13 +77,17 @@ private fun MainMenu(
         startAction = {
             stateChangeListener(
                 AppState.StartGameState(
-                    getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE)
+                    getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE),
+                    isNewChapter = true,
                 )
             )
         },
         chapterSelectAction = {
             stateChangeListener(
-                AppState.StartGameState(getFirstGameConfiguration(it))
+                AppState.StartGameState(
+                    getFirstGameConfiguration(it),
+                    isNewChapter = true,
+                )
             )
         }
     )
@@ -110,10 +114,11 @@ private fun EndMenu(
         )
 
     } else {
+        val isNewChapter = state.endState.gameConfigId.chapter != nextGame.id.chapter
         GameEndMenu(
             endState = state.endState,
             startGameAction = {
-                stateChangeListener(AppState.StartGameState(nextGame))
+                stateChangeListener(AppState.StartGameState(nextGame, isNewChapter))
 
             }
         )

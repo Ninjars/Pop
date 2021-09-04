@@ -85,7 +85,7 @@ fun getNextGameConfiguration(currentConfiguration: GameConfigId?): GameConfigura
     }
 }
 
-fun getNextChapter(chapter: GameChapter): GameChapter? =
+private fun getNextChapter(chapter: GameChapter): GameChapter? =
     when (chapter) {
         GameChapter.SIMPLE_SINGLE -> GameChapter.SIMPLE_DECOY
         GameChapter.SIMPLE_DECOY -> null
