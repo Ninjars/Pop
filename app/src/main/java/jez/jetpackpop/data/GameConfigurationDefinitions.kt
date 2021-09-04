@@ -5,14 +5,20 @@ import jez.jetpackpop.model.*
 
 private const val SIMPLE_SINGLE_LEVEL_COUNT = 10
 private const val SIMPLE_DECOY_LEVEL_COUNT = 10
+
+private fun getProgressionFractions(count: Int, position: Int): Pair<Float, Float> {
+    val inverseFraction: Float =
+        ((count - 1) - position) / (count - 1).toFloat()
+    val progressFraction: Float = 1f - inverseFraction
+    return Pair(progressFraction, inverseFraction)
+}
+
 val gameConfigurations = hashMapOf(
     GameChapter.SIMPLE_SINGLE to (0 until SIMPLE_SINGLE_LEVEL_COUNT)
-        .map {
-            val inverseFraction: Float =
-                (SIMPLE_SINGLE_LEVEL_COUNT - it) / SIMPLE_SINGLE_LEVEL_COUNT.toFloat()
-            val progressFraction: Float = 1f - inverseFraction
+        .map { index ->
+            val (progressFraction, inverseFraction) = getProgressionFractions(SIMPLE_SINGLE_LEVEL_COUNT, index)
             GameConfiguration(
-                id = GameConfigId(GameChapter.SIMPLE_SINGLE, it),
+                id = GameConfigId(GameChapter.SIMPLE_SINGLE, index),
                 timeLimitSeconds = 15 + 15 * inverseFraction,
                 targetConfigurations = listOf(
                     TargetConfiguration(
@@ -27,12 +33,10 @@ val gameConfigurations = hashMapOf(
             )
         },
     GameChapter.SIMPLE_DECOY to (0 until SIMPLE_DECOY_LEVEL_COUNT)
-        .map {
-            val inverseFraction: Float =
-                (SIMPLE_DECOY_LEVEL_COUNT - it) / SIMPLE_DECOY_LEVEL_COUNT.toFloat()
-            val progressFraction: Float = 1f - inverseFraction
+        .map { index ->
+            val (progressFraction, inverseFraction) = getProgressionFractions(SIMPLE_DECOY_LEVEL_COUNT, index)
             GameConfiguration(
-                id = GameConfigId(GameChapter.SIMPLE_DECOY, it),
+                id = GameConfigId(GameChapter.SIMPLE_DECOY, index),
                 timeLimitSeconds = 20 + 15 * inverseFraction,
                 targetConfigurations = listOf(
                     TargetConfiguration(
