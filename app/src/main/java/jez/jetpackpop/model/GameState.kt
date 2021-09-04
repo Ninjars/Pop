@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.data.HighScores
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
@@ -36,6 +37,7 @@ data class GameState(
     val targets: List<TargetData>,
     val remainingTime: Float,
     val scoreData: GameScoreData,
+    val highScores: HighScores,
 ) : Parcelable
 
 @Parcelize

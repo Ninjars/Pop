@@ -3,10 +3,13 @@ package jez.jetpackpop.model
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.data.HighScores
 import jez.jetpackpop.data.HighScoresRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlin.math.*
 import kotlin.random.Random
 
@@ -22,9 +25,18 @@ class GameViewModel(
             targets = emptyList(),
             remainingTime = -1f,
             scoreData = createGameScore(0),
+            highScores = HighScores.defaultValue
         )
     )
     val gameState: StateFlow<GameState> = _gameState
+
+    init {
+        viewModelScope.launch {
+            highScoresRepository.highScoresFlow.collect {
+                _gameState.value = _gameState.value.copy(highScores = it)
+            }
+        }
+    }
 
     fun onMeasured(width: Float, height: Float) {
         val currentState = gameState.value
@@ -109,6 +121,7 @@ class GameViewModel(
             targets = emptyList(),
             remainingTime = -1f,
             scoreData = createGameScore(if (clearScore) 0 else currentState.scoreData.totalScore),
+            highScores = currentState.highScores,
         )
     }
 
