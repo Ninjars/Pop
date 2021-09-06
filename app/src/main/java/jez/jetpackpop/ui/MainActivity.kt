@@ -25,11 +25,6 @@ class MainActivity : ComponentActivity() {
         lifecycle.addObserver(soundManager)
     }
 
-    private val Context.highScoresStore: DataStore<HighScoresProto> by dataStore(
-        fileName = HIGHSCORES_DATASTORE_FILE_NAME,
-        serializer = HighScoreDataSerializer
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameViewModel = ViewModelProvider(
@@ -60,5 +55,10 @@ class MainActivity : ComponentActivity() {
 
     private companion object {
         const val HIGHSCORES_DATASTORE_FILE_NAME = "highscores.pb"
+
+        val Context.highScoresStore: DataStore<HighScoresProto> by dataStore(
+            fileName = HIGHSCORES_DATASTORE_FILE_NAME,
+            serializer = HighScoreDataSerializer
+        )
     }
 }
