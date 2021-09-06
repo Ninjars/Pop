@@ -148,6 +148,23 @@ class GameViewModel(
         }
     }
 
+    fun recordScore() {
+        val currentState = gameState.value
+        viewModelScope.launch {
+            highScoresRepository.updateHighScores(
+                currentState.highScores.copy(
+                    chapterScores = currentState.highScores.chapterScores.run {
+                        val chapter = currentState.config.id.chapter
+                        toMutableMap().apply {
+                            this[chapter] =
+                                max(getOrDefault(chapter, 0), currentState.scoreData.totalScore)
+                        }
+                    }
+                )
+            )
+        }
+    }
+
     fun update(deltaSeconds: Float) {
         val currentState = gameState.value
         when (currentState.processState) {

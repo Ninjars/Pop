@@ -36,6 +36,7 @@ fun GameScreen(
             GameProcessState.PAUSED -> {
             }
             GameProcessState.END_WIN -> {
+                gameViewModel.recordScore()
                 gameEndAction(gameState.toEndState(true))
             }
             GameProcessState.END_LOSE -> {
