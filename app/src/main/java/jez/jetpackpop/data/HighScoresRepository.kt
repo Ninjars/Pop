@@ -45,7 +45,7 @@ class HighScoresRepository(
         }
         .map { proto ->
             HighScores(
-                proto.scoresOrBuilderList.map { GameChapter.valueOf(it.chapterName) to it.score }.toMap()
+                proto.scoresOrBuilderList.map { GameChapter.withName(it.chapterName) to it.score }.toMap()
             )
         }
 
@@ -53,11 +53,17 @@ class HighScoresRepository(
         dataStore.updateData { proto ->
             with(proto.toBuilder()) {
                 for ((index, score) in scores.chapterScores.entries.sortedBy { it.key.ordinal }.withIndex()) {
+                    if (getScores(index).score >= score.value) continue
+
                     val chapterScoreProto = ChapterScoreProto.newBuilder()
                         .setChapterName(score.key.persistenceName)
                         .setScore(score.value)
                         .build()
-                    setScores(index, chapterScoreProto)
+                    if (scoresCount == 0 || getScores(index) == null) {
+                        addScores(index, chapterScoreProto)
+                    } else {
+                        setScores(index, chapterScoreProto)
+                    }
                 }
                 build()
             }

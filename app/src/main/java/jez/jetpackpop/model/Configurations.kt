@@ -38,6 +38,13 @@ data class TargetConfiguration(
 enum class GameChapter(val persistenceName: String) {
     SIMPLE_SINGLE("SIMPLE"),
     SIMPLE_DECOY("MASKED"),
+    ;
+
+    companion object {
+        fun withName(name: String) =
+            values().find { it.persistenceName == name }
+                ?: throw IllegalArgumentException("No GamChapter map for $name found")
+    }
 }
 
 enum class TargetColor {
