@@ -9,12 +9,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.R
 import jez.jetpackpop.audio.SoundManager
+import jez.jetpackpop.data.HighScores
 import jez.jetpackpop.model.*
-import jez.jetpackpop.ui.components.GameEndMenu
-import jez.jetpackpop.ui.components.GameScreen
-import jez.jetpackpop.ui.components.MainMenu
-import jez.jetpackpop.ui.components.VictoryMenu
+import jez.jetpackpop.ui.components.*
 
 @Composable
 @Stable
@@ -46,7 +45,8 @@ fun App(
                 is AppState.MainMenuState -> {
                     gameViewModel.start(demoConfiguration())
 
-                    MainMenu(
+                    ShowMainMenu(
+                        gameViewModel.gameState.value.highScores,
                         stateChangeListener,
                     )
                 }
@@ -70,10 +70,32 @@ fun App(
 }
 
 @Composable
-private fun MainMenu(
+private fun ShowMainMenu(
+    highScores: HighScores,
     stateChangeListener: (AppState) -> Unit,
 ) {
+    val chapterSelectAction: (GameChapter) -> Unit = {
+        stateChangeListener(
+            AppState.StartGameState(
+                getFirstGameConfiguration(it),
+                isNewChapter = true,
+            )
+        )
+    }
+    val chapterButtonModels = GameChapter.values().map {
+        ChapterSelectButtonModel(
+            when (it) {
+                GameChapter.SIMPLE_SINGLE -> R.string.main_menu_chap_1
+                GameChapter.SIMPLE_DECOY -> R.string.main_menu_chap_2
+            },
+            highScores.chapterScores[it]
+        ) {
+            chapterSelectAction(it)
+        }
+    }
+
     MainMenu(
+        chapterSelectButtonModels = chapterButtonModels,
         startAction = {
             stateChangeListener(
                 AppState.StartGameState(
@@ -82,14 +104,6 @@ private fun MainMenu(
                 )
             )
         },
-        chapterSelectAction = {
-            stateChangeListener(
-                AppState.StartGameState(
-                    getFirstGameConfiguration(it),
-                    isNewChapter = true,
-                )
-            )
-        }
     )
 }
 

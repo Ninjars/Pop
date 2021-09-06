@@ -15,13 +15,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
-import jez.jetpackpop.model.GameChapter
 import jez.jetpackpop.ui.overlay
+
+data class ChapterSelectButtonModel(
+    @StringRes val titleRes: Int,
+    val highScore: Int?,
+    val chapterSelectAction: () -> Unit
+)
 
 @Composable
 fun MainMenu(
+    chapterSelectButtonModels: List<ChapterSelectButtonModel>,
     startAction: () -> Unit,
-    chapterSelectAction: (GameChapter) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -54,8 +59,9 @@ fun MainMenu(
                     modifier = Modifier.wrapContentSize()
                 )
             }
-            ChapterButton(R.string.main_menu_chap_1) { chapterSelectAction(GameChapter.SIMPLE_SINGLE) }
-            ChapterButton(R.string.main_menu_chap_2) { chapterSelectAction(GameChapter.SIMPLE_DECOY) }
+            for (model in chapterSelectButtonModels.filter { it.highScore != null }) {
+                ChapterButton(model.titleRes, model.highScore, model.chapterSelectAction)
+            }
         }
     }
 }
@@ -63,18 +69,37 @@ fun MainMenu(
 @Composable
 fun ChapterButton(
     @StringRes text: Int,
+    highScore: Int?,
     action: () -> Unit,
 ) {
-    Button(
-        shape = CircleShape,
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .wrapContentSize(),
-        onClick = action,
+            .wrapContentSize()
+            .clickable(onClick = action)
+            .clip(CircleShape)
+            .background(color = MaterialTheme.colors.primary)
+            .padding(8.dp)
     ) {
         Text(
             text = stringResource(text),
             style = MaterialTheme.typography.h5,
-            modifier = Modifier.wrapContentSize()
+            color = MaterialTheme.colors.onPrimary,
+            modifier = Modifier
+                .wrapContentSize()
         )
+        if (highScore != null) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = highScore.toString(),
+                style = MaterialTheme.typography.h5,
+                color = MaterialTheme.colors.onSecondary,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .background(color = MaterialTheme.colors.secondary, shape = CircleShape)
+                    .padding(4.dp)
+            )
+        }
     }
 }
