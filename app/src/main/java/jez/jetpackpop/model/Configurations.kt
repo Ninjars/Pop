@@ -10,6 +10,7 @@ data class GameConfiguration(
     val id: GameConfigId,
     val timeLimitSeconds: Float,
     val targetConfigurations: List<TargetConfiguration>,
+    val isLastInChapter: Boolean,
     val isDemo: Boolean = false,
 ) : Parcelable {
     companion object {
@@ -34,9 +35,16 @@ data class TargetConfiguration(
     val clickable: Boolean,
 ) : Parcelable
 
-enum class GameChapter {
-    SIMPLE_SINGLE,
-    SIMPLE_DECOY,
+enum class GameChapter(val persistenceName: String) {
+    SIMPLE_SINGLE("SIMPLE"),
+    SIMPLE_DECOY("MASKED"),
+    ;
+
+    companion object {
+        fun withName(name: String) =
+            values().find { it.persistenceName == name }
+                ?: throw IllegalArgumentException("No GamChapter map for $name found")
+    }
 }
 
 enum class TargetColor {
@@ -85,7 +93,7 @@ fun getNextGameConfiguration(currentConfiguration: GameConfigId?): GameConfigura
     }
 }
 
-fun getNextChapter(chapter: GameChapter): GameChapter? =
+private fun getNextChapter(chapter: GameChapter): GameChapter? =
     when (chapter) {
         GameChapter.SIMPLE_SINGLE -> GameChapter.SIMPLE_DECOY
         GameChapter.SIMPLE_DECOY -> null

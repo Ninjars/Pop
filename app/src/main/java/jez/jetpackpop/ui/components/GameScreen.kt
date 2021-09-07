@@ -1,6 +1,7 @@
 package jez.jetpackpop.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
@@ -35,24 +36,11 @@ fun GameScreen(
             GameProcessState.PAUSED -> {
             }
             GameProcessState.END_WIN -> {
-                gameEndAction(
-                    GameEndState(
-                        gameState.config.id,
-                        gameState.remainingTime,
-                        gameState.score,
-                        true
-                    )
-                )
+                gameViewModel.recordScore()
+                gameEndAction(gameState.toEndState(true))
             }
             GameProcessState.END_LOSE -> {
-                gameEndAction(
-                    GameEndState(
-                        gameState.config.id,
-                        gameState.remainingTime,
-                        gameState.score,
-                        false
-                    )
-                )
+                gameEndAction(gameState.toEndState(false))
                 runGameLoop(gameViewModel)
             }
 
@@ -68,6 +56,7 @@ fun GameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.surface)
             .clipToBounds()
+            .clickable { gameViewModel.onBackgroundTapped() }
             .onSizeChanged {
                 with(density) {
                     gameViewModel.onMeasured(it.width.toDp().value, it.height.toDp().value)
@@ -84,6 +73,24 @@ fun GameScreen(
         )
     }
 }
+
+private fun GameState.toEndState(didWin: Boolean): GameEndState =
+    if (config.isLastInChapter) {
+        GameEndState.ChapterEndState(
+            config.id,
+            remainingTime,
+            scoreData,
+            didWin,
+            highScores.chapterScores.getOrDefault(config.id.chapter, 0),
+        )
+    } else {
+        GameEndState.LevelEndState(
+            config.id,
+            remainingTime,
+            scoreData,
+            didWin,
+        )
+    }
 
 private suspend fun runGameLoop(
     gameViewModel: GameViewModel,

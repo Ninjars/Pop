@@ -15,6 +15,7 @@ sealed class AppState : Parcelable {
     @Parcelize
     data class StartGameState(
         val gameConfiguration: GameConfiguration,
+        val isNewChapter: Boolean,
     ) : AppState()
 
     @Parcelize
