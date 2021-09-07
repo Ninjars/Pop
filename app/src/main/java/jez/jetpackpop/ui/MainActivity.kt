@@ -9,6 +9,7 @@ import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModelProvider
 import jez.jetpackpop.HighScoresProto
 import jez.jetpackpop.audio.SoundManager
+import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.app.ui.App
 import jez.jetpackpop.features.game.model.GameInputEvent
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 class MainActivity : ComponentActivity() {
     private val soundManager = SoundManager(this)
     private val gameEventFlow = MutableSharedFlow<GameInputEvent>(extraBufferCapacity = 5)
+    private val appEventFlow = MutableSharedFlow<AppInputEvent>(extraBufferCapacity = 5)
     private lateinit var appViewModel: AppViewModel
     private lateinit var gameViewModel: GameViewModel
 
@@ -34,6 +36,7 @@ class MainActivity : ComponentActivity() {
             AppViewModelFactory(
                 HighScoresRepository(dataStore = this.highScoresStore),
                 gameEventFlow,
+                appEventFlow,
             )
         )
         appViewModel = viewModelFactory.get(AppViewModel::class.java)
@@ -44,6 +47,7 @@ class MainActivity : ComponentActivity() {
                 soundManager,
                 gameViewModel,
                 appViewModel,
+                appEventFlow,
                 gameEventFlow,
             ) {
                 appViewModel.onNewState(it)

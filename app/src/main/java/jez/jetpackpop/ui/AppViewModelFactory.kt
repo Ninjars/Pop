@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharedFlow
 class AppViewModelFactory (
     private val highScoresRepository: HighScoresRepository,
     private val gameInputEventFlow: SharedFlow<GameInputEvent>,
+    private val appInputEventFlow: SharedFlow<AppInputEvent>,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -20,7 +21,7 @@ class AppViewModelFactory (
                 GameViewModel(highScoresRepository, gameInputEventFlow) as T
 
             modelClass.isAssignableFrom(AppViewModel::class.java) ->
-                AppViewModel() as T
+                AppViewModel(appInputEventFlow) as T
 
             else -> throw IllegalArgumentException("Unknown ViewModel class $modelClass")
         }

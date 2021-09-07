@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.SoundManager
+import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.app.model.AppState
 import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.game.data.*
@@ -29,6 +30,7 @@ fun App(
     soundManager: SoundManager,
     gameViewModel: GameViewModel,
     viewModel: AppViewModel,
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
     stateChangeListener: (AppState) -> Unit
 ) {
