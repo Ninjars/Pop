@@ -8,6 +8,7 @@ import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -15,7 +16,8 @@ import kotlin.math.*
 import kotlin.random.Random
 
 class GameViewModel(
-    private val highScoresRepository: HighScoresRepository
+    private val highScoresRepository: HighScoresRepository,
+    inputEvents: SharedFlow<GameInputEvent>,
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState(
@@ -37,153 +39,94 @@ class GameViewModel(
                 _gameState.value = _gameState.value.copy(highScores = it)
             }
         }
+
+        viewModelScope.launch {
+            inputEvents.collect {
+                _gameState.value = processInputEvent(it)
+            }
+        }
     }
 
-    fun onMeasured(width: Float, height: Float) {
-        val currentState = gameState.value
-        _gameState.value = when (currentState.processState) {
+    private fun processInputEvent(event: GameInputEvent): GameState =
+        with(gameState.value) {
+            when (event) {
+                is GameInputEvent.BackgroundTap -> onBackgroundTapped()
+                is GameInputEvent.TargetTap -> onTargetTapped(event.data)
+                is GameInputEvent.Measured -> onMeasured(event.width, event.height)
+                is GameInputEvent.StartNewGame -> start(event.config, resetScore = true)
+                is GameInputEvent.StartNextLevel -> start(event.config, resetScore = false)
+                is GameInputEvent.StartNextChapter -> start(event.config, resetScore = true)
+                is GameInputEvent.Pause -> pause()
+                is GameInputEvent.Resume -> resume()
+                is GameInputEvent.SystemEvent.Paused -> pause()
+                is GameInputEvent.SystemEvent.Resumed -> resume()
+                is GameInputEvent.Update -> update(event.deltaSeconds)
+                is GameInputEvent.RecordCurrentScore -> recordCurrentScore()
+            }
+        }
+
+    private fun GameState.onMeasured(width: Float, height: Float): GameState =
+        when (processState) {
             GameProcessState.INITIALISED ->
-                currentState.copy(
+                copy(
                     width = width,
                     height = height,
                     processState = GameProcessState.READY,
                 )
             GameProcessState.WAITING_MEASURE ->
-                currentState.copy(
+                copy(
                     width = width,
                     height = height,
                     processState = GameProcessState.RUNNING,
                 )
             else ->
-                currentState.copy(
+                copy(
                     width = width,
                     height = height,
                 )
         }
-    }
 
-    fun start(config: GameConfiguration) {
-        val currentState = gameState.value
-        if (config == currentState.config) return
+    private fun GameState.start(
+        config: GameConfiguration,
+        resetScore: Boolean
+    ): GameState {
+        if (this.config == config) return this
 
-        _gameState.value = when (currentState.processState) {
+        return when (processState) {
+            GameProcessState.WAITING_MEASURE ->
+                copy(
+                    config = config,
+                )
             GameProcessState.INITIALISED ->
-                if (currentState.width == 0f) {
-                    currentState.copy(
+                if (width == 0f) {
+                    copy(
                         config = config,
                         processState = GameProcessState.WAITING_MEASURE
                     )
                 } else {
-                    currentState.startGame(config, currentState.width, currentState.height)
+                    startGame(
+                        config,
+                        width,
+                        height,
+                        resetScore,
+                    )
                 }
-            GameProcessState.WAITING_MEASURE ->
-                currentState.copy(
-                    config = config,
-                )
 
             else ->
-                currentState.startGame(config, currentState.width, currentState.height)
-        }
-    }
-
-    fun onLifecycleResume() {
-        resume()
-    }
-
-    fun resume() {
-        val currentState = gameState.value
-        _gameState.value = when (currentState.processState) {
-            GameProcessState.PAUSED ->
-                currentState.copy(processState = GameProcessState.RUNNING)
-            else -> currentState
-        }
-    }
-
-    fun onLifecyclePause() {
-        pause()
-    }
-
-    fun pause() {
-        val currentState = gameState.value
-        _gameState.value = when (currentState.processState) {
-            GameProcessState.RUNNING ->
-                currentState.copy(processState = GameProcessState.PAUSED)
-            else -> currentState
-        }
-    }
-
-    fun clear(clearScore: Boolean) {
-        val currentState = gameState.value
-        _gameState.value = GameState(
-            width = currentState.width,
-            height = currentState.height,
-            processState = GameProcessState.INITIALISED,
-            config = GameConfiguration.DEFAULT,
-            targets = emptyList(),
-            remainingTime = -1f,
-            scoreData = createGameScore(if (clearScore) 0 else currentState.scoreData.totalScore),
-            highScores = currentState.highScores,
-        )
-    }
-
-    fun onTargetTapped(data: TargetData) {
-        val currentState = gameState.value
-        if (currentState.processState != GameProcessState.RUNNING) return
-
-        _gameState.value = currentState.run {
-            copy(
-                scoreData = currentState.scoreData.createUpdate(true),
-                targets = targets.filter { it.id != data.id || it.color != data.color }.toList()
-            )
-        }
-    }
-
-    fun onBackgroundTapped() {
-        val currentState = gameState.value
-        if (currentState.processState != GameProcessState.RUNNING) return
-
-        _gameState.value = currentState.run {
-            copy(
-                scoreData = currentState.scoreData.createUpdate(false),
-            )
-        }
-    }
-
-    fun recordScore() {
-        val currentState = gameState.value
-        viewModelScope.launch {
-            highScoresRepository.updateHighScores(
-                currentState.highScores.copy(
-                    chapterScores = currentState.highScores.chapterScores.run {
-                        val chapter = currentState.config.id.chapter
-                        toMutableMap().apply {
-                            this[chapter] =
-                                max(getOrDefault(chapter, 0), currentState.scoreData.totalScore)
-                        }
-                    }
+                startGame(
+                    config,
+                    width,
+                    height,
+                    resetScore,
                 )
-            )
-        }
-    }
-
-    fun update(deltaSeconds: Float) {
-        val currentState = gameState.value
-        when (currentState.processState) {
-            GameProcessState.INITIALISED,
-            GameProcessState.READY,
-            GameProcessState.WAITING_MEASURE -> start(currentState.config)
-
-            GameProcessState.END_LOSE,
-            GameProcessState.RUNNING -> _gameState.value = currentState.iterateState(deltaSeconds)
-            else -> {
-            }
         }
     }
 
     private fun GameState.startGame(
         config: GameConfiguration,
         width: Float,
-        height: Float
+        height: Float,
+        resetScore: Boolean,
     ): GameState {
         val random = Random.Default
         val targets = config.targetConfigurations.flatMap { targetConfig ->
@@ -212,9 +155,69 @@ class GameViewModel(
             remainingTime = config.timeLimitSeconds,
             width = width,
             height = height,
-            scoreData = createGameScore(scoreData.startingScore),
+            scoreData = createGameScore(if (resetScore) 0 else scoreData.startingScore),
         )
     }
+
+    private fun GameState.resume() =
+        when (processState) {
+            GameProcessState.PAUSED ->
+                copy(processState = GameProcessState.RUNNING)
+            else -> this
+        }
+
+    private fun GameState.pause() =
+        when (processState) {
+            GameProcessState.RUNNING ->
+                copy(processState = GameProcessState.PAUSED)
+            else -> this
+        }
+
+    private fun GameState.onTargetTapped(data: TargetData): GameState =
+        if (processState != GameProcessState.RUNNING) {
+            this
+        } else {
+            copy(
+                scoreData = scoreData.createUpdate(true),
+                targets = targets.filter { it.id != data.id || it.color != data.color }.toList()
+            )
+        }
+
+    private fun GameState.onBackgroundTapped(): GameState =
+        if (processState != GameProcessState.RUNNING) {
+            this
+        } else {
+            copy(
+                scoreData = scoreData.createUpdate(false),
+            )
+        }
+
+    private fun GameState.recordCurrentScore(): GameState {
+        viewModelScope.launch {
+            highScoresRepository.updateHighScores(
+                highScores.copy(
+                    chapterScores = highScores.chapterScores.run {
+                        val chapter = config.id.chapter
+                        toMutableMap().apply {
+                            this[chapter] =
+                                max(getOrDefault(chapter, 0), scoreData.totalScore)
+                        }
+                    }
+                )
+            )
+        }
+        return this
+    }
+
+    private fun GameState.update(deltaSeconds: Float) =
+        when (processState) {
+            GameProcessState.INITIALISED,
+            GameProcessState.READY,
+            GameProcessState.WAITING_MEASURE -> start(config, resetScore = false)
+            GameProcessState.END_LOSE,
+            GameProcessState.RUNNING -> iterateState(deltaSeconds)
+            else -> this
+        }
 
     private fun getRandomVelocity(random: Random, min: Float, max: Float): Offset {
         val speed = random.nextFloat() * (max - min) + min
@@ -297,11 +300,12 @@ class GameViewModel(
 
 class GameViewModelFactory(
     private val highScoresRepository: HighScoresRepository,
+    private val inputEventFlow: SharedFlow<GameInputEvent>,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return GameViewModel(highScoresRepository) as T
+            return GameViewModel(highScoresRepository, inputEventFlow) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

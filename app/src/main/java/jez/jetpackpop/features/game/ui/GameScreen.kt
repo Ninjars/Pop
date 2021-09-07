@@ -13,16 +13,18 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.game.GameEndState
+import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameProcessState
 import jez.jetpackpop.features.game.model.GameState
 import jez.jetpackpop.features.game.model.GameViewModel
 import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
 fun GameScreen(
     soundManager: SoundManager,
-    gameViewModel: GameViewModel,
     gameState: GameState,
+    gameEventFlow: MutableSharedFlow<GameInputEvent>,
     gameEndAction: (GameEndState) -> Unit,
 ) {
 //    Log.w("GameScreen", "invoked $gameViewModel $gameState")
@@ -36,16 +38,16 @@ fun GameScreen(
             GameProcessState.PAUSED -> {
             }
             GameProcessState.END_WIN -> {
-                gameViewModel.recordScore()
+                gameEventFlow.tryEmit(GameInputEvent.RecordCurrentScore)
                 gameEndAction(gameState.toEndState(true))
             }
             GameProcessState.END_LOSE -> {
                 gameEndAction(gameState.toEndState(false))
-                runGameLoop(gameViewModel)
+                runGameLoop(gameEventFlow)
             }
 
             GameProcessState.RUNNING -> {
-                runGameLoop(gameViewModel)
+                runGameLoop(gameEventFlow)
             }
         }
     }
@@ -56,10 +58,14 @@ fun GameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.surface)
             .clipToBounds()
-            .clickable { gameViewModel.onBackgroundTapped() }
+            .clickable {
+                gameEventFlow.tryEmit(GameInputEvent.BackgroundTap)
+            }
             .onSizeChanged {
                 with(density) {
-                    gameViewModel.onMeasured(it.width.toDp().value, it.height.toDp().value)
+                    gameEventFlow.tryEmit(
+                        GameInputEvent.Measured(it.width.toDp().value, it.height.toDp().value)
+                    )
                 }
             }
     ) {
@@ -68,7 +74,7 @@ fun GameScreen(
             gameState = gameState,
             targetTapListener = { target ->
                 soundManager.playPop()
-                gameViewModel.onTargetTapped(target)
+                gameEventFlow.tryEmit(GameInputEvent.TargetTap(target))
             }
         )
     }
@@ -93,14 +99,14 @@ private fun GameState.toEndState(didWin: Boolean): GameEndState =
     }
 
 private suspend fun runGameLoop(
-    gameViewModel: GameViewModel,
+    gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
     var lastFrame = 0L
     while (true) {
         val nextFrame = awaitFrame() / 1000_000L
         if (lastFrame != 0L) {
             val deltaMillis = nextFrame - lastFrame
-            gameViewModel.update(deltaMillis / 1000f)
+            gameEventFlow.emit(GameInputEvent.Update(deltaMillis / 1000f))
         }
         lastFrame = nextFrame
     }
