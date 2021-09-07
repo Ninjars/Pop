@@ -1,4 +1,4 @@
-package jez.jetpackpop.ui
+package jez.jetpackpop.features.app.ui
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -11,9 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.SoundManager
-import jez.jetpackpop.data.HighScores
-import jez.jetpackpop.model.*
-import jez.jetpackpop.ui.components.*
+import jez.jetpackpop.features.app.model.AppState
+import jez.jetpackpop.features.app.model.PopViewModel
+import jez.jetpackpop.features.highscore.HighScores
+import jez.jetpackpop.features.game.data.*
+import jez.jetpackpop.features.game.model.GameViewModel
+import jez.jetpackpop.features.game.ui.GameEndMenu
+import jez.jetpackpop.features.game.ui.GameScreen
+import jez.jetpackpop.features.game.ui.VictoryMenu
+import jez.jetpackpop.ui.AppTheme
 
 @Composable
 @Stable

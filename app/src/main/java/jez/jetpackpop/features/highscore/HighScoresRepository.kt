@@ -1,4 +1,4 @@
-package jez.jetpackpop.data
+package jez.jetpackpop.features.highscore
 
 import android.util.Log
 import androidx.datastore.core.CorruptionException
@@ -7,7 +7,7 @@ import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
 import jez.jetpackpop.ChapterScoreProto
 import jez.jetpackpop.HighScoresProto
-import jez.jetpackpop.model.GameChapter
+import jez.jetpackpop.features.game.data.GameChapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map

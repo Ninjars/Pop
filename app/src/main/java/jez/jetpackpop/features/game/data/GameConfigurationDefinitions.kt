@@ -1,7 +1,6 @@
-package jez.jetpackpop.data
+package jez.jetpackpop.features.game.data
 
 import androidx.compose.ui.unit.dp
-import jez.jetpackpop.model.*
 
 private const val SIMPLE_SINGLE_LEVEL_COUNT = 10
 private const val SIMPLE_DECOY_LEVEL_COUNT = 10

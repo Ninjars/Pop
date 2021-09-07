@@ -1,6 +1,8 @@
-package jez.jetpackpop.model
+package jez.jetpackpop.features.app.model
 
 import android.os.Parcelable
+import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.game.GameEndState
 import kotlinx.parcelize.Parcelize
 
 sealed class AppState : Parcelable {

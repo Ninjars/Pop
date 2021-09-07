@@ -1,4 +1,4 @@
-package jez.jetpackpop.ui.components
+package jez.jetpackpop.features.game.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
-import jez.jetpackpop.model.GameEndState
+import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.ui.lose
 import jez.jetpackpop.ui.onEnd
 import jez.jetpackpop.ui.win

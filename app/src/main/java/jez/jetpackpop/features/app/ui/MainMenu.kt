@@ -1,4 +1,4 @@
-package jez.jetpackpop.ui.components
+package jez.jetpackpop.features.app.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background

@@ -1,7 +1,7 @@
-package jez.jetpackpop.data
+package jez.jetpackpop.features.highscore
 
 import android.os.Parcelable
-import jez.jetpackpop.model.GameChapter
+import jez.jetpackpop.features.game.data.GameChapter
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

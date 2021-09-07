@@ -1,4 +1,4 @@
-package jez.jetpackpop.ui.components
+package jez.jetpackpop.features.game.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,10 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import jez.jetpackpop.model.GameScoreData
-import jez.jetpackpop.model.GameState
-import jez.jetpackpop.model.TargetColor
-import jez.jetpackpop.model.TargetData
+import jez.jetpackpop.features.game.model.GameScoreData
+import jez.jetpackpop.features.game.model.GameState
+import jez.jetpackpop.features.game.data.TargetColor
+import jez.jetpackpop.features.game.model.TargetData
 import jez.jetpackpop.ui.target1
 import jez.jetpackpop.ui.target2
 import kotlin.math.ceil

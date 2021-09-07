@@ -1,4 +1,4 @@
-package jez.jetpackpop.ui.components
+package jez.jetpackpop.features.game.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
-import jez.jetpackpop.model.GameConfigId
+import jez.jetpackpop.features.game.data.GameConfigId
 import jez.jetpackpop.ui.VictoryContinueButtonColours
 import jez.jetpackpop.ui.overlay
 

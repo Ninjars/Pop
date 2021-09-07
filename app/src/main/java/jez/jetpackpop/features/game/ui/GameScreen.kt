@@ -1,4 +1,4 @@
-package jez.jetpackpop.ui.components
+package jez.jetpackpop.features.game.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,10 +12,10 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import jez.jetpackpop.audio.SoundManager
-import jez.jetpackpop.model.GameEndState
-import jez.jetpackpop.model.GameProcessState
-import jez.jetpackpop.model.GameState
-import jez.jetpackpop.model.GameViewModel
+import jez.jetpackpop.features.game.GameEndState
+import jez.jetpackpop.features.game.model.GameProcessState
+import jez.jetpackpop.features.game.model.GameState
+import jez.jetpackpop.features.game.model.GameViewModel
 import kotlinx.coroutines.android.awaitFrame
 
 @Composable

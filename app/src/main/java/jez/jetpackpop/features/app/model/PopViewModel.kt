@@ -1,4 +1,4 @@
-package jez.jetpackpop.model
+package jez.jetpackpop.features.app.model
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

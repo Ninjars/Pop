@@ -1,11 +1,12 @@
-package jez.jetpackpop.model
+package jez.jetpackpop.features.game.model
 
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import jez.jetpackpop.data.HighScores
-import jez.jetpackpop.data.HighScoresRepository
+import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.highscore.HighScores
+import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect

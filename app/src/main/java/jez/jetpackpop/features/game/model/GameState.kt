@@ -1,10 +1,12 @@
-package jez.jetpackpop.model
+package jez.jetpackpop.features.game.model
 
 import android.os.Parcelable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import jez.jetpackpop.data.HighScores
+import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.game.data.TargetColor
+import jez.jetpackpop.features.highscore.HighScores
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 

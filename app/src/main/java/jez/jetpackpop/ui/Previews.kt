@@ -3,14 +3,14 @@ package jez.jetpackpop.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import jez.jetpackpop.R
-import jez.jetpackpop.model.GameChapter
-import jez.jetpackpop.model.GameConfigId
-import jez.jetpackpop.model.GameEndState
-import jez.jetpackpop.model.GameScoreData
-import jez.jetpackpop.ui.components.ChapterSelectButtonModel
-import jez.jetpackpop.ui.components.GameEndMenu
-import jez.jetpackpop.ui.components.MainMenu
-import jez.jetpackpop.ui.components.VictoryMenu
+import jez.jetpackpop.features.app.ui.ChapterSelectButtonModel
+import jez.jetpackpop.features.app.ui.MainMenu
+import jez.jetpackpop.features.game.data.GameChapter
+import jez.jetpackpop.features.game.data.GameConfigId
+import jez.jetpackpop.features.game.GameEndState
+import jez.jetpackpop.features.game.model.GameScoreData
+import jez.jetpackpop.features.game.ui.GameEndMenu
+import jez.jetpackpop.features.game.ui.VictoryMenu
 
 
 @Preview("MainMenu")

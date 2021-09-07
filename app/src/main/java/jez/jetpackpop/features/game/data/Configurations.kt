@@ -1,8 +1,7 @@
-package jez.jetpackpop.model
+package jez.jetpackpop.features.game.data
 
 import android.os.Parcelable
 import androidx.compose.ui.unit.Dp
-import jez.jetpackpop.data.gameConfigurations
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -17,7 +16,6 @@ data class GameConfiguration(
         val DEFAULT = GameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, -1), -1f, emptyList(), false)
     }
 }
-
 
 @Parcelize
 data class GameConfigId(

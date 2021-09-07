@@ -10,11 +10,12 @@ import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModelProvider
 import jez.jetpackpop.HighScoresProto
 import jez.jetpackpop.audio.SoundManager
-import jez.jetpackpop.data.HighScoreDataSerializer
-import jez.jetpackpop.data.HighScoresRepository
-import jez.jetpackpop.model.GameViewModel
-import jez.jetpackpop.model.GameViewModelFactory
-import jez.jetpackpop.model.PopViewModel
+import jez.jetpackpop.features.highscore.HighScoreDataSerializer
+import jez.jetpackpop.features.highscore.HighScoresRepository
+import jez.jetpackpop.features.game.model.GameViewModel
+import jez.jetpackpop.features.game.model.GameViewModelFactory
+import jez.jetpackpop.features.app.model.PopViewModel
+import jez.jetpackpop.features.app.ui.App
 
 class MainActivity : ComponentActivity() {
     private val soundManager = SoundManager(this)
