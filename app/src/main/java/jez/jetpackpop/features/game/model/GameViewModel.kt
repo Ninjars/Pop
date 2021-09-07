@@ -53,10 +53,10 @@ class GameViewModel(
             is GameInputEvent.Interaction.TargetTap -> TODO()
             is GameInputEvent.Measured -> onMeasured(event.width, event.height)
             is GameInputEvent.Pause -> TODO()
-            is GameInputEvent.PrepareNextChapter -> TODO()
-            is GameInputEvent.PrepareNextLevel -> TODO()
+            is GameInputEvent.StartNewGame -> start(event.config, resetScore = true)
+            is GameInputEvent.StartNextLevel -> start(event.config, resetScore = false)
+            is GameInputEvent.StartNextChapter -> start(event.config, resetScore = true)
             is GameInputEvent.Resume -> TODO()
-            is GameInputEvent.Start -> TODO()
             is GameInputEvent.SystemEvent.Paused -> TODO()
             is GameInputEvent.SystemEvent.Resumed -> TODO()
             is GameInputEvent.Update -> TODO()
@@ -85,28 +85,76 @@ class GameViewModel(
             }
         }
 
-    fun start(config: GameConfiguration) {
-        val currentState = gameState.value
-        if (config == currentState.config) return
+    private fun start(config: GameConfiguration, resetScore: Boolean) : GameState =
+        with (gameState.value) {
+            val currentState = gameState.value
+            if (config == currentState.config) return this
 
-        _gameState.value = when (currentState.processState) {
-            GameProcessState.INITIALISED ->
-                if (currentState.width == 0f) {
+            when (currentState.processState) {
+                GameProcessState.WAITING_MEASURE ->
                     currentState.copy(
                         config = config,
-                        processState = GameProcessState.WAITING_MEASURE
                     )
-                } else {
-                    currentState.startGame(config, currentState.width, currentState.height)
-                }
-            GameProcessState.WAITING_MEASURE ->
-                currentState.copy(
-                    config = config,
-                )
+                GameProcessState.INITIALISED ->
+                    if (currentState.width == 0f) {
+                        currentState.copy(
+                            config = config,
+                            processState = GameProcessState.WAITING_MEASURE
+                        )
+                    } else {
+                        currentState.startGame(
+                            config,
+                            currentState.width,
+                            currentState.height,
+                            resetScore,
+                        )
+                    }
 
-            else ->
-                currentState.startGame(config, currentState.width, currentState.height)
+                else ->
+                    currentState.startGame(
+                        config,
+                        currentState.width,
+                        currentState.height,
+                        resetScore,
+                    )
+            }
         }
+
+    private fun GameState.startGame(
+        config: GameConfiguration,
+        width: Float,
+        height: Float,
+        resetScore: Boolean,
+    ): GameState {
+        val random = Random.Default
+        val targets = config.targetConfigurations.flatMap { targetConfig ->
+            (0 until targetConfig.count).map {
+                TargetData(
+                    id = it,
+                    color = targetConfig.color,
+                    radius = targetConfig.radius,
+                    center = Offset(
+                        random.nextFloat() * width,
+                        random.nextFloat() * height
+                    ),
+                    velocity = getRandomVelocity(
+                        random,
+                        targetConfig.minSpeed.value,
+                        targetConfig.maxSpeed.value
+                    ),
+                    clickable = targetConfig.clickable,
+                )
+            }
+        }
+        return copy(
+            config = config,
+            processState = GameProcessState.RUNNING,
+            targets = targets,
+            remainingTime = config.timeLimitSeconds,
+            width = width,
+            height = height,
+            scoreData = createGameScore(if (resetScore) 0 else scoreData.startingScore),
+        )
     }
 
     fun onLifecycleResume() {
@@ -133,20 +181,6 @@ class GameViewModel(
                 currentState.copy(processState = GameProcessState.PAUSED)
             else -> currentState
         }
-    }
-
-    fun clear(clearScore: Boolean) {
-        val currentState = gameState.value
-        _gameState.value = GameState(
-            width = currentState.width,
-            height = currentState.height,
-            processState = GameProcessState.INITIALISED,
-            config = GameConfiguration.DEFAULT,
-            targets = emptyList(),
-            remainingTime = -1f,
-            scoreData = createGameScore(if (clearScore) 0 else currentState.scoreData.totalScore),
-            highScores = currentState.highScores,
-        )
     }
 
     fun onTargetTapped(data: TargetData) {
@@ -194,49 +228,13 @@ class GameViewModel(
         when (currentState.processState) {
             GameProcessState.INITIALISED,
             GameProcessState.READY,
-            GameProcessState.WAITING_MEASURE -> start(currentState.config)
+            GameProcessState.WAITING_MEASURE -> start(currentState.config, resetScore = false)
 
             GameProcessState.END_LOSE,
             GameProcessState.RUNNING -> _gameState.value = currentState.iterateState(deltaSeconds)
             else -> {
             }
         }
-    }
-
-    private fun GameState.startGame(
-        config: GameConfiguration,
-        width: Float,
-        height: Float
-    ): GameState {
-        val random = Random.Default
-        val targets = config.targetConfigurations.flatMap { targetConfig ->
-            (0 until targetConfig.count).map {
-                TargetData(
-                    id = it,
-                    color = targetConfig.color,
-                    radius = targetConfig.radius,
-                    center = Offset(
-                        random.nextFloat() * width,
-                        random.nextFloat() * height
-                    ),
-                    velocity = getRandomVelocity(
-                        random,
-                        targetConfig.minSpeed.value,
-                        targetConfig.maxSpeed.value
-                    ),
-                    clickable = targetConfig.clickable,
-                )
-            }
-        }
-        return copy(
-            config = config,
-            processState = GameProcessState.RUNNING,
-            targets = targets,
-            remainingTime = config.timeLimitSeconds,
-            width = width,
-            height = height,
-            scoreData = createGameScore(scoreData.startingScore),
-        )
     }
 
     private fun getRandomVelocity(random: Random, min: Float, max: Float): Offset {

@@ -13,13 +13,13 @@ import jez.jetpackpop.R
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.model.AppState
 import jez.jetpackpop.features.app.model.PopViewModel
-import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.game.data.*
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.game.ui.GameEndMenu
 import jez.jetpackpop.features.game.ui.GameScreen
 import jez.jetpackpop.features.game.ui.VictoryMenu
+import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -53,7 +53,7 @@ fun App(
 
             when (val currentAppState = appState.value) {
                 is AppState.MainMenuState -> {
-                    gameViewModel.start(demoConfiguration())
+                    gameEventFlow.tryEmit(GameInputEvent.StartNewGame(demoConfiguration()))
 
                     ShowMainMenu(
                         gameViewModel.gameState.value.highScores,
@@ -62,8 +62,14 @@ fun App(
                 }
 
                 is AppState.StartGameState -> {
-                    gameViewModel.clear(currentAppState.isNewChapter)
-                    gameViewModel.start(currentAppState.gameConfiguration)
+                    when {
+                        currentAppState.isNewChapter ->
+                            gameEventFlow.tryEmit(GameInputEvent.StartNextChapter(currentAppState.gameConfiguration))
+                        currentAppState.isNewGame ->
+                            gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
+                        else ->
+                            gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(currentAppState.gameConfiguration))
+                    }
                     stateChangeListener(AppState.InGameState)
                 }
 
@@ -89,6 +95,7 @@ private fun ShowMainMenu(
             AppState.StartGameState(
                 getFirstGameConfiguration(it),
                 isNewChapter = true,
+                isNewGame = true,
             )
         )
     }
@@ -111,6 +118,7 @@ private fun ShowMainMenu(
                 AppState.StartGameState(
                     getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE),
                     isNewChapter = true,
+                    isNewGame = true,
                 )
             )
         },
@@ -142,8 +150,13 @@ private fun EndMenu(
         GameEndMenu(
             endState = state.endState,
             startGameAction = {
-                stateChangeListener(AppState.StartGameState(nextGame, isNewChapter))
-
+                stateChangeListener(
+                    AppState.StartGameState(
+                        nextGame,
+                        isNewChapter,
+                        isNewGame = false
+                    )
+                )
             }
         )
     }
