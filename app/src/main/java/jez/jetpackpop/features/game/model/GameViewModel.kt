@@ -2,7 +2,6 @@ package jez.jetpackpop.features.game.model
 
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.highscore.HighScores
@@ -295,18 +294,5 @@ class GameViewModel(
             gameScore = scoreComboPair.first,
             currentMultiplier = max(1, scoreComboPair.second * 2)
         )
-    }
-}
-
-class GameViewModelFactory(
-    private val highScoresRepository: HighScoresRepository,
-    private val inputEventFlow: SharedFlow<GameInputEvent>,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return GameViewModel(highScoresRepository, inputEventFlow) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
