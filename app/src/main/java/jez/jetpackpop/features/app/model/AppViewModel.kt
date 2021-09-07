@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class PopViewModel : ViewModel() {
+class AppViewModel : ViewModel() {
     private val _appState = MutableStateFlow<AppState>(AppState.InitialisingState)
     val appState: StateFlow<AppState> = _appState
 

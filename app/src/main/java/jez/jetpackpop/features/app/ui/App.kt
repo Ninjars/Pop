@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.model.AppState
-import jez.jetpackpop.features.app.model.PopViewModel
+import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.game.data.*
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 fun App(
     soundManager: SoundManager,
     gameViewModel: GameViewModel,
-    viewModel: PopViewModel,
+    viewModel: AppViewModel,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
     stateChangeListener: (AppState) -> Unit
 ) {

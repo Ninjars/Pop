@@ -10,7 +10,7 @@ import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModelProvider
 import jez.jetpackpop.HighScoresProto
 import jez.jetpackpop.audio.SoundManager
-import jez.jetpackpop.features.app.model.PopViewModel
+import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.app.ui.App
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 class MainActivity : ComponentActivity() {
     private val soundManager = SoundManager(this)
-    private val appViewModel: PopViewModel by viewModels()
+    private val appViewModel: AppViewModel by viewModels()
     private val gameEventFlow = MutableSharedFlow<GameInputEvent>(extraBufferCapacity = 5)
     private lateinit var gameViewModel: GameViewModel
 
