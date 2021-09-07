@@ -61,6 +61,7 @@ class GameViewModel(
                 is GameInputEvent.SystemEvent.Paused -> pause()
                 is GameInputEvent.SystemEvent.Resumed -> resume()
                 is GameInputEvent.Update -> update(event.deltaSeconds)
+                is GameInputEvent.RecordCurrentScore -> recordCurrentScore()
             }
         }
 
@@ -191,21 +192,21 @@ class GameViewModel(
             )
         }
 
-    fun recordScore() {
-        val currentState = gameState.value
+    private fun GameState.recordCurrentScore(): GameState {
         viewModelScope.launch {
             highScoresRepository.updateHighScores(
-                currentState.highScores.copy(
-                    chapterScores = currentState.highScores.chapterScores.run {
-                        val chapter = currentState.config.id.chapter
+                highScores.copy(
+                    chapterScores = highScores.chapterScores.run {
+                        val chapter = config.id.chapter
                         toMutableMap().apply {
                             this[chapter] =
-                                max(getOrDefault(chapter, 0), currentState.scoreData.totalScore)
+                                max(getOrDefault(chapter, 0), scoreData.totalScore)
                         }
                     }
                 )
             )
         }
+        return this
     }
 
     private fun GameState.update(deltaSeconds: Float) =

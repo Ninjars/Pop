@@ -44,7 +44,6 @@ fun App(
 
             GameScreen(
                 soundManager = soundManager,
-                gameViewModel = gameViewModel,
                 gameState = gameViewModel.gameState.collectAsState().value,
                 gameEventFlow = gameEventFlow,
             ) {

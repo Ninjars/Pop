@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 @Composable
 fun GameScreen(
     soundManager: SoundManager,
-    gameViewModel: GameViewModel,
     gameState: GameState,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
     gameEndAction: (GameEndState) -> Unit,
@@ -39,7 +38,7 @@ fun GameScreen(
             GameProcessState.PAUSED -> {
             }
             GameProcessState.END_WIN -> {
-                gameViewModel.recordScore()
+                gameEventFlow.tryEmit(GameInputEvent.RecordCurrentScore)
                 gameEndAction(gameState.toEndState(true))
             }
             GameProcessState.END_LOSE -> {
