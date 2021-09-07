@@ -14,8 +14,7 @@ import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.app.model.AppState
 import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.game.data.GameChapter
-import jez.jetpackpop.features.game.data.getGameConfiguration
-import jez.jetpackpop.features.game.data.getNextGameConfiguration
+import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.game.ui.GameEndMenu
@@ -50,7 +49,7 @@ fun App(
                 gameState = gameViewModel.gameState.collectAsState().value,
                 gameEventFlow = gameEventFlow,
             ) {
-                stateChangeListener(AppState.EndMenuState(it))
+                appEventFlow.tryEmit(AppInputEvent.GameEnded(it))
             }
 
             when (val currentAppState = appState.value) {
@@ -58,8 +57,8 @@ fun App(
                     gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
 
                     ShowMainMenu(
-                        gameViewModel.gameState.value.highScores,
                         appEventFlow,
+                        gameViewModel.gameState.value.highScores,
                     )
                 }
 
@@ -78,8 +77,23 @@ fun App(
                 is AppState.InGameState -> {
                 }
 
+                is AppState.VictoryMenuState ->
+                    VictoryMenu(
+                        mainMenuAction = {
+                            appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
+                        },
+                        nextGameAction = null
+                    )
+
+                is AppState.ChapterCompleteMenuState ->
+                    ChapterComplete(appEventFlow, currentAppState.nextGame)
+
                 is AppState.EndMenuState ->
-                    EndMenu(currentAppState, appEventFlow, stateChangeListener)
+                    LevelEnd(
+                        appEventFlow,
+                        currentAppState.didWin,
+                        currentAppState.nextGameConfiguration
+                    )
 
                 else ->
                     Log.e("App", "No ui for app state $currentAppState")
@@ -90,8 +104,8 @@ fun App(
 
 @Composable
 private fun ShowMainMenu(
-    highScores: HighScores,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
+    highScores: HighScores,
 ) {
     val chapterSelectAction: (GameChapter) -> Unit = {
         appEventFlow.tryEmit(AppInputEvent.StartGameFromChapter(it))
@@ -117,39 +131,28 @@ private fun ShowMainMenu(
 }
 
 @Composable
-private fun EndMenu(
-    state: AppState.EndMenuState,
+private fun ChapterComplete(
     appEventFlow: MutableSharedFlow<AppInputEvent>,
-    stateChangeListener: (AppState) -> Unit,
+    nextGame: GameConfiguration,
 ) {
-    val nextGame =
-        if (state.endState.didWin) {
-            getNextGameConfiguration(state.endState.gameConfigId)
-        } else {
-            getGameConfiguration(state.endState.gameConfigId)
+    GameEndMenu(
+        didWin = true,
+        startGameAction = {
+            appEventFlow.tryEmit(AppInputEvent.StartGame(nextGame, true))
         }
-    if (nextGame == null) {
-        VictoryMenu(
-            configId = state.endState.gameConfigId,
-            mainMenuAction = {
-                appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
-            },
-            nextGameAction = null
-        )
+    )
+}
 
-    } else {
-        val isNewChapter = state.endState.gameConfigId.chapter != nextGame.id.chapter
-        GameEndMenu(
-            endState = state.endState,
-            startGameAction = {
-                stateChangeListener(
-                    AppState.StartGameState(
-                        nextGame,
-                        isNewChapter,
-                        isNewGame = false
-                    )
-                )
-            }
-        )
-    }
+@Composable
+private fun LevelEnd(
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
+    didWin: Boolean,
+    nextGameConfiguration: GameConfiguration,
+) {
+    GameEndMenu(
+        didWin = didWin,
+        startGameAction = {
+            appEventFlow.tryEmit(AppInputEvent.StartGame(nextGameConfiguration, false))
+        }
+    )
 }

@@ -2,7 +2,8 @@ package jez.jetpackpop.features.app.model
 
 import android.os.Parcelable
 import jez.jetpackpop.features.game.data.GameConfiguration
-import jez.jetpackpop.features.game.GameEndState
+import jez.jetpackpop.features.game.data.GameConfigId
+import jez.jetpackpop.features.game.model.GameScoreData
 import kotlinx.parcelize.Parcelize
 
 sealed class AppState : Parcelable {
@@ -26,6 +27,18 @@ sealed class AppState : Parcelable {
 
     @Parcelize
     data class EndMenuState(
-        val endState: GameEndState,
+        val nextGameConfiguration: GameConfiguration,
+        val didWin: Boolean,
+        val score: GameScoreData,
     ) : AppState()
+
+    @Parcelize
+    data class ChapterCompleteMenuState(
+        val completedChapterId: GameConfigId,
+        val nextGame: GameConfiguration,
+        val score: GameScoreData,
+    ) : AppState()
+
+    @Parcelize
+    object VictoryMenuState : AppState()
 }
