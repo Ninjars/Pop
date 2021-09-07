@@ -53,13 +53,13 @@ class HighScoresRepository(
         dataStore.updateData { proto ->
             with(proto.toBuilder()) {
                 for ((index, score) in scores.chapterScores.entries.sortedBy { it.key.ordinal }.withIndex()) {
-                    if (getScores(index).score >= score.value) continue
+                    if (scoresCount > index && getScores(index).score >= score.value) continue
 
                     val chapterScoreProto = ChapterScoreProto.newBuilder()
                         .setChapterName(score.key.persistenceName)
                         .setScore(score.value)
                         .build()
-                    if (scoresCount == 0 || getScores(index) == null) {
+                    if (scoresCount > index || getScores(index) == null) {
                         addScores(index, chapterScoreProto)
                     } else {
                         setScores(index, chapterScoreProto)
