@@ -12,10 +12,8 @@ sealed class GameInputEvent {
     object Pause : GameInputEvent()
     object Resume : GameInputEvent()
 
-    sealed class Interaction : GameInputEvent() {
-        data class TargetTap(val data: TargetData): Interaction()
-        object BackgroundTap : Interaction()
-    }
+    data class TargetTap(val data: TargetData): GameInputEvent()
+    object BackgroundTap : GameInputEvent()
 
     sealed class SystemEvent : GameInputEvent() {
         object Paused : SystemEvent()

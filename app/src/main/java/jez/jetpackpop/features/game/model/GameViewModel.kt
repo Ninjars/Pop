@@ -50,8 +50,8 @@ class GameViewModel(
     private fun processInputEvent(event: GameInputEvent): GameState =
         with(gameState.value) {
             when (event) {
-                is GameInputEvent.Interaction.BackgroundTap -> TODO()
-                is GameInputEvent.Interaction.TargetTap -> TODO()
+                is GameInputEvent.BackgroundTap -> onBackgroundTapped()
+                is GameInputEvent.TargetTap -> onTargetTapped(event.data)
                 is GameInputEvent.Measured -> onMeasured(event.width, event.height)
                 is GameInputEvent.StartNewGame -> start(event.config, resetScore = true)
                 is GameInputEvent.StartNextLevel -> start(event.config, resetScore = false)
@@ -60,7 +60,7 @@ class GameViewModel(
                 is GameInputEvent.Resume -> resume()
                 is GameInputEvent.SystemEvent.Paused -> pause()
                 is GameInputEvent.SystemEvent.Resumed -> resume()
-                is GameInputEvent.Update -> TODO()
+                is GameInputEvent.Update -> update(event.deltaSeconds)
             }
         }
 
@@ -172,28 +172,24 @@ class GameViewModel(
             else -> this
         }
 
-    fun onTargetTapped(data: TargetData) {
-        val currentState = gameState.value
-        if (currentState.processState != GameProcessState.RUNNING) return
-
-        _gameState.value = currentState.run {
+    private fun GameState.onTargetTapped(data: TargetData): GameState =
+        if (processState != GameProcessState.RUNNING) {
+            this
+        } else {
             copy(
-                scoreData = currentState.scoreData.createUpdate(true),
+                scoreData = scoreData.createUpdate(true),
                 targets = targets.filter { it.id != data.id || it.color != data.color }.toList()
             )
         }
-    }
 
-    fun onBackgroundTapped() {
-        val currentState = gameState.value
-        if (currentState.processState != GameProcessState.RUNNING) return
-
-        _gameState.value = currentState.run {
+    private fun GameState.onBackgroundTapped(): GameState =
+        if (processState != GameProcessState.RUNNING) {
+            this
+        } else {
             copy(
-                scoreData = currentState.scoreData.createUpdate(false),
+                scoreData = scoreData.createUpdate(false),
             )
         }
-    }
 
     fun recordScore() {
         val currentState = gameState.value
@@ -212,23 +208,15 @@ class GameViewModel(
         }
     }
 
-    fun update(deltaSeconds: Float) {
-        val currentState = gameState.value
-        when (currentState.processState) {
+    private fun GameState.update(deltaSeconds: Float) =
+        when (processState) {
             GameProcessState.INITIALISED,
             GameProcessState.READY,
-            GameProcessState.WAITING_MEASURE ->
-                currentState.start(
-                    currentState.config,
-                    resetScore = false
-                )
-
+            GameProcessState.WAITING_MEASURE -> start(config, resetScore = false)
             GameProcessState.END_LOSE,
-            GameProcessState.RUNNING -> _gameState.value = currentState.iterateState(deltaSeconds)
-            else -> {
-            }
+            GameProcessState.RUNNING -> iterateState(deltaSeconds)
+            else -> this
         }
-    }
 
     private fun getRandomVelocity(random: Random, min: Float, max: Float): Offset {
         val speed = random.nextFloat() * (max - min) + min

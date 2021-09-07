@@ -44,11 +44,11 @@ fun GameScreen(
             }
             GameProcessState.END_LOSE -> {
                 gameEndAction(gameState.toEndState(false))
-                runGameLoop(gameViewModel)
+                runGameLoop(gameEventFlow)
             }
 
             GameProcessState.RUNNING -> {
-                runGameLoop(gameViewModel)
+                runGameLoop(gameEventFlow)
             }
         }
     }
@@ -59,7 +59,9 @@ fun GameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.surface)
             .clipToBounds()
-            .clickable { gameViewModel.onBackgroundTapped() }
+            .clickable {
+                gameEventFlow.tryEmit(GameInputEvent.BackgroundTap)
+            }
             .onSizeChanged {
                 with(density) {
                     gameEventFlow.tryEmit(
@@ -73,7 +75,7 @@ fun GameScreen(
             gameState = gameState,
             targetTapListener = { target ->
                 soundManager.playPop()
-                gameViewModel.onTargetTapped(target)
+                gameEventFlow.tryEmit(GameInputEvent.TargetTap(target))
             }
         )
     }
@@ -98,14 +100,14 @@ private fun GameState.toEndState(didWin: Boolean): GameEndState =
     }
 
 private suspend fun runGameLoop(
-    gameViewModel: GameViewModel,
+    gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
     var lastFrame = 0L
     while (true) {
         val nextFrame = awaitFrame() / 1000_000L
         if (lastFrame != 0L) {
             val deltaMillis = nextFrame - lastFrame
-            gameViewModel.update(deltaMillis / 1000f)
+            gameEventFlow.emit(GameInputEvent.Update(deltaMillis / 1000f))
         }
         lastFrame = nextFrame
     }
