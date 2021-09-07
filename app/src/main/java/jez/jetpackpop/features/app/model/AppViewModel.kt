@@ -28,10 +28,16 @@ class AppViewModel(
         with(appState.value) {
             when (event) {
                 is AppInputEvent.Navigation -> handleNavigation(this, event)
+                is AppInputEvent.StartGameFromChapter ->
+                    AppState.StartGameState(
+                        getFirstGameConfiguration(event.gameChapter),
+                        isNewChapter = true,
+                        isNewGame = true,
+                    )
             }
         }
 
-    private fun handleNavigation(appState: AppState, event: AppInputEvent): AppState =
+    private fun handleNavigation(appState: AppState, event: AppInputEvent.Navigation): AppState =
         when (event) {
             is AppInputEvent.Navigation.MainMenu -> AppState.MainMenuState(demoConfiguration())
         }

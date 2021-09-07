@@ -14,7 +14,6 @@ import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.app.model.AppState
 import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.game.data.GameChapter
-import jez.jetpackpop.features.game.data.getFirstGameConfiguration
 import jez.jetpackpop.features.game.data.getGameConfiguration
 import jez.jetpackpop.features.game.data.getNextGameConfiguration
 import jez.jetpackpop.features.game.model.GameInputEvent
@@ -60,7 +59,7 @@ fun App(
 
                     ShowMainMenu(
                         gameViewModel.gameState.value.highScores,
-                        stateChangeListener,
+                        appEventFlow,
                     )
                 }
 
@@ -92,16 +91,10 @@ fun App(
 @Composable
 private fun ShowMainMenu(
     highScores: HighScores,
-    stateChangeListener: (AppState) -> Unit,
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
 ) {
     val chapterSelectAction: (GameChapter) -> Unit = {
-        stateChangeListener(
-            AppState.StartGameState(
-                getFirstGameConfiguration(it),
-                isNewChapter = true,
-                isNewGame = true,
-            )
-        )
+        appEventFlow.tryEmit(AppInputEvent.StartGameFromChapter(it))
     }
     val chapterButtonModels = GameChapter.values().map {
         ChapterSelectButtonModel(
@@ -118,13 +111,7 @@ private fun ShowMainMenu(
     MainMenu(
         chapterSelectButtonModels = chapterButtonModels,
         startAction = {
-            stateChangeListener(
-                AppState.StartGameState(
-                    getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE),
-                    isNewChapter = true,
-                    isNewGame = true,
-                )
-            )
+            appEventFlow.tryEmit(AppInputEvent.StartGameFromChapter(GameChapter.SIMPLE_SINGLE))
         },
     )
 }
