@@ -52,13 +52,13 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onPause() {
-        gameViewModel.onLifecyclePause()
+        gameEventFlow.tryEmit(GameInputEvent.Pause)
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        gameViewModel.onLifecycleResume()
+        gameEventFlow.tryEmit(GameInputEvent.Resume)
     }
 
     private companion object {

@@ -48,23 +48,25 @@ class GameViewModel(
     }
 
     private fun processInputEvent(event: GameInputEvent): GameState =
-        when (event) {
-            is GameInputEvent.Interaction.BackgroundTap -> TODO()
-            is GameInputEvent.Interaction.TargetTap -> TODO()
-            is GameInputEvent.Measured -> onMeasured(event.width, event.height)
-            is GameInputEvent.Pause -> TODO()
-            is GameInputEvent.StartNewGame -> start(event.config, resetScore = true)
-            is GameInputEvent.StartNextLevel -> start(event.config, resetScore = false)
-            is GameInputEvent.StartNextChapter -> start(event.config, resetScore = true)
-            is GameInputEvent.Resume -> TODO()
-            is GameInputEvent.SystemEvent.Paused -> TODO()
-            is GameInputEvent.SystemEvent.Resumed -> TODO()
-            is GameInputEvent.Update -> TODO()
+        with(gameState.value) {
+            when (event) {
+                is GameInputEvent.Interaction.BackgroundTap -> TODO()
+                is GameInputEvent.Interaction.TargetTap -> TODO()
+                is GameInputEvent.Measured -> onMeasured(this, event.width, event.height)
+                is GameInputEvent.StartNewGame -> start(this, event.config, resetScore = true)
+                is GameInputEvent.StartNextLevel -> start(this, event.config, resetScore = false)
+                is GameInputEvent.StartNextChapter -> start(this, event.config, resetScore = true)
+                is GameInputEvent.Pause -> pause(this)
+                is GameInputEvent.Resume -> resume(this)
+                is GameInputEvent.SystemEvent.Paused -> TODO()
+                is GameInputEvent.SystemEvent.Resumed -> TODO()
+                is GameInputEvent.Update -> TODO()
+            }
         }
 
-    private fun onMeasured(width: Float, height: Float): GameState =
-        with(gameState.value) {
-            return when (processState) {
+    private fun onMeasured(currentState: GameState, width: Float, height: Float): GameState =
+        with(currentState) {
+            return when (currentState.processState) {
                 GameProcessState.INITIALISED ->
                     copy(
                         width = width,
@@ -85,36 +87,35 @@ class GameViewModel(
             }
         }
 
-    private fun start(config: GameConfiguration, resetScore: Boolean) : GameState =
-        with (gameState.value) {
-            val currentState = gameState.value
-            if (config == currentState.config) return this
+    private fun start(currentState: GameState, config: GameConfiguration, resetScore: Boolean): GameState =
+        with(currentState) {
+            if (this.config == config) return this
 
-            when (currentState.processState) {
+            when (processState) {
                 GameProcessState.WAITING_MEASURE ->
-                    currentState.copy(
+                    copy(
                         config = config,
                     )
                 GameProcessState.INITIALISED ->
-                    if (currentState.width == 0f) {
-                        currentState.copy(
+                    if (width == 0f) {
+                        copy(
                             config = config,
                             processState = GameProcessState.WAITING_MEASURE
                         )
                     } else {
-                        currentState.startGame(
+                        startGame(
                             config,
-                            currentState.width,
-                            currentState.height,
+                            width,
+                            height,
                             resetScore,
                         )
                     }
 
                 else ->
-                    currentState.startGame(
+                    startGame(
                         config,
-                        currentState.width,
-                        currentState.height,
+                        width,
+                        height,
                         resetScore,
                     )
             }
@@ -157,31 +158,20 @@ class GameViewModel(
         )
     }
 
-    fun onLifecycleResume() {
-        resume()
-    }
-
-    fun resume() {
-        val currentState = gameState.value
-        _gameState.value = when (currentState.processState) {
+    private fun resume(currentState: GameState) =
+        when (currentState.processState) {
             GameProcessState.PAUSED ->
                 currentState.copy(processState = GameProcessState.RUNNING)
             else -> currentState
+
         }
-    }
 
-    fun onLifecyclePause() {
-        pause()
-    }
-
-    fun pause() {
-        val currentState = gameState.value
-        _gameState.value = when (currentState.processState) {
+    private fun pause(currentState: GameState) =
+        when (currentState.processState) {
             GameProcessState.RUNNING ->
                 currentState.copy(processState = GameProcessState.PAUSED)
             else -> currentState
         }
-    }
 
     fun onTargetTapped(data: TargetData) {
         val currentState = gameState.value
@@ -228,7 +218,7 @@ class GameViewModel(
         when (currentState.processState) {
             GameProcessState.INITIALISED,
             GameProcessState.READY,
-            GameProcessState.WAITING_MEASURE -> start(currentState.config, resetScore = false)
+            GameProcessState.WAITING_MEASURE -> start(currentState, currentState.config, resetScore = false)
 
             GameProcessState.END_LOSE,
             GameProcessState.RUNNING -> _gameState.value = currentState.iterateState(deltaSeconds)
