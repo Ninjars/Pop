@@ -8,13 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.app.model.AppState
 import jez.jetpackpop.features.app.model.AppViewModel
-import jez.jetpackpop.features.game.data.*
+import jez.jetpackpop.features.game.data.GameChapter
+import jez.jetpackpop.features.game.data.getFirstGameConfiguration
+import jez.jetpackpop.features.game.data.getGameConfiguration
+import jez.jetpackpop.features.game.data.getNextGameConfiguration
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.game.ui.GameEndMenu
@@ -41,7 +43,7 @@ fun App(
         ) {
             val appState = viewModel.appState.collectAsState()
             if (appState.value is AppState.InitialisingState) {
-                stateChangeListener(mainMenuState())
+                appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
             }
 
             GameScreen(
@@ -54,7 +56,7 @@ fun App(
 
             when (val currentAppState = appState.value) {
                 is AppState.MainMenuState -> {
-                    gameEventFlow.tryEmit(GameInputEvent.StartNewGame(demoConfiguration()))
+                    gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
 
                     ShowMainMenu(
                         gameViewModel.gameState.value.highScores,
@@ -74,10 +76,11 @@ fun App(
                     stateChangeListener(AppState.InGameState)
                 }
 
-                is AppState.InGameState -> { }
+                is AppState.InGameState -> {
+                }
 
                 is AppState.EndMenuState ->
-                    EndMenu(currentAppState, stateChangeListener)
+                    EndMenu(currentAppState, appEventFlow, stateChangeListener)
 
                 else ->
                     Log.e("App", "No ui for app state $currentAppState")
@@ -129,6 +132,7 @@ private fun ShowMainMenu(
 @Composable
 private fun EndMenu(
     state: AppState.EndMenuState,
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
     stateChangeListener: (AppState) -> Unit,
 ) {
     val nextGame =
@@ -141,7 +145,7 @@ private fun EndMenu(
         VictoryMenu(
             configId = state.endState.gameConfigId,
             mainMenuAction = {
-                stateChangeListener(mainMenuState())
+                appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
             },
             nextGameAction = null
         )
@@ -162,23 +166,3 @@ private fun EndMenu(
         )
     }
 }
-
-private fun mainMenuState() = AppState.MainMenuState(demoConfiguration())
-
-private fun demoConfiguration(): GameConfiguration =
-    GameConfiguration(
-        id = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
-        isDemo = true,
-        timeLimitSeconds = -1f,
-        targetConfigurations = listOf(
-            TargetConfiguration(
-                color = TargetColor.TARGET,
-                radius = 30.dp,
-                count = 10,
-                minSpeed = 8.dp,
-                maxSpeed = 16.dp,
-                clickable = false,
-            )
-        ),
-        isLastInChapter = false,
-    )
