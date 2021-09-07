@@ -13,16 +13,19 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.game.GameEndState
+import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameProcessState
 import jez.jetpackpop.features.game.model.GameState
 import jez.jetpackpop.features.game.model.GameViewModel
 import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
 fun GameScreen(
     soundManager: SoundManager,
     gameViewModel: GameViewModel,
     gameState: GameState,
+    gameEventFlow: MutableSharedFlow<GameInputEvent>,
     gameEndAction: (GameEndState) -> Unit,
 ) {
 //    Log.w("GameScreen", "invoked $gameViewModel $gameState")
@@ -59,7 +62,9 @@ fun GameScreen(
             .clickable { gameViewModel.onBackgroundTapped() }
             .onSizeChanged {
                 with(density) {
-                    gameViewModel.onMeasured(it.width.toDp().value, it.height.toDp().value)
+                    gameEventFlow.tryEmit(
+                        GameInputEvent.Measured(it.width.toDp().value, it.height.toDp().value)
+                    )
                 }
             }
     ) {

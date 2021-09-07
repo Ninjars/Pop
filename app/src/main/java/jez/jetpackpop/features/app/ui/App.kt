@@ -15,11 +15,13 @@ import jez.jetpackpop.features.app.model.AppState
 import jez.jetpackpop.features.app.model.PopViewModel
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.game.data.*
+import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.game.ui.GameEndMenu
 import jez.jetpackpop.features.game.ui.GameScreen
 import jez.jetpackpop.features.game.ui.VictoryMenu
 import jez.jetpackpop.ui.AppTheme
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
 @Stable
@@ -27,6 +29,7 @@ fun App(
     soundManager: SoundManager,
     gameViewModel: GameViewModel,
     viewModel: PopViewModel,
+    gameEventFlow: MutableSharedFlow<GameInputEvent>,
     stateChangeListener: (AppState) -> Unit
 ) {
     AppTheme {
@@ -43,6 +46,7 @@ fun App(
                 soundManager = soundManager,
                 gameViewModel = gameViewModel,
                 gameState = gameViewModel.gameState.collectAsState().value,
+                gameEventFlow = gameEventFlow,
             ) {
                 stateChangeListener(AppState.EndMenuState(it))
             }

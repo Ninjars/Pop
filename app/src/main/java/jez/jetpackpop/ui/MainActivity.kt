@@ -10,16 +10,19 @@ import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModelProvider
 import jez.jetpackpop.HighScoresProto
 import jez.jetpackpop.audio.SoundManager
-import jez.jetpackpop.features.highscore.HighScoreDataSerializer
-import jez.jetpackpop.features.highscore.HighScoresRepository
-import jez.jetpackpop.features.game.model.GameViewModel
-import jez.jetpackpop.features.game.model.GameViewModelFactory
 import jez.jetpackpop.features.app.model.PopViewModel
 import jez.jetpackpop.features.app.ui.App
+import jez.jetpackpop.features.game.model.GameInputEvent
+import jez.jetpackpop.features.game.model.GameViewModel
+import jez.jetpackpop.features.game.model.GameViewModelFactory
+import jez.jetpackpop.features.highscore.HighScoreDataSerializer
+import jez.jetpackpop.features.highscore.HighScoresRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class MainActivity : ComponentActivity() {
     private val soundManager = SoundManager(this)
     private val appViewModel: PopViewModel by viewModels()
+    private val gameEventFlow = MutableSharedFlow<GameInputEvent>(extraBufferCapacity = 5)
     private lateinit var gameViewModel: GameViewModel
 
     init {
@@ -30,7 +33,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         gameViewModel = ViewModelProvider(
             this,
-            GameViewModelFactory(HighScoresRepository(dataStore = this.highScoresStore))
+            GameViewModelFactory(
+                HighScoresRepository(dataStore = this.highScoresStore),
+                gameEventFlow,
+            )
         ).get(GameViewModel::class.java)
 
         setContent {
@@ -38,6 +44,7 @@ class MainActivity : ComponentActivity() {
                 soundManager,
                 gameViewModel,
                 appViewModel,
+                gameEventFlow,
             ) {
                 appViewModel.onNewState(it)
             }

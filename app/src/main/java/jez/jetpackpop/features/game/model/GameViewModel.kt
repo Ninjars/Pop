@@ -8,6 +8,7 @@ import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -15,7 +16,8 @@ import kotlin.math.*
 import kotlin.random.Random
 
 class GameViewModel(
-    private val highScoresRepository: HighScoresRepository
+    private val highScoresRepository: HighScoresRepository,
+    inputEvents: SharedFlow<GameInputEvent>,
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState(
@@ -37,30 +39,51 @@ class GameViewModel(
                 _gameState.value = _gameState.value.copy(highScores = it)
             }
         }
-    }
 
-    fun onMeasured(width: Float, height: Float) {
-        val currentState = gameState.value
-        _gameState.value = when (currentState.processState) {
-            GameProcessState.INITIALISED ->
-                currentState.copy(
-                    width = width,
-                    height = height,
-                    processState = GameProcessState.READY,
-                )
-            GameProcessState.WAITING_MEASURE ->
-                currentState.copy(
-                    width = width,
-                    height = height,
-                    processState = GameProcessState.RUNNING,
-                )
-            else ->
-                currentState.copy(
-                    width = width,
-                    height = height,
-                )
+        viewModelScope.launch {
+            inputEvents.collect {
+                _gameState.value = processInputEvent(it)
+            }
         }
     }
+
+    private fun processInputEvent(event: GameInputEvent): GameState =
+        when (event) {
+            is GameInputEvent.Interaction.BackgroundTap -> TODO()
+            is GameInputEvent.Interaction.TargetTap -> TODO()
+            is GameInputEvent.Measured -> onMeasured(event.width, event.height)
+            is GameInputEvent.Pause -> TODO()
+            is GameInputEvent.PrepareNextChapter -> TODO()
+            is GameInputEvent.PrepareNextLevel -> TODO()
+            is GameInputEvent.Resume -> TODO()
+            is GameInputEvent.Start -> TODO()
+            is GameInputEvent.SystemEvent.Paused -> TODO()
+            is GameInputEvent.SystemEvent.Resumed -> TODO()
+            is GameInputEvent.Update -> TODO()
+        }
+
+    private fun onMeasured(width: Float, height: Float): GameState =
+        with(gameState.value) {
+            return when (processState) {
+                GameProcessState.INITIALISED ->
+                    copy(
+                        width = width,
+                        height = height,
+                        processState = GameProcessState.READY,
+                    )
+                GameProcessState.WAITING_MEASURE ->
+                    copy(
+                        width = width,
+                        height = height,
+                        processState = GameProcessState.RUNNING,
+                    )
+                else ->
+                    copy(
+                        width = width,
+                        height = height,
+                    )
+            }
+        }
 
     fun start(config: GameConfiguration) {
         val currentState = gameState.value
@@ -297,11 +320,12 @@ class GameViewModel(
 
 class GameViewModelFactory(
     private val highScoresRepository: HighScoresRepository,
+    private val inputEventFlow: SharedFlow<GameInputEvent>,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return GameViewModel(highScoresRepository) as T
+            return GameViewModel(highScoresRepository, inputEventFlow) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
