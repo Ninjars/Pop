@@ -8,6 +8,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModelProvider
 import jez.jetpackpop.HighScoresProto
+import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.audio.SoundManagerImpl
 import jez.jetpackpop.features.app.model.AppInputEvent
@@ -67,6 +68,8 @@ class MainActivity : ComponentActivity() {
     override fun onBackPressed() {
         if (!appViewModel.handleBackPressed()) {
             super.onBackPressed()
+        } else {
+            soundManager.playSound(GameSoundEffect.BACK_INVOKED)
         }
     }
 
