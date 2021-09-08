@@ -150,7 +150,7 @@ class GameViewModel(
             remainingTime = config.timeLimitSeconds,
             width = width,
             height = height,
-            scoreData = createGameScore(if (resetScore) 0 else scoreData.startingScore),
+            scoreData = createGameScore(if (resetScore) 0 else scoreData.totalScore),
         )
     }
 

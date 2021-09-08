@@ -38,7 +38,7 @@ class AppViewModel(
                 is AppInputEvent.StartGame ->
                     AppState.StartGameState(
                         event.config,
-                        isNewChapter = true,
+                        isNewChapter = event.isNewChapter,
                         isNewGame = false,
                     )
                 is AppInputEvent.GameEnded -> handleGameEnd(event.gameEndState)
