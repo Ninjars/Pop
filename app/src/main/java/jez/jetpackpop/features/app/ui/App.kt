@@ -29,8 +29,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 @Stable
 fun App(
     soundManager: SoundManager,
+    appViewModel: AppViewModel,
     gameViewModel: GameViewModel,
-    viewModel: AppViewModel,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
@@ -39,14 +39,15 @@ fun App(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
         ) {
-            val appState = viewModel.appState.collectAsState()
+            val appState = appViewModel.appState.collectAsState()
+            val gameState = gameViewModel.gameState.collectAsState()
             if (appState.value is AppState.InitialisingState) {
                 appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
             }
 
             GameScreen(
                 soundManager = soundManager,
-                gameState = gameViewModel.gameState.collectAsState().value,
+                gameState = gameState.value,
                 gameEventFlow = gameEventFlow,
             ) {
                 appEventFlow.tryEmit(AppInputEvent.GameEnded(it))

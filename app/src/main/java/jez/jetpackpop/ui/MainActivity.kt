@@ -45,8 +45,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             App(
                 soundManager,
-                gameViewModel,
                 appViewModel,
+                gameViewModel,
                 appEventFlow,
                 gameEventFlow,
             )
