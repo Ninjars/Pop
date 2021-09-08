@@ -15,15 +15,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
-import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.ui.lose
 import jez.jetpackpop.ui.onEnd
 import jez.jetpackpop.ui.win
 
 @Composable
 fun GameEndMenu(
-    endState: GameEndState,
-    startGameAction: (GameEndState) -> Unit,
+    didWin: Boolean,
+    startGameAction: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -36,18 +35,18 @@ fun GameEndMenu(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            if (endState.didWin) {
+            if (didWin) {
                 DisplayMenu(
                     color = MaterialTheme.colors.win,
                     titleText = R.string.game_end_win_title,
                     buttonText = R.string.game_end_win_start,
-                ) { startGameAction(endState) }
+                ) { startGameAction() }
             } else {
                 DisplayMenu(
                     color = MaterialTheme.colors.lose,
                     titleText = R.string.game_end_lose_title,
                     buttonText = R.string.game_end_lose_start,
-                ) { startGameAction(endState) }
+                ) { startGameAction() }
             }
         }
     }

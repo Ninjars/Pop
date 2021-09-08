@@ -13,13 +13,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
-import jez.jetpackpop.features.game.data.GameConfigId
 import jez.jetpackpop.ui.VictoryContinueButtonColours
 import jez.jetpackpop.ui.overlay
 
 @Composable
 fun VictoryMenu(
-    configId: GameConfigId,
     mainMenuAction: () -> Unit,
     nextGameAction: (() -> Unit)?,
 ) {

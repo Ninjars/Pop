@@ -16,7 +16,6 @@ import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameProcessState
 import jez.jetpackpop.features.game.model.GameState
-import jez.jetpackpop.features.game.model.GameViewModel
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -58,7 +57,9 @@ fun GameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.surface)
             .clipToBounds()
-            .clickable {
+            .clickable(
+                enabled = !gameState.config.isDemo && gameState.processState == GameProcessState.RUNNING
+            ) {
                 gameEventFlow.tryEmit(GameInputEvent.BackgroundTap)
             }
             .onSizeChanged {

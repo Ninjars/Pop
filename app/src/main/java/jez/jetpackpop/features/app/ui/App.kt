@@ -7,13 +7,15 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.SoundManager
+import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.app.model.AppState
-import jez.jetpackpop.features.app.model.PopViewModel
-import jez.jetpackpop.features.game.data.*
+import jez.jetpackpop.features.app.model.AppViewModel
+import jez.jetpackpop.features.game.data.GameChapter
+import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.game.ui.GameEndMenu
@@ -28,9 +30,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 fun App(
     soundManager: SoundManager,
     gameViewModel: GameViewModel,
-    viewModel: PopViewModel,
+    viewModel: AppViewModel,
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
-    stateChangeListener: (AppState) -> Unit
 ) {
     AppTheme {
         Box(
@@ -39,7 +41,7 @@ fun App(
         ) {
             val appState = viewModel.appState.collectAsState()
             if (appState.value is AppState.InitialisingState) {
-                stateChangeListener(mainMenuState())
+                appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
             }
 
             GameScreen(
@@ -47,35 +49,55 @@ fun App(
                 gameState = gameViewModel.gameState.collectAsState().value,
                 gameEventFlow = gameEventFlow,
             ) {
-                stateChangeListener(AppState.EndMenuState(it))
+                appEventFlow.tryEmit(AppInputEvent.GameEnded(it))
             }
 
             when (val currentAppState = appState.value) {
                 is AppState.MainMenuState -> {
-                    gameEventFlow.tryEmit(GameInputEvent.StartNewGame(demoConfiguration()))
+                    remember(currentAppState) {
+                        gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
+                    }
 
                     ShowMainMenu(
+                        appEventFlow,
                         gameViewModel.gameState.value.highScores,
-                        stateChangeListener,
                     )
                 }
 
                 is AppState.StartGameState -> {
-                    when {
-                        currentAppState.isNewChapter ->
-                            gameEventFlow.tryEmit(GameInputEvent.StartNextChapter(currentAppState.gameConfiguration))
-                        currentAppState.isNewGame ->
-                            gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
-                        else ->
-                            gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(currentAppState.gameConfiguration))
+                    remember(currentAppState) {
+                        when {
+                            currentAppState.isNewChapter ->
+                                gameEventFlow.tryEmit(
+                                    GameInputEvent.StartNextChapter(
+                                        currentAppState.gameConfiguration
+                                    )
+                                )
+                            currentAppState.isNewGame ->
+                                gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
+                            else ->
+                                gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(currentAppState.gameConfiguration))
+                        }
                     }
-                    stateChangeListener(AppState.InGameState)
                 }
 
-                is AppState.InGameState -> { }
+                is AppState.VictoryMenuState ->
+                    VictoryMenu(
+                        mainMenuAction = {
+                            appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
+                        },
+                        nextGameAction = null
+                    )
+
+                is AppState.ChapterCompleteMenuState ->
+                    ChapterComplete(appEventFlow, currentAppState.nextGame)
 
                 is AppState.EndMenuState ->
-                    EndMenu(currentAppState, stateChangeListener)
+                    LevelEnd(
+                        appEventFlow,
+                        currentAppState.didWin,
+                        currentAppState.nextGameConfiguration
+                    )
 
                 else ->
                     Log.e("App", "No ui for app state $currentAppState")
@@ -86,17 +108,11 @@ fun App(
 
 @Composable
 private fun ShowMainMenu(
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
     highScores: HighScores,
-    stateChangeListener: (AppState) -> Unit,
 ) {
     val chapterSelectAction: (GameChapter) -> Unit = {
-        stateChangeListener(
-            AppState.StartGameState(
-                getFirstGameConfiguration(it),
-                isNewChapter = true,
-                isNewGame = true,
-            )
-        )
+        appEventFlow.tryEmit(AppInputEvent.StartGameFromChapter(it))
     }
     val chapterButtonModels = GameChapter.values().map {
         ChapterSelectButtonModel(
@@ -113,70 +129,34 @@ private fun ShowMainMenu(
     MainMenu(
         chapterSelectButtonModels = chapterButtonModels,
         startAction = {
-            stateChangeListener(
-                AppState.StartGameState(
-                    getFirstGameConfiguration(GameChapter.SIMPLE_SINGLE),
-                    isNewChapter = true,
-                    isNewGame = true,
-                )
-            )
+            appEventFlow.tryEmit(AppInputEvent.StartGameFromChapter(GameChapter.SIMPLE_SINGLE))
         },
     )
 }
 
 @Composable
-private fun EndMenu(
-    state: AppState.EndMenuState,
-    stateChangeListener: (AppState) -> Unit,
+private fun ChapterComplete(
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
+    nextGame: GameConfiguration,
 ) {
-    val nextGame =
-        if (state.endState.didWin) {
-            getNextGameConfiguration(state.endState.gameConfigId)
-        } else {
-            getGameConfiguration(state.endState.gameConfigId)
+    GameEndMenu(
+        didWin = true,
+        startGameAction = {
+            appEventFlow.tryEmit(AppInputEvent.StartGame(nextGame, true))
         }
-    if (nextGame == null) {
-        VictoryMenu(
-            configId = state.endState.gameConfigId,
-            mainMenuAction = {
-                stateChangeListener(mainMenuState())
-            },
-            nextGameAction = null
-        )
-
-    } else {
-        val isNewChapter = state.endState.gameConfigId.chapter != nextGame.id.chapter
-        GameEndMenu(
-            endState = state.endState,
-            startGameAction = {
-                stateChangeListener(
-                    AppState.StartGameState(
-                        nextGame,
-                        isNewChapter,
-                        isNewGame = false
-                    )
-                )
-            }
-        )
-    }
+    )
 }
 
-private fun mainMenuState() = AppState.MainMenuState(demoConfiguration())
-
-private fun demoConfiguration(): GameConfiguration =
-    GameConfiguration(
-        id = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
-        isDemo = true,
-        timeLimitSeconds = -1f,
-        targetConfigurations = listOf(
-            TargetConfiguration(
-                color = TargetColor.TARGET,
-                radius = 30.dp,
-                count = 10,
-                minSpeed = 8.dp,
-                maxSpeed = 16.dp,
-                clickable = false,
-            )
-        ),
-        isLastInChapter = false,
+@Composable
+private fun LevelEnd(
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
+    didWin: Boolean,
+    nextGameConfiguration: GameConfiguration,
+) {
+    GameEndMenu(
+        didWin = didWin,
+        startGameAction = {
+            appEventFlow.tryEmit(AppInputEvent.StartGame(nextGameConfiguration, false))
+        }
     )
+}
