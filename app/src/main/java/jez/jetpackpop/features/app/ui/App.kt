@@ -152,6 +152,7 @@ private fun ChapterComplete(
     nextGame: GameConfiguration,
 ) {
     GameEndMenu(
+        soundManager = soundManager,
         didWin = true,
         startGameAction = {
             soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
@@ -168,6 +169,7 @@ private fun LevelEnd(
     nextGameConfiguration: GameConfiguration,
 ) {
     GameEndMenu(
+        soundManager = soundManager,
         didWin = didWin,
         startGameAction = {
             soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)

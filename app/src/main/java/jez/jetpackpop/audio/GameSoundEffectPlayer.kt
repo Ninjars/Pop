@@ -7,6 +7,8 @@ import android.media.SoundPool
 import jez.jetpackpop.R
 
 enum class GameSoundEffect {
+    GAME_WIN,
+    GAME_LOSE,
     BUTTON_TAPPED,
     TARGET_TAPPED,
     BACKGROUND_TAPPED,
@@ -25,6 +27,8 @@ class GameSoundEffectPlayer {
         soundIds = GameSoundEffect.values()
             .map {
                 when (it) {
+                    GameSoundEffect.GAME_WIN -> R.raw.end_game_win
+                    GameSoundEffect.GAME_LOSE -> R.raw.end_game_lose
                     GameSoundEffect.BUTTON_TAPPED -> R.raw.select_action
                     GameSoundEffect.TARGET_TAPPED -> R.raw.bubblepop
                     GameSoundEffect.BACKGROUND_TAPPED -> R.raw.miss_click
