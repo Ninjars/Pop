@@ -5,7 +5,30 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 
-class SoundManager(private val context: Context) : LifecycleEventObserver {
+interface SoundManager : LifecycleEventObserver {
+    /**
+     * Plays an indicated sound effect with a random small pitch adjustment
+     */
+    fun playEffect(effect: GameSoundEffect)
+
+    /**
+     * Plays an indicated sound effect without any pitch adjustment
+     */
+    fun playSound(effect: GameSoundEffect)
+}
+
+class NoOpSoundManager : SoundManager {
+    override fun playEffect(effect: GameSoundEffect) {
+    }
+
+    override fun playSound(effect: GameSoundEffect) {
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+    }
+}
+
+class SoundManagerImpl(private val context: Context) : SoundManager {
 
     private val popEffectPlayer = GameSoundEffectPlayer()
 
@@ -28,14 +51,14 @@ class SoundManager(private val context: Context) : LifecycleEventObserver {
     /**
      * Plays an indicated sound effect with a random small pitch adjustment
      */
-    fun playEffect(effect: GameSoundEffect) {
+    override fun playEffect(effect: GameSoundEffect) {
         popEffectPlayer.play(effect)
     }
 
     /**
      * Plays an indicated sound effect without any pitch adjustment
      */
-    fun playSound(effect: GameSoundEffect) {
+    override fun playSound(effect: GameSoundEffect) {
         popEffectPlayer.play(effect, 0f)
     }
 }
