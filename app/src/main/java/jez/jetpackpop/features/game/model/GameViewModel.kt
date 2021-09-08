@@ -88,10 +88,8 @@ class GameViewModel(
     private fun GameState.start(
         config: GameConfiguration,
         resetScore: Boolean
-    ): GameState {
-        if (this.config == config) return this
-
-        return when (processState) {
+    ): GameState =
+        when (processState) {
             GameProcessState.WAITING_MEASURE ->
                 copy(
                     config = config,
@@ -119,7 +117,6 @@ class GameViewModel(
                     resetScore,
                 )
         }
-    }
 
     private fun GameState.startGame(
         config: GameConfiguration,
