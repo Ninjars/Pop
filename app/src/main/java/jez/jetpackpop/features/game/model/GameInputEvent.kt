@@ -14,7 +14,6 @@ sealed class GameInputEvent {
 
     data class TargetTap(val data: TargetData) : GameInputEvent()
     object BackgroundTap : GameInputEvent()
-    object RecordCurrentScore : GameInputEvent()
 
     sealed class SystemEvent : GameInputEvent() {
         object Paused : SystemEvent()

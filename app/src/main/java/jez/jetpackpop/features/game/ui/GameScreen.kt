@@ -38,7 +38,6 @@ fun GameScreen(
             GameProcessState.PAUSED -> {
             }
             GameProcessState.END_WIN -> {
-                gameEventFlow.tryEmit(GameInputEvent.RecordCurrentScore)
                 gameEndAction(gameState.toEndState(true))
             }
             GameProcessState.END_LOSE -> {

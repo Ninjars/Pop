@@ -60,7 +60,6 @@ class GameViewModel(
                 is GameInputEvent.SystemEvent.Paused -> pause()
                 is GameInputEvent.SystemEvent.Resumed -> resume()
                 is GameInputEvent.Update -> update(event.deltaSeconds)
-                is GameInputEvent.RecordCurrentScore -> recordCurrentScore()
             }
         }
 
@@ -240,7 +239,11 @@ class GameViewModel(
             targets = targets.map {
                 it.update(deltaSeconds, this)
             }
-        )
+        ).also {
+            if (it.processState == GameProcessState.END_WIN) {
+                it.recordCurrentScore()
+            }
+        }
     }
 
     private fun TargetData.update(deltaTime: Float, state: GameState): TargetData {
