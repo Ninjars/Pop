@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,15 +16,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
+import jez.jetpackpop.audio.GameSoundEffect
+import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.ui.lose
 import jez.jetpackpop.ui.onEnd
 import jez.jetpackpop.ui.win
 
 @Composable
 fun GameEndMenu(
+    soundManager: SoundManager,
     didWin: Boolean,
     startGameAction: () -> Unit,
 ) {
+    LaunchedEffect(Unit) {
+        soundManager.playSound(
+            if (didWin) {
+                GameSoundEffect.GAME_WIN
+            } else {
+                GameSoundEffect.GAME_LOSE
+            }
+        )
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()

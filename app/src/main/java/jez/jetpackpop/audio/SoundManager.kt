@@ -4,11 +4,33 @@ import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import jez.jetpackpop.R
 
-class SoundManager(private val context: Context) : LifecycleEventObserver {
+interface SoundManager : LifecycleEventObserver {
+    /**
+     * Plays an indicated sound effect with a random small pitch adjustment
+     */
+    fun playEffect(effect: GameSoundEffect)
 
-    private val popEffectPlayer = RandomSoundEffectPlayer()
+    /**
+     * Plays an indicated sound effect without any pitch adjustment
+     */
+    fun playSound(effect: GameSoundEffect)
+}
+
+class NoOpSoundManager : SoundManager {
+    override fun playEffect(effect: GameSoundEffect) {
+    }
+
+    override fun playSound(effect: GameSoundEffect) {
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+    }
+}
+
+class SoundManagerImpl(private val context: Context) : SoundManager {
+
+    private val popEffectPlayer = GameSoundEffectPlayer()
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
@@ -19,19 +41,24 @@ class SoundManager(private val context: Context) : LifecycleEventObserver {
     }
 
     private fun initialise() {
-        popEffectPlayer.initialise(
-            context,
-            listOf(
-                R.raw.bubblepop,
-            )
-        )
+        popEffectPlayer.initialise(context)
     }
 
     private fun tearDown() {
         popEffectPlayer.tearDown()
     }
 
-    fun playPop() {
-        popEffectPlayer.play()
+    /**
+     * Plays an indicated sound effect with a random small pitch adjustment
+     */
+    override fun playEffect(effect: GameSoundEffect) {
+        popEffectPlayer.play(effect)
+    }
+
+    /**
+     * Plays an indicated sound effect without any pitch adjustment
+     */
+    override fun playSound(effect: GameSoundEffect) {
+        popEffectPlayer.play(effect, 0f)
     }
 }

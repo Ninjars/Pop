@@ -58,7 +58,11 @@ class AppViewModel(
                 AppState.VictoryMenuState
 
             gameEndState.gameConfigId.chapter != nextGame.id.chapter ->
-                AppState.ChapterCompleteMenuState(gameEndState.gameConfigId, nextGame, gameEndState.score)
+                AppState.ChapterCompleteMenuState(
+                    gameEndState.gameConfigId,
+                    nextGame,
+                    gameEndState.score
+                )
 
             else ->
                 AppState.EndMenuState(nextGame, gameEndState.didWin, gameEndState.score)

@@ -3,6 +3,7 @@ package jez.jetpackpop.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import jez.jetpackpop.R
+import jez.jetpackpop.audio.NoOpSoundManager
 import jez.jetpackpop.features.app.ui.ChapterSelectButtonModel
 import jez.jetpackpop.features.app.ui.MainMenu
 import jez.jetpackpop.features.game.ui.GameEndMenu
@@ -27,6 +28,7 @@ fun PreviewMainMenu() {
 fun PreviewGameEndMenuWin() {
     AppTheme {
         GameEndMenu(
+            soundManager = NoOpSoundManager(),
             didWin = true,
         ) {}
     }
@@ -37,6 +39,7 @@ fun PreviewGameEndMenuWin() {
 fun PreviewGameEndMenuLose() {
     AppTheme {
         GameEndMenu(
+            soundManager = NoOpSoundManager(),
             didWin = false,
         ) {}
     }
