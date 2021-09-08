@@ -4,44 +4,45 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioAttributes.USAGE_GAME
 import android.media.SoundPool
-import android.util.Log
+import jez.jetpackpop.R
 
-class RandomSoundEffectPlayer {
+enum class GameSoundEffect {
+    TARGET_TAPPED,
+}
+
+class GameSoundEffectPlayer {
     private lateinit var soundPool: SoundPool
     private var soundIds: List<Int> = emptyList()
 
-    fun initialise(context: Context, soundResources: List<Int>) {
+    fun initialise(context: Context) {
         soundPool = SoundPool.Builder()
             .setMaxStreams(6)
             .setAudioAttributes(AudioAttributes.Builder().setUsage(USAGE_GAME).build())
             .build()
 
-        soundIds = soundResources.map {
-            soundPool.load(context, it, 1)
-        }
+        soundIds = GameSoundEffect.values()
+            .map {
+                when (it) {
+                    GameSoundEffect.TARGET_TAPPED -> R.raw.bubblepop
+                }
+            }.map {
+                soundPool.load(context, it, 1)
+            }
     }
 
     fun tearDown() {
         soundPool.release()
     }
 
-    /**
-     * Attempt to play a random sound effect.
-     */
-    fun play() {
-        if (soundIds.isEmpty()) {
-            Log.w("RandomSoundEffectPlayer", "play() invoked with empty sound effect list")
-            return
-        }
-
-        val soundId = soundIds.random()
+    fun play(effect: GameSoundEffect, pitchVariance: Float = 0.2f) {
+        val soundId = soundIds[effect.ordinal]
         soundPool.play(
             soundId,
             1f,
             1f,
             1,
             0,
-            0.8f + Math.random().toFloat() * 0.4f
+            (1 - pitchVariance) + Math.random().toFloat() * pitchVariance * 2
         )
     }
 }

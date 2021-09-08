@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.features.game.model.GameInputEvent
@@ -74,7 +75,7 @@ fun GameScreen(
             showInfo = gameState.config.timeLimitSeconds.let { it >= 0 },
             gameState = gameState,
             targetTapListener = { target ->
-                soundManager.playPop()
+                soundManager.playEffect(GameSoundEffect.TARGET_TAPPED)
                 gameEventFlow.tryEmit(GameInputEvent.TargetTap(target))
             }
         )

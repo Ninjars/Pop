@@ -4,11 +4,10 @@ import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import jez.jetpackpop.R
 
 class SoundManager(private val context: Context) : LifecycleEventObserver {
 
-    private val popEffectPlayer = RandomSoundEffectPlayer()
+    private val popEffectPlayer = GameSoundEffectPlayer()
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
@@ -19,19 +18,17 @@ class SoundManager(private val context: Context) : LifecycleEventObserver {
     }
 
     private fun initialise() {
-        popEffectPlayer.initialise(
-            context,
-            listOf(
-                R.raw.bubblepop,
-            )
-        )
+        popEffectPlayer.initialise(context)
     }
 
     private fun tearDown() {
         popEffectPlayer.tearDown()
     }
 
-    fun playPop() {
-        popEffectPlayer.play()
+    /**
+     * Plays an indicated sound effect with a random small pitch adjustment
+     */
+    fun playEffect(effect: GameSoundEffect) {
+        popEffectPlayer.play(effect)
     }
 }
