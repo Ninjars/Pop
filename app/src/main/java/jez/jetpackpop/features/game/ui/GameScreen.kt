@@ -61,6 +61,7 @@ fun GameScreen(
             .clickable(
                 enabled = !gameState.config.isDemo && gameState.processState == GameProcessState.RUNNING
             ) {
+                soundManager.playEffect(GameSoundEffect.BACKGROUND_TAPPED)
                 gameEventFlow.tryEmit(GameInputEvent.BackgroundTap)
             }
             .onSizeChanged {

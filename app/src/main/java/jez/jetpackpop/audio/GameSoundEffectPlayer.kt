@@ -8,6 +8,7 @@ import jez.jetpackpop.R
 
 enum class GameSoundEffect {
     TARGET_TAPPED,
+    BACKGROUND_TAPPED,
 }
 
 class GameSoundEffectPlayer {
@@ -24,6 +25,7 @@ class GameSoundEffectPlayer {
             .map {
                 when (it) {
                     GameSoundEffect.TARGET_TAPPED -> R.raw.bubblepop
+                    GameSoundEffect.BACKGROUND_TAPPED -> R.raw.miss_click
                 }
             }.map {
                 soundPool.load(context, it, 1)
