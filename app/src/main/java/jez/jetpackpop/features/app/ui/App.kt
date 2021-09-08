@@ -33,7 +33,6 @@ fun App(
     viewModel: AppViewModel,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
-    stateChangeListener: (AppState) -> Unit
 ) {
     AppTheme {
         Box(
@@ -66,18 +65,20 @@ fun App(
                 }
 
                 is AppState.StartGameState -> {
-                    when {
-                        currentAppState.isNewChapter ->
-                            gameEventFlow.tryEmit(GameInputEvent.StartNextChapter(currentAppState.gameConfiguration))
-                        currentAppState.isNewGame ->
-                            gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
-                        else ->
-                            gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(currentAppState.gameConfiguration))
+                    remember(currentAppState) {
+                        when {
+                            currentAppState.isNewChapter ->
+                                gameEventFlow.tryEmit(
+                                    GameInputEvent.StartNextChapter(
+                                        currentAppState.gameConfiguration
+                                    )
+                                )
+                            currentAppState.isNewGame ->
+                                gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
+                            else ->
+                                gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(currentAppState.gameConfiguration))
+                        }
                     }
-                    stateChangeListener(AppState.InGameState)
-                }
-
-                is AppState.InGameState -> {
                 }
 
                 is AppState.VictoryMenuState ->

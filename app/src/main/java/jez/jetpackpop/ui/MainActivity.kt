@@ -49,9 +49,7 @@ class MainActivity : ComponentActivity() {
                 appViewModel,
                 appEventFlow,
                 gameEventFlow,
-            ) {
-                appViewModel.onNewState(it)
-            }
+            )
         }
     }
 

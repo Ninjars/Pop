@@ -23,9 +23,6 @@ sealed class AppState : Parcelable {
     ) : AppState()
 
     @Parcelize
-    object InGameState : AppState()
-
-    @Parcelize
     data class EndMenuState(
         val nextGameConfiguration: GameConfiguration,
         val didWin: Boolean,

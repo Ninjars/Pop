@@ -69,10 +69,6 @@ class AppViewModel(
         when (event) {
             is AppInputEvent.Navigation.MainMenu -> AppState.MainMenuState(demoConfiguration())
         }
-
-    fun onNewState(state: AppState) {
-        _appState.value = state
-    }
 }
 
 private fun demoConfiguration(): GameConfiguration =
