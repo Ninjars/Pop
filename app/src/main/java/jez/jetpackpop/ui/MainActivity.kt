@@ -63,6 +63,12 @@ class MainActivity : ComponentActivity() {
         gameEventFlow.tryEmit(GameInputEvent.Resume)
     }
 
+    override fun onBackPressed() {
+        if (!appViewModel.handleBackPressed()) {
+            super.onBackPressed()
+        }
+    }
+
     private companion object {
         const val HIGHSCORES_DATASTORE_FILE_NAME = "highscores.pb"
 

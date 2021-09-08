@@ -69,6 +69,14 @@ class AppViewModel(
         when (event) {
             is AppInputEvent.Navigation.MainMenu -> AppState.MainMenuState(demoConfiguration())
         }
+
+    fun handleBackPressed(): Boolean =
+        if (appState.value is AppState.MainMenuState) {
+            false
+        } else {
+            _appState.value = processInputEvent(AppInputEvent.Navigation.MainMenu)
+            true
+        }
 }
 
 private fun demoConfiguration(): GameConfiguration =
