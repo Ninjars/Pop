@@ -140,7 +140,7 @@ class GameViewModel(
                         targetConfig.minSpeed.value,
                         targetConfig.maxSpeed.value
                     ),
-                    clickable = targetConfig.clickable,
+                    clickable = targetConfig.clickable && !config.isDemo,
                 )
             }
         }
