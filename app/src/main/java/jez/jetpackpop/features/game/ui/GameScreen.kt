@@ -57,7 +57,9 @@ fun GameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.surface)
             .clipToBounds()
-            .clickable {
+            .clickable(
+                enabled = !gameState.config.isDemo && gameState.processState == GameProcessState.RUNNING
+            ) {
                 gameEventFlow.tryEmit(GameInputEvent.BackgroundTap)
             }
             .onSizeChanged {
