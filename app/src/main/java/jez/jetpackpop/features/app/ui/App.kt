@@ -7,6 +7,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.SoundManager
@@ -54,7 +55,9 @@ fun App(
 
             when (val currentAppState = appState.value) {
                 is AppState.MainMenuState -> {
-                    gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
+                    remember(currentAppState) {
+                        gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
+                    }
 
                     ShowMainMenu(
                         appEventFlow,
