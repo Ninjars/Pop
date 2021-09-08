@@ -31,4 +31,11 @@ class SoundManager(private val context: Context) : LifecycleEventObserver {
     fun playEffect(effect: GameSoundEffect) {
         popEffectPlayer.play(effect)
     }
+
+    /**
+     * Plays an indicated sound effect without any pitch adjustment
+     */
+    fun playSound(effect: GameSoundEffect) {
+        popEffectPlayer.play(effect, 0f)
+    }
 }
