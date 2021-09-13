@@ -1,5 +1,6 @@
 package jez.jetpackpop.features.app.ui
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ fun MainMenu(
     chapterSelectButtonModels: List<ChapterSelectButtonModel>,
     startAction: () -> Unit,
 ) {
+    Log.e("MainMenu", "RECOMPOSE")
     Box(
         modifier = Modifier
             .fillMaxSize()

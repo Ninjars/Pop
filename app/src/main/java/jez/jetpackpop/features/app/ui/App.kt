@@ -4,10 +4,8 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.GameSoundEffect
@@ -35,6 +33,7 @@ fun App(
     appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
+    Log.e("App", "RECOMPOSE")
     AppTheme {
         Box(
             modifier = Modifier
@@ -54,63 +53,82 @@ fun App(
                 appEventFlow.tryEmit(AppInputEvent.GameEnded(it))
             }
 
-            when (val currentAppState = appState.value) {
-                is AppState.MainMenuState -> {
-                    remember(currentAppState) {
-                        gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
-                    }
+            val highScores by rememberSaveable(gameState.value.highScores) { mutableStateOf(gameState.value.highScores) }
+            UI(
+                soundManager = soundManager,
+                appState = appViewModel.appState.value,
+                highScores = highScores,
+                appEventFlow = appEventFlow,
+                gameEventFlow = gameEventFlow,
+            )
+        }
+    }
+}
 
-                    ShowMainMenu(
-                        soundManager,
-                        appEventFlow,
-                        gameViewModel.gameState.value.highScores,
-                    )
+@Composable
+fun UI(
+    soundManager: SoundManager,
+    appState: AppState,
+    highScores: HighScores,
+    appEventFlow: MutableSharedFlow<AppInputEvent>,
+    gameEventFlow: MutableSharedFlow<GameInputEvent>,
+) {
+    Log.e("App UI", "RECOMPOSE")
+    when (appState) {
+        is AppState.MainMenuState -> {
+            remember(appState) {
+                gameEventFlow.tryEmit(GameInputEvent.StartNewGame(appState.gameConfiguration))
+            }
+
+            ShowMainMenu(
+                soundManager,
+                appEventFlow,
+                highScores,
+            )
+        }
+
+        is AppState.StartGameState -> {
+            remember(appState) {
+                when {
+                    appState.isNewChapter ->
+                        gameEventFlow.tryEmit(
+                            GameInputEvent.StartNextChapter(
+                                appState.gameConfiguration
+                            )
+                        )
+                    appState.isNewGame ->
+                        gameEventFlow.tryEmit(GameInputEvent.StartNewGame(appState.gameConfiguration))
+                    else ->
+                        gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(appState.gameConfiguration))
                 }
-
-                is AppState.StartGameState -> {
-                    remember(currentAppState) {
-                        when {
-                            currentAppState.isNewChapter ->
-                                gameEventFlow.tryEmit(
-                                    GameInputEvent.StartNextChapter(
-                                        currentAppState.gameConfiguration
-                                    )
-                                )
-                            currentAppState.isNewGame ->
-                                gameEventFlow.tryEmit(GameInputEvent.StartNewGame(currentAppState.gameConfiguration))
-                            else ->
-                                gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(currentAppState.gameConfiguration))
-                        }
-                    }
-                }
-
-                is AppState.VictoryMenuState ->
-                    VictoryMenu(
-                        mainMenuAction = {
-                            appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
-                        },
-                        nextGameAction = null
-                    )
-
-                is AppState.ChapterCompleteMenuState ->
-                    ChapterComplete(
-                        soundManager,
-                        appEventFlow,
-                        currentAppState.nextGame
-                    )
-
-                is AppState.EndMenuState ->
-                    LevelEnd(
-                        soundManager,
-                        appEventFlow,
-                        currentAppState.didWin,
-                        currentAppState.nextGameConfiguration
-                    )
-
-                else ->
-                    Log.e("App", "No ui for app state $currentAppState")
             }
         }
+
+        is AppState.VictoryMenuState ->
+            VictoryMenu(
+                mainMenuAction = {
+                    appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
+                },
+                nextGameAction = null
+            )
+
+        is AppState.ChapterCompleteMenuState ->
+            ChapterComplete(
+                soundManager,
+                appEventFlow,
+                appState.nextGame
+            )
+
+        is AppState.EndMenuState ->
+            LevelEnd(
+                soundManager,
+                appEventFlow,
+                appState.didWin,
+                appState.nextGameConfiguration
+            )
+
+        else ->
+            Log.e("App", "No ui for app state $appState")
     }
 }
 
