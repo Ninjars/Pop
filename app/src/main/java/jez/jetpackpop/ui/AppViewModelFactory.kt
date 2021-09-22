@@ -13,12 +13,14 @@ class AppViewModelFactory (
     private val highScoresRepository: HighScoresRepository,
     private val gameInputEventFlow: MutableSharedFlow<GameInputEvent>,
     private val appInputEventFlow: MutableSharedFlow<AppInputEvent>,
+    private val width: Float,
+    private val height: Float
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(GameViewModel::class.java) ->
-                GameViewModel(highScoresRepository, gameInputEventFlow, appInputEventFlow) as T
+                GameViewModel(highScoresRepository, gameInputEventFlow, appInputEventFlow, width, height) as T
 
             modelClass.isAssignableFrom(AppViewModel::class.java) ->
                 AppViewModel(appInputEventFlow, gameInputEventFlow) as T

@@ -17,11 +17,13 @@ class GameViewModel(
     private val highScoresRepository: HighScoresRepository,
     inputEvents: SharedFlow<GameInputEvent>,
     private val outputEvents: MutableSharedFlow<AppInputEvent>, // TODO: replace with output events to be mapped to AppInputEvents
+    private val width: Float,
+    private val height: Float,
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState(
-            width = 0f,
-            height = 0f,
+            width = width,
+            height = height,
             processState = GameProcessState.INITIALISED,
             config = GameConfiguration.DEFAULT,
             targets = emptyList(),
@@ -52,8 +54,6 @@ class GameViewModel(
                 is GameInputEvent.BackgroundTap -> onBackgroundTapped()
                 is GameInputEvent.TargetTap -> onTargetTapped(event.data)
                 is GameInputEvent.StartNewGame -> startGame(
-                    event.width,
-                    event.height,
                     event.config,
                     resetScore = true,
                     scoreData = gameState.value.scoreData,
@@ -74,8 +74,6 @@ class GameViewModel(
         resetScore: Boolean,
     ): GameState =
         startGame(
-            width,
-            height,
             config,
             resetScore,
             scoreData,
@@ -83,8 +81,6 @@ class GameViewModel(
         )
 
     private fun startGame(
-        width: Float,
-        height: Float,
         config: GameConfiguration,
         resetScore: Boolean,
         scoreData: GameScoreData,

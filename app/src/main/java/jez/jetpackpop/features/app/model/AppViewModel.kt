@@ -13,7 +13,7 @@ class AppViewModel(
     appInputEventFlow: SharedFlow<AppInputEvent>,
     private val gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) : ViewModel() {
-    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState(demoConfiguration()))
+    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState)
     val appState: StateFlow<AppState> = _appState
 
     init {
@@ -28,11 +28,7 @@ class AppViewModel(
         when (event) {
             is AppInputEvent.Navigation -> handleNavigation(event)
             is AppInputEvent.StartNewGame ->
-                handleStartNewGame(
-                    event.width,
-                    event.height,
-                    event.config,
-                )
+                handleStartNewGame(event.config)
             is AppInputEvent.StartNextChapter ->
                 handleNextChapter(event.config)
             is AppInputEvent.StartNextLevel ->
@@ -55,16 +51,10 @@ class AppViewModel(
     }
 
     private fun handleStartNewGame(
-        width: Float,
-        height: Float,
         gameConfiguration: GameConfiguration,
     ): AppState {
         gameEventFlow.tryEmit(
-            GameInputEvent.StartNewGame(
-                width,
-                height,
-                gameConfiguration
-            )
+            GameInputEvent.StartNewGame(gameConfiguration)
         )
         return AppState.InGameState
     }
@@ -95,7 +85,12 @@ class AppViewModel(
 
     private fun handleNavigation(event: AppInputEvent.Navigation): AppState =
         when (event) {
-            is AppInputEvent.Navigation.MainMenu -> AppState.MainMenuState(demoConfiguration())
+            is AppInputEvent.Navigation.MainMenu -> {
+                gameEventFlow.tryEmit(
+                    GameInputEvent.StartNewGame(demoConfiguration())
+                )
+                AppState.MainMenuState
+            }
         }
 
     fun handleBackPressed(): Boolean =

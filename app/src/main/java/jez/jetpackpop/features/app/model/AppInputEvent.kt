@@ -1,7 +1,6 @@
 package jez.jetpackpop.features.app.model
 
 import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.GameChapter
 import jez.jetpackpop.features.game.data.GameConfiguration
 
 sealed class AppInputEvent {
@@ -10,8 +9,6 @@ sealed class AppInputEvent {
     }
 
     data class StartNewGame(
-        val width: Float,
-        val height: Float,
         val config: GameConfiguration
     ) : AppInputEvent()
 

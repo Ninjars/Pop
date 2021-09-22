@@ -2,9 +2,12 @@ package jez.jetpackpop.features.app.ui
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import jez.jetpackpop.R
@@ -34,7 +37,7 @@ fun App(
 ) {
     Log.e("App", "RECOMPOSE")
     AppTheme {
-        BoxWithConstraints(
+        Box(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
         ) {
@@ -54,11 +57,8 @@ fun App(
             UI(
                 soundManager = soundManager,
                 appState = appViewModel.appState.value,
-                width = maxWidth.value,
-                height = maxHeight.value,
                 highScores = highScores,
                 appEventFlow = appEventFlow,
-                gameEventFlow = gameEventFlow,
             )
         }
     }
@@ -68,33 +68,17 @@ fun App(
 fun UI(
     soundManager: SoundManager,
     appState: AppState,
-    width: Float,
-    height: Float,
     highScores: HighScores,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
-    gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
-    Log.e("App UI", "RECOMPOSE")
     when (appState) {
         is AppState.MainMenuState -> {
-            remember(appState) {
-                gameEventFlow.tryEmit(
-                    GameInputEvent.StartNewGame(
-                        width,
-                        height,
-                        appState.gameConfiguration
-                    )
-                )
-            }
-
             ShowMainMenu(
                 highScores,
             ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
                 appEventFlow.tryEmit(
                     AppInputEvent.StartNewGame(
-                        width,
-                        height,
                         getFirstGameConfiguration(it)
                     )
                 )

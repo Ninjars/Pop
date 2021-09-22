@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.LaunchedEffect
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
@@ -35,27 +36,32 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModelFactory = ViewModelProvider(
-            this,
-            AppViewModelFactory(
-                HighScoresRepository(dataStore = this.highScoresStore),
-                gameEventFlow,
-                appEventFlow,
-            )
-        )
-        appViewModel = viewModelFactory.get(AppViewModel::class.java)
-        gameViewModel = viewModelFactory.get(GameViewModel::class.java)
 
         setContent {
-            App(
-                soundManager,
-                appViewModel,
-                gameViewModel,
-                appEventFlow,
-                gameEventFlow,
-            )
+            BoxWithConstraints {
+                val viewModelFactory = ViewModelProvider(
+                    this@MainActivity,
+                    AppViewModelFactory(
+                        HighScoresRepository(dataStore = this@MainActivity.highScoresStore),
+                        gameEventFlow,
+                        appEventFlow,
+                        maxWidth.value,
+                        maxHeight.value,
+                    )
+                )
+                appViewModel = viewModelFactory.get(AppViewModel::class.java)
+                gameViewModel = viewModelFactory.get(GameViewModel::class.java)
+                App(
+                    soundManager,
+                    appViewModel,
+                    gameViewModel,
+                    appEventFlow,
+                    gameEventFlow,
+                )
+            }
 
             LaunchedEffect(Unit) {
+                appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
                 runGameLoop(gameEventFlow)
             }
         }
