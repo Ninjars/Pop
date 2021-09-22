@@ -2,15 +2,13 @@ package jez.jetpackpop.features.game.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.game.GameEndState
@@ -30,23 +28,18 @@ fun GameScreen(
     LaunchedEffect(gameState.processState) {
 //        Log.w("GameScreen", "$gameState.processState")
         when (gameState.processState) {
-            GameProcessState.INITIALISED,
-            GameProcessState.WAITING_MEASURE,
-            GameProcessState.READY,
-            GameProcessState.PAUSED,
-            GameProcessState.RUNNING -> {
-            }
             GameProcessState.END_WIN -> {
                 gameEndAction(gameState.toEndState(true))
             }
             GameProcessState.END_LOSE -> {
                 gameEndAction(gameState.toEndState(false))
             }
+            else -> {
+            }
         }
     }
 
-    val density = LocalDensity.current
-    BoxWithConstraints(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.surface)
@@ -56,13 +49,6 @@ fun GameScreen(
             ) {
                 soundManager.playEffect(GameSoundEffect.BACKGROUND_TAPPED)
                 gameEventFlow.tryEmit(GameInputEvent.BackgroundTap)
-            }
-            .onSizeChanged {
-                with(density) {
-                    gameEventFlow.tryEmit(
-                        GameInputEvent.Measured(it.width.toDp().value, it.height.toDp().value)
-                    )
-                }
             }
     ) {
         GameRenderer(

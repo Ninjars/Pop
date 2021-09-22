@@ -2,7 +2,7 @@ package jez.jetpackpop.features.app.ui
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,7 +34,7 @@ fun App(
 ) {
     Log.e("App", "RECOMPOSE")
     AppTheme {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
         ) {
@@ -52,10 +52,16 @@ fun App(
                 appEventFlow.tryEmit(AppInputEvent.GameEnded(it))
             }
 
-            val highScores by rememberSaveable(gameState.value.highScores) { mutableStateOf(gameState.value.highScores) }
+            val highScores by rememberSaveable(gameState.value.highScores) {
+                mutableStateOf(
+                    gameState.value.highScores
+                )
+            }
             UI(
                 soundManager = soundManager,
                 appState = appViewModel.appState.value,
+                width = maxWidth.value,
+                height = maxHeight.value,
                 highScores = highScores,
                 appEventFlow = appEventFlow,
                 gameEventFlow = gameEventFlow,
@@ -68,6 +74,8 @@ fun App(
 fun UI(
     soundManager: SoundManager,
     appState: AppState,
+    width: Float,
+    height: Float,
     highScores: HighScores,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
@@ -76,7 +84,13 @@ fun UI(
     when (appState) {
         is AppState.MainMenuState -> {
             remember(appState) {
-                gameEventFlow.tryEmit(GameInputEvent.StartNewGame(appState.gameConfiguration))
+                gameEventFlow.tryEmit(
+                    GameInputEvent.StartNewGame(
+                        width,
+                        height,
+                        appState.gameConfiguration
+                    )
+                )
             }
 
             ShowMainMenu(
@@ -96,7 +110,13 @@ fun UI(
                             )
                         )
                     appState.isNewGame ->
-                        gameEventFlow.tryEmit(GameInputEvent.StartNewGame(appState.gameConfiguration))
+                        gameEventFlow.tryEmit(
+                            GameInputEvent.StartNewGame(
+                                width,
+                                height,
+                                appState.gameConfiguration
+                            )
+                        )
                     else ->
                         gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(appState.gameConfiguration))
                 }
