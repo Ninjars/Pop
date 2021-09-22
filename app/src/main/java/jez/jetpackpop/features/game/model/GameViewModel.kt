@@ -3,13 +3,12 @@ package jez.jetpackpop.features.game.model
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import jez.jetpackpop.features.app.model.AppInputEvent
+import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.math.*
 import kotlin.random.Random
@@ -17,6 +16,7 @@ import kotlin.random.Random
 class GameViewModel(
     private val highScoresRepository: HighScoresRepository,
     inputEvents: SharedFlow<GameInputEvent>,
+    private val outputEvents: MutableSharedFlow<AppInputEvent>, // TODO: replace with output events to be mapped to AppInputEvents
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState(
@@ -205,11 +205,40 @@ class GameViewModel(
                 it.update(deltaSeconds, this)
             }
         ).also {
-            if (it.processState == GameProcessState.END_WIN) {
-                it.recordCurrentScore()
+            when (it.processState) {
+                GameProcessState.END_WIN -> {
+                    it.recordCurrentScore()
+                    outputEvents.tryEmit(
+                        AppInputEvent.GameEnded(it.toEndState())
+                    )
+                }
+                GameProcessState.END_LOSE -> {
+                    outputEvents.tryEmit(
+                        AppInputEvent.GameEnded(it.toEndState())
+                    )
+                }
+                else -> {}
             }
         }
     }
+
+    private fun GameState.toEndState(): GameEndState =
+        if (config.isLastInChapter) {
+            GameEndState.ChapterEndState(
+                config.id,
+                remainingTime,
+                scoreData,
+                processState == GameProcessState.END_WIN,
+                highScores.chapterScores.getOrDefault(config.id.chapter, 0),
+            )
+        } else {
+            GameEndState.LevelEndState(
+                config.id,
+                remainingTime,
+                scoreData,
+                processState == GameProcessState.END_WIN,
+            )
+        }
 
     private fun TargetData.update(deltaTime: Float, state: GameState): TargetData {
         val projectedPosition = center + velocity * deltaTime

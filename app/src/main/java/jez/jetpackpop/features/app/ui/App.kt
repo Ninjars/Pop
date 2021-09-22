@@ -48,9 +48,7 @@ fun App(
                 soundManager = soundManager,
                 gameState = gameState.value,
                 gameEventFlow = gameEventFlow,
-            ) {
-                appEventFlow.tryEmit(AppInputEvent.GameEnded(it))
-            }
+            )
 
             val highScores by rememberSaveable(gameState.value.highScores) {
                 mutableStateOf(
