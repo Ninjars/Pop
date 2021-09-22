@@ -52,13 +52,13 @@ fun GameScreen(
             }
     ) {
         GameRenderer(
-            showInfo = gameState.config.timeLimitSeconds.let { it >= 0 },
             gameState = gameState,
             targetTapListener = { target ->
                 soundManager.playEffect(GameSoundEffect.TARGET_TAPPED)
                 gameEventFlow.tryEmit(GameInputEvent.TargetTap(target))
             }
         )
+        GameInfo(gameState)
     }
 }
 
