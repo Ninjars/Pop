@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.GameSoundEffect
@@ -26,6 +23,7 @@ import jez.jetpackpop.features.game.ui.VictoryMenu
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun App(
@@ -45,19 +43,13 @@ fun App(
 
             GameScreen(
                 soundManager = soundManager,
-                gameState = gameState.value,
+                gameStateSource = gameState,
                 gameEventFlow = gameEventFlow,
             )
 
-            val highScores by rememberSaveable(gameState.value.highScores) {
-                mutableStateOf(
-                    gameState.value.highScores
-                )
-            }
             UI(
                 soundManager = soundManager,
-                appState = appViewModel.appState.value,
-                highScores = highScores,
+                appStateSource = appViewModel.appState,
                 appEventFlow = appEventFlow,
             )
         }
@@ -67,14 +59,15 @@ fun App(
 @Composable
 fun UI(
     soundManager: SoundManager,
-    appState: AppState,
-    highScores: HighScores,
+    appStateSource: StateFlow<AppState>,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
 ) {
+    val appState = appStateSource.value
+    Log.e("UI", "recompose $appState")
     when (appState) {
         is AppState.MainMenuState -> {
             ShowMainMenu(
-                highScores,
+                appState.highScores,
             ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
                 appEventFlow.tryEmit(
@@ -118,6 +111,9 @@ fun UI(
 
         is AppState.InGameState -> {
             // TODO: show game info here instead of within game screen?
+        }
+        AppState.Loading -> {
+            // TODO
         }
     }
 }

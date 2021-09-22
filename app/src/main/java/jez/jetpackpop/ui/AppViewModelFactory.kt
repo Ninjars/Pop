@@ -23,7 +23,7 @@ class AppViewModelFactory (
                 GameViewModel(highScoresRepository, gameInputEventFlow, appInputEventFlow, width, height) as T
 
             modelClass.isAssignableFrom(AppViewModel::class.java) ->
-                AppViewModel(appInputEventFlow, gameInputEventFlow) as T
+                AppViewModel(highScoresRepository, appInputEventFlow, gameInputEventFlow) as T
 
             else -> throw IllegalArgumentException("Unknown ViewModel class $modelClass")
         }
