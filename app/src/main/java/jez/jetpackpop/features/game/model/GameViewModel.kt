@@ -198,6 +198,7 @@ class GameViewModel(
             targets.none { it.clickable } && !isDemo -> GameProcessState.END_WIN
             else -> processState
         }
+        val processStateHasChanged = nextProcessState != processState
         return copy(
             remainingTime = nextRemainingTime,
             processState = nextProcessState,
@@ -205,19 +206,22 @@ class GameViewModel(
                 it.update(deltaSeconds, this)
             }
         ).also {
-            when (it.processState) {
-                GameProcessState.END_WIN -> {
-                    it.recordCurrentScore()
-                    outputEvents.tryEmit(
-                        AppInputEvent.GameEnded(it.toEndState())
-                    )
+            if (processStateHasChanged) {
+                when (it.processState) {
+                    GameProcessState.END_WIN -> {
+                        it.recordCurrentScore()
+                        outputEvents.tryEmit(
+                            AppInputEvent.GameEnded(it.toEndState())
+                        )
+                    }
+                    GameProcessState.END_LOSE -> {
+                        outputEvents.tryEmit(
+                            AppInputEvent.GameEnded(it.toEndState())
+                        )
+                    }
+                    else -> {
+                    }
                 }
-                GameProcessState.END_LOSE -> {
-                    outputEvents.tryEmit(
-                        AppInputEvent.GameEnded(it.toEndState())
-                    )
-                }
-                else -> {}
             }
         }
     }
