@@ -38,11 +38,7 @@ fun App(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
         ) {
-            val appState = appViewModel.appState.collectAsState()
             val gameState = gameViewModel.gameState.collectAsState()
-            if (appState.value is AppState.InitialisingState) {
-                appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
-            }
 
             GameScreen(
                 soundManager = soundManager,
@@ -143,9 +139,6 @@ fun UI(
                 appState.didWin,
                 appState.nextGameConfiguration
             )
-
-        else ->
-            Log.e("App", "No ui for app state $appState")
     }
 }
 

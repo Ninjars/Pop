@@ -8,9 +8,6 @@ import kotlinx.parcelize.Parcelize
 
 sealed class AppState : Parcelable {
     @Parcelize
-    object InitialisingState : AppState()
-
-    @Parcelize
     data class MainMenuState(
         val gameConfiguration: GameConfiguration,
     ) : AppState()

@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class AppViewModel(
     appInputEventFlow: SharedFlow<AppInputEvent>
 ) : ViewModel() {
-    private val _appState = MutableStateFlow<AppState>(AppState.InitialisingState)
+    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState(demoConfiguration()))
     val appState: StateFlow<AppState> = _appState
 
     init {
