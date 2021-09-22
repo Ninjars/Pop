@@ -25,7 +25,6 @@ import jez.jetpackpop.ui.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
-@Stable
 fun App(
     soundManager: SoundManager,
     appViewModel: AppViewModel,

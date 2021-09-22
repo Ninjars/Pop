@@ -17,7 +17,6 @@ import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameProcessState
 import jez.jetpackpop.features.game.model.GameState
-import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
@@ -33,20 +32,15 @@ fun GameScreen(
         when (gameState.processState) {
             GameProcessState.INITIALISED,
             GameProcessState.WAITING_MEASURE,
-            GameProcessState.READY -> {
-            }
-            GameProcessState.PAUSED -> {
+            GameProcessState.READY,
+            GameProcessState.PAUSED,
+            GameProcessState.RUNNING -> {
             }
             GameProcessState.END_WIN -> {
                 gameEndAction(gameState.toEndState(true))
             }
             GameProcessState.END_LOSE -> {
                 gameEndAction(gameState.toEndState(false))
-                runGameLoop(gameEventFlow)
-            }
-
-            GameProcessState.RUNNING -> {
-                runGameLoop(gameEventFlow)
             }
         }
     }
@@ -99,17 +93,3 @@ private fun GameState.toEndState(didWin: Boolean): GameEndState =
             didWin,
         )
     }
-
-private suspend fun runGameLoop(
-    gameEventFlow: MutableSharedFlow<GameInputEvent>,
-) {
-    var lastFrame = 0L
-    while (true) {
-        val nextFrame = awaitFrame() / 1000_000L
-        if (lastFrame != 0L) {
-            val deltaMillis = nextFrame - lastFrame
-            gameEventFlow.emit(GameInputEvent.Update(deltaMillis / 1000f))
-        }
-        lastFrame = nextFrame
-    }
-}

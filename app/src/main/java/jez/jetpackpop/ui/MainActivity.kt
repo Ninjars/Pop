@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +19,7 @@ import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.highscore.HighScoreDataSerializer
 import jez.jetpackpop.features.highscore.HighScoresRepository
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 class MainActivity : ComponentActivity() {
@@ -52,6 +54,24 @@ class MainActivity : ComponentActivity() {
                 appEventFlow,
                 gameEventFlow,
             )
+
+            LaunchedEffect(Unit) {
+                runGameLoop(gameEventFlow)
+            }
+        }
+    }
+
+    private suspend fun runGameLoop(
+        gameEventFlow: MutableSharedFlow<GameInputEvent>,
+    ) {
+        var lastFrame = 0L
+        while (true) {
+            val nextFrame = awaitFrame() / 1000_000L
+            if (lastFrame != 0L) {
+                val deltaMillis = nextFrame - lastFrame
+                gameEventFlow.emit(GameInputEvent.Update(deltaMillis / 1000f))
+            }
+            lastFrame = nextFrame
         }
     }
 
