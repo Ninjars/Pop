@@ -13,11 +13,7 @@ sealed class AppState : Parcelable {
     ) : AppState()
 
     @Parcelize
-    data class StartGameState(
-        val gameConfiguration: GameConfiguration,
-        val isNewChapter: Boolean,
-        val isNewGame: Boolean,
-    ) : AppState()
+    object InGameState : AppState()
 
     @Parcelize
     data class EndMenuState(
@@ -29,7 +25,7 @@ sealed class AppState : Parcelable {
     @Parcelize
     data class ChapterCompleteMenuState(
         val completedChapterId: GameConfigId,
-        val nextGame: GameConfiguration,
+        val nextGameConfiguration: GameConfiguration,
         val score: GameScoreData,
     ) : AppState()
 

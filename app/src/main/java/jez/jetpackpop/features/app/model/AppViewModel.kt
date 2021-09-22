@@ -5,14 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.features.game.data.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
+import jez.jetpackpop.features.game.model.GameInputEvent
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class AppViewModel(
-    appInputEventFlow: SharedFlow<AppInputEvent>
+    appInputEventFlow: SharedFlow<AppInputEvent>,
+    private val gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) : ViewModel() {
     private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState(demoConfiguration()))
     val appState: StateFlow<AppState> = _appState
@@ -26,24 +25,49 @@ class AppViewModel(
     }
 
     private fun processInputEvent(event: AppInputEvent): AppState =
-        with(appState.value) {
-            when (event) {
-                is AppInputEvent.Navigation -> handleNavigation(event)
-                is AppInputEvent.StartGameFromChapter ->
-                    AppState.StartGameState(
-                        getFirstGameConfiguration(event.gameChapter),
-                        isNewChapter = true,
-                        isNewGame = true,
-                    )
-                is AppInputEvent.StartGame ->
-                    AppState.StartGameState(
-                        event.config,
-                        isNewChapter = event.isNewChapter,
-                        isNewGame = false,
-                    )
-                is AppInputEvent.GameEnded -> handleGameEnd(event.gameEndState)
-            }
+        when (event) {
+            is AppInputEvent.Navigation -> handleNavigation(event)
+            is AppInputEvent.StartNewGame ->
+                handleStartNewGame(
+                    event.width,
+                    event.height,
+                    event.config,
+                )
+            is AppInputEvent.StartNextChapter ->
+                handleNextChapter(event.config)
+            is AppInputEvent.StartNextLevel ->
+                handleNextLevel(event.config)
+            is AppInputEvent.GameEnded -> handleGameEnd(event.gameEndState)
         }
+
+    private fun handleNextChapter(gameConfiguration: GameConfiguration): AppState {
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNextChapter(gameConfiguration)
+        )
+        return AppState.InGameState
+    }
+
+    private fun handleNextLevel(gameConfiguration: GameConfiguration): AppState {
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNextLevel(gameConfiguration)
+        )
+        return AppState.InGameState
+    }
+
+    private fun handleStartNewGame(
+        width: Float,
+        height: Float,
+        gameConfiguration: GameConfiguration,
+    ): AppState {
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNewGame(
+                width,
+                height,
+                gameConfiguration
+            )
+        )
+        return AppState.InGameState
+    }
 
     private fun handleGameEnd(gameEndState: GameEndState): AppState {
         val nextGame =

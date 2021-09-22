@@ -14,7 +14,7 @@ import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.app.model.AppState
 import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.game.data.GameChapter
-import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.game.data.getFirstGameConfiguration
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.game.ui.GameEndMenu
@@ -88,32 +88,16 @@ fun UI(
             }
 
             ShowMainMenu(
-                soundManager,
-                appEventFlow,
                 highScores,
-            )
-        }
-
-        is AppState.StartGameState -> {
-            remember(appState) {
-                when {
-                    appState.isNewChapter ->
-                        gameEventFlow.tryEmit(
-                            GameInputEvent.StartNextChapter(
-                                appState.gameConfiguration
-                            )
-                        )
-                    appState.isNewGame ->
-                        gameEventFlow.tryEmit(
-                            GameInputEvent.StartNewGame(
-                                width,
-                                height,
-                                appState.gameConfiguration
-                            )
-                        )
-                    else ->
-                        gameEventFlow.tryEmit(GameInputEvent.StartNextLevel(appState.gameConfiguration))
-                }
+            ) {
+                soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
+                appEventFlow.tryEmit(
+                    AppInputEvent.StartNewGame(
+                        width,
+                        height,
+                        getFirstGameConfiguration(it)
+                    )
+                )
             }
         }
 
@@ -126,32 +110,39 @@ fun UI(
             )
 
         is AppState.ChapterCompleteMenuState ->
-            ChapterComplete(
-                soundManager,
-                appEventFlow,
-                appState.nextGame
-            )
+            ChapterComplete(soundManager) {
+                soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
+                appEventFlow.tryEmit(
+                    AppInputEvent.StartNextChapter(
+                        appState.nextGameConfiguration
+                    )
+                )
+            }
 
         is AppState.EndMenuState ->
             LevelEnd(
                 soundManager,
-                appEventFlow,
                 appState.didWin,
-                appState.nextGameConfiguration
-            )
+            ) {
+                soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
+                appEventFlow.tryEmit(
+                    AppInputEvent.StartNextChapter(
+                        appState.nextGameConfiguration
+                    )
+                )
+            }
+
+        is AppState.InGameState -> {
+            // TODO: show game info here instead of within game screen?
+        }
     }
 }
 
 @Composable
 private fun ShowMainMenu(
-    soundManager: SoundManager,
-    appEventFlow: MutableSharedFlow<AppInputEvent>,
     highScores: HighScores,
+    chapterSelectAction: (GameChapter) -> Unit
 ) {
-    val chapterSelectAction: (GameChapter) -> Unit = {
-        soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
-        appEventFlow.tryEmit(AppInputEvent.StartGameFromChapter(it))
-    }
     val chapterButtonModels = GameChapter.values().map {
         ChapterSelectButtonModel(
             when (it) {
@@ -167,8 +158,7 @@ private fun ShowMainMenu(
     MainMenu(
         chapterSelectButtonModels = chapterButtonModels,
         startAction = {
-            soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
-            appEventFlow.tryEmit(AppInputEvent.StartGameFromChapter(GameChapter.SIMPLE_SINGLE))
+            chapterSelectAction(GameChapter.SIMPLE_SINGLE)
         },
     )
 }
@@ -176,32 +166,24 @@ private fun ShowMainMenu(
 @Composable
 private fun ChapterComplete(
     soundManager: SoundManager,
-    appEventFlow: MutableSharedFlow<AppInputEvent>,
-    nextGame: GameConfiguration,
+    nextGameAction: () -> Unit
 ) {
     GameEndMenu(
         soundManager = soundManager,
         didWin = true,
-        startGameAction = {
-            soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
-            appEventFlow.tryEmit(AppInputEvent.StartGame(nextGame, true))
-        }
+        startGameAction = nextGameAction
     )
 }
 
 @Composable
 private fun LevelEnd(
     soundManager: SoundManager,
-    appEventFlow: MutableSharedFlow<AppInputEvent>,
     didWin: Boolean,
-    nextGameConfiguration: GameConfiguration,
+    nextGameAction: () -> Unit
 ) {
     GameEndMenu(
         soundManager = soundManager,
         didWin = didWin,
-        startGameAction = {
-            soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
-            appEventFlow.tryEmit(AppInputEvent.StartGame(nextGameConfiguration, false))
-        }
+        startGameAction = nextGameAction
     )
 }
