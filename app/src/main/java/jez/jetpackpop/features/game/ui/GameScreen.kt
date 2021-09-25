@@ -1,6 +1,5 @@
 package jez.jetpackpop.features.game.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -24,7 +23,6 @@ fun GameScreen(
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
     val gameState = gameStateSource.value
-    Log.e("GameScreen", "invoked $gameState")
     Box(
         modifier = Modifier
             .fillMaxSize()

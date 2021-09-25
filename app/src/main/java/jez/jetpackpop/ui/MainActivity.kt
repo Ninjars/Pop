@@ -20,6 +20,8 @@ import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.highscore.HighScoreDataSerializer
 import jez.jetpackpop.features.highscore.HighScoresRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -42,7 +44,10 @@ class MainActivity : ComponentActivity() {
                 val viewModelFactory = ViewModelProvider(
                     this@MainActivity,
                     AppViewModelFactory(
-                        HighScoresRepository(dataStore = this@MainActivity.highScoresStore),
+                        HighScoresRepository(
+                            externalScope = CoroutineScope(Dispatchers.IO),
+                            dataStore = this@MainActivity.highScoresStore
+                        ),
                         gameEventFlow,
                         appEventFlow,
                         maxWidth.value,
