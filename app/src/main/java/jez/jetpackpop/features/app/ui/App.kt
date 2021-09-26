@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import jez.jetpackpop.R
@@ -23,7 +24,6 @@ import jez.jetpackpop.features.game.ui.VictoryMenu
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun App(
@@ -40,6 +40,7 @@ fun App(
                 .background(MaterialTheme.colors.background)
         ) {
             val gameState = gameViewModel.gameState.collectAsState()
+            val appState = appViewModel.appState.collectAsState()
 
             GameScreen(
                 soundManager = soundManager,
@@ -49,7 +50,7 @@ fun App(
 
             UI(
                 soundManager = soundManager,
-                appStateSource = appViewModel.appState,
+                appStateSource = appState,
                 appEventFlow = appEventFlow,
             )
         }
@@ -59,7 +60,7 @@ fun App(
 @Composable
 fun UI(
     soundManager: SoundManager,
-    appStateSource: StateFlow<AppState>,
+    appStateSource: State<AppState>,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
 ) {
     val appState = appStateSource.value
