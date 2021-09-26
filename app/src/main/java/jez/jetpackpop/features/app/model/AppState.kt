@@ -9,9 +9,6 @@ import kotlinx.parcelize.Parcelize
 
 sealed class AppState : Parcelable {
     @Parcelize
-    object Loading : AppState()
-
-    @Parcelize
     data class MainMenuState(val highScores: HighScores) : AppState()
 
     @Parcelize

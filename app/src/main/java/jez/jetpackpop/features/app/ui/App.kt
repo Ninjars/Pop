@@ -112,9 +112,6 @@ fun UI(
         is AppState.InGameState -> {
             // TODO: show game info here instead of within game screen?
         }
-        AppState.Loading -> {
-            // TODO
-        }
     }
 }
 
