@@ -6,14 +6,18 @@ import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.features.game.data.*
 import jez.jetpackpop.features.game.model.GameInputEvent
+import jez.jetpackpop.features.highscore.HighScores
+import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class AppViewModel(
+    private val highScoresRepository: HighScoresRepository,
+    initialHighScore: HighScores,
     appInputEventFlow: SharedFlow<AppInputEvent>,
     private val gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) : ViewModel() {
-    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState)
+    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState(initialHighScore))
     val appState: StateFlow<AppState> = _appState
 
     init {
@@ -22,9 +26,10 @@ class AppViewModel(
                 _appState.value = processInputEvent(it)
             }
         }
+        startDemoGame()
     }
 
-    private fun processInputEvent(event: AppInputEvent): AppState =
+    private suspend fun processInputEvent(event: AppInputEvent): AppState =
         when (event) {
             is AppInputEvent.Navigation -> handleNavigation(event)
             is AppInputEvent.StartNewGame ->
@@ -83,13 +88,13 @@ class AppViewModel(
         }
     }
 
-    private fun handleNavigation(event: AppInputEvent.Navigation): AppState =
+    private suspend fun handleNavigation(event: AppInputEvent.Navigation): AppState =
         when (event) {
             is AppInputEvent.Navigation.MainMenu -> {
-                gameEventFlow.tryEmit(
-                    GameInputEvent.StartNewGame(demoConfiguration())
-                )
-                AppState.MainMenuState
+                startDemoGame()
+                highScoresRepository.highScoresFlow.first().let {
+                    AppState.MainMenuState(it)
+                }
             }
         }
 
@@ -97,9 +102,16 @@ class AppViewModel(
         if (appState.value is AppState.MainMenuState) {
             false
         } else {
-            _appState.value = processInputEvent(AppInputEvent.Navigation.MainMenu)
+            viewModelScope.launch {
+                _appState.value = processInputEvent(AppInputEvent.Navigation.MainMenu)
+            }
             true
         }
+
+    private fun startDemoGame() =
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNewGame(demoConfiguration())
+        )
 }
 
 private fun demoConfiguration(): GameConfiguration =

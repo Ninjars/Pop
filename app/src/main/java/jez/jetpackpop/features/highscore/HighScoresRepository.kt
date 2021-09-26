@@ -16,16 +16,16 @@ import java.io.InputStream
 import java.io.OutputStream
 
 @Suppress("BlockingMethodInNonBlockingContext")
-object HighScoreDataSerializer: Serializer<HighScoresProto> {
+object HighScoreDataSerializer : Serializer<HighScoresProto> {
     override val defaultValue: HighScoresProto = HighScoresProto.getDefaultInstance()
 
-    override suspend fun readFrom(input: InputStream): HighScoresProto {
+    override suspend fun readFrom(input: InputStream): HighScoresProto =
         try {
-            return HighScoresProto.parseFrom(input)
+            HighScoresProto.parseFrom(input)
         } catch (exception: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read HighScoresProto proto.", exception)
         }
-    }
+
 
     override suspend fun writeTo(t: HighScoresProto, output: OutputStream) = t.writeTo(output)
 }
@@ -45,14 +45,16 @@ class HighScoresRepository(
         }
         .map { proto ->
             HighScores(
-                proto.scoresOrBuilderList.map { GameChapter.withName(it.chapterName) to it.score }.toMap()
+                proto.scoresOrBuilderList.map { GameChapter.withName(it.chapterName) to it.score }
+                    .toMap()
             )
         }
 
-    suspend fun updateHighScores(scores: HighScores) {
+    suspend fun updateHighScores(scores: HighScores) =
         dataStore.updateData { proto ->
             with(proto.toBuilder()) {
-                for ((index, score) in scores.chapterScores.entries.sortedBy { it.key.ordinal }.withIndex()) {
+                for ((index, score) in scores.chapterScores.entries.sortedBy { it.key.ordinal }
+                    .withIndex()) {
                     if (index < scoresCount && getScores(index).score >= score.value) continue
 
                     val chapterScoreProto = ChapterScoreProto.newBuilder()
@@ -68,5 +70,4 @@ class HighScoresRepository(
                 build()
             }
         }
-    }
 }

@@ -42,7 +42,9 @@ class MainActivity : ComponentActivity() {
                 val viewModelFactory = ViewModelProvider(
                     this@MainActivity,
                     AppViewModelFactory(
-                        HighScoresRepository(dataStore = this@MainActivity.highScoresStore),
+                        HighScoresRepository(
+                            dataStore = this@MainActivity.highScoresStore
+                        ),
                         gameEventFlow,
                         appEventFlow,
                         maxWidth.value,

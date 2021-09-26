@@ -4,11 +4,12 @@ import android.os.Parcelable
 import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.game.data.GameConfigId
 import jez.jetpackpop.features.game.model.GameScoreData
+import jez.jetpackpop.features.highscore.HighScores
 import kotlinx.parcelize.Parcelize
 
 sealed class AppState : Parcelable {
     @Parcelize
-    object MainMenuState : AppState()
+    data class MainMenuState(val highScores: HighScores) : AppState()
 
     @Parcelize
     object InGameState : AppState()
