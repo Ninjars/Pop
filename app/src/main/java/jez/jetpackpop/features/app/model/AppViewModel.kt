@@ -1,6 +1,5 @@
 package jez.jetpackpop.features.app.model
 
-import android.util.Log
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,6 +26,7 @@ class AppViewModel(
                 _appState.value = processInputEvent(it)
             }
         }
+        startDemoGame()
     }
 
     private suspend fun processInputEvent(event: AppInputEvent): AppState =
@@ -91,17 +91,10 @@ class AppViewModel(
     private suspend fun handleNavigation(event: AppInputEvent.Navigation): AppState =
         when (event) {
             is AppInputEvent.Navigation.MainMenu -> {
-                Log.e("AppViewModel", "handleNavigation: MainMenu")
-//                gameEventFlow.tryEmit(
-//                    GameInputEvent.StartNewGame(demoConfiguration())
-//                )
+                startDemoGame()
                 highScoresRepository.highScoresFlow.first().let {
-                    Log.e("AppViewModel", "handleNavigation: MainMenu : DONE: $it")
                     AppState.MainMenuState(it)
                 }
-//                .also {
-//                    Log.e("AppViewModel", "handleNavigation: MainMenu : DONE")
-//                }
             }
         }
 
@@ -114,6 +107,11 @@ class AppViewModel(
             }
             true
         }
+
+    private fun startDemoGame() =
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNewGame(demoConfiguration())
+        )
 }
 
 private fun demoConfiguration(): GameConfiguration =
