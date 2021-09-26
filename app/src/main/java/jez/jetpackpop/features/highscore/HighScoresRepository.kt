@@ -8,7 +8,6 @@ import com.google.protobuf.InvalidProtocolBufferException
 import jez.jetpackpop.ChapterScoreProto
 import jez.jetpackpop.HighScoresProto
 import jez.jetpackpop.features.game.data.GameChapter
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.io.InputStream
@@ -29,8 +28,7 @@ object HighScoreDataSerializer: Serializer<HighScoresProto> {
     override suspend fun writeTo(t: HighScoresProto, output: OutputStream) = t.writeTo(output)
 }
 
-class HighScoresRepository constructor(
-    externalScope: CoroutineScope,
+class HighScoresRepository(
     private val dataStore: DataStore<HighScoresProto>
 ) {
     val highScoresFlow: Flow<HighScores> = dataStore.data
