@@ -7,16 +7,18 @@ import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.features.game.data.*
 import jez.jetpackpop.features.game.model.GameInputEvent
+import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class AppViewModel(
     private val highScoresRepository: HighScoresRepository,
+    initialHighScore: HighScores,
     appInputEventFlow: SharedFlow<AppInputEvent>,
     private val gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) : ViewModel() {
-    private val _appState = MutableStateFlow<AppState>(AppState.Loading)
+    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState(initialHighScore))
     val appState: StateFlow<AppState> = _appState
 
     init {
@@ -24,10 +26,6 @@ class AppViewModel(
             appInputEventFlow.collect {
                 _appState.value = processInputEvent(it)
             }
-        }
-
-        viewModelScope.launch {
-            _appState.value = processInputEvent(AppInputEvent.Navigation.MainMenu)
         }
     }
 

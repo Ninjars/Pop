@@ -8,6 +8,8 @@ import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class AppViewModelFactory (
     private val highScoresRepository: HighScoresRepository,
@@ -22,8 +24,12 @@ class AppViewModelFactory (
             modelClass.isAssignableFrom(GameViewModel::class.java) ->
                 GameViewModel(highScoresRepository, gameInputEventFlow, appInputEventFlow, width, height) as T
 
-            modelClass.isAssignableFrom(AppViewModel::class.java) ->
-                AppViewModel(highScoresRepository, appInputEventFlow, gameInputEventFlow) as T
+            modelClass.isAssignableFrom(AppViewModel::class.java) -> {
+                runBlocking {
+                    val highScores = highScoresRepository.highScoresFlow.first()
+                    AppViewModel(highScoresRepository, highScores, appInputEventFlow, gameInputEventFlow) as T
+                }
+            }
 
             else -> throw IllegalArgumentException("Unknown ViewModel class $modelClass")
         }
