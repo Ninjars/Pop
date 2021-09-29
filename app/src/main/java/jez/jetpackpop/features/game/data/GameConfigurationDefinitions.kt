@@ -7,18 +7,17 @@ private const val SIMPLE_SINGLE_LEVEL_COUNT = 6
 private const val SIMPLE_DECOY_LEVEL_COUNT = 6
 private const val LEVEL_DURATION = 10f
 
-private fun getProgressionFractions(count: Int, position: Int): Pair<Float, Float> {
+private fun getProgressionFraction(count: Int, position: Int): Float {
     val inverseFraction: Float =
         ((count - 1) - position) / (count - 1).toFloat()
-    val progressFraction: Float = 1f - inverseFraction
-    return Pair(progressFraction, inverseFraction)
+    return 1f - inverseFraction
 }
 
 val gameConfigurations = hashMapOf(
     SIMPLE_SINGLE_LEVEL_COUNT.let { count ->
         GameChapter.SIMPLE_SINGLE to (0 until count)
             .map { index ->
-                val (progressFraction, inverseFraction) = getProgressionFractions(
+                val progressFraction = getProgressionFraction(
                     count,
                     index
                 )
@@ -42,7 +41,7 @@ val gameConfigurations = hashMapOf(
     SIMPLE_DECOY_LEVEL_COUNT.let { count ->
         GameChapter.SIMPLE_DECOY to (0 until count)
             .map { index ->
-                val (progressFraction, inverseFraction) = getProgressionFractions(
+                val progressFraction = getProgressionFraction(
                     count,
                     index
                 )
