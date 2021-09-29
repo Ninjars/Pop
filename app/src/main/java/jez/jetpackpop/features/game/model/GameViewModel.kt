@@ -11,8 +11,9 @@ import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.math.*
-import kotlin.random.Random
+import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 
 class GameViewModel(
     private val highScoresRepository: HighScoresRepository,
@@ -20,6 +21,7 @@ class GameViewModel(
     private val outputEvents: MutableSharedFlow<AppInputEvent>, // TODO: replace with output events to be mapped to AppInputEvents
     private val width: Float,
     private val height: Float,
+    private val targetFactory: TargetFactory = TargetFactory(width, height)
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState(
@@ -87,26 +89,7 @@ class GameViewModel(
         scoreData: GameScoreData,
         highScores: HighScores,
     ): GameState {
-        val random = Random.Default
-        val targets = config.targetConfigurations.flatMap { targetConfig ->
-            (0 until targetConfig.count).map {
-                TargetData(
-                    id = it,
-                    color = targetConfig.color,
-                    radius = targetConfig.radius,
-                    center = Offset(
-                        random.nextFloat() * width,
-                        random.nextFloat() * height
-                    ),
-                    velocity = getRandomVelocity(
-                        random,
-                        targetConfig.minSpeed.value,
-                        targetConfig.maxSpeed.value
-                    ),
-                    clickable = targetConfig.clickable && !config.isDemo,
-                )
-            }
-        }
+        val targets = targetFactory.createTargets(config.isDemo, config.targetConfigurations)
         return GameState(
             config = config,
             processState = GameProcessState.RUNNING,
@@ -189,15 +172,6 @@ class GameViewModel(
             GameProcessState.RUNNING -> iterateState(deltaSeconds)
             else -> this
         }
-
-    private fun getRandomVelocity(random: Random, min: Float, max: Float): Offset {
-        val speed = random.nextFloat() * (max - min) + min
-        val angle = random.nextFloat() * 2 * PI
-        return Offset(
-            x = (cos(angle) * speed).toFloat(),
-            y = (sin(angle) * speed).toFloat(),
-        )
-    }
 
     private fun GameState.iterateState(deltaSeconds: Float): GameState {
         val nextRemainingTime =
