@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.GameChapter
 import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
@@ -156,14 +155,6 @@ class GameViewModel(
             )
         }
         return this
-    }
-
-    private fun GameChapter.getNextChapter(): GameChapter? {
-        val nextOrdinal = ordinal + 1
-        return if (nextOrdinal >= GameChapter.values().size)
-            null
-        else
-            GameChapter.values()[nextOrdinal]
     }
 
     private fun GameState.update(deltaSeconds: Float) =

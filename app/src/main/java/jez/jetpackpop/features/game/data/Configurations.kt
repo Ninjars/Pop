@@ -13,7 +13,8 @@ data class GameConfiguration(
     val isDemo: Boolean = false,
 ) : Parcelable {
     companion object {
-        val DEFAULT = GameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, -1), -1f, emptyList(), false)
+        val DEFAULT =
+            GameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, -1), -1f, emptyList(), false)
     }
 }
 
@@ -37,6 +38,14 @@ enum class GameChapter(val persistenceName: String) {
     SIMPLE_SINGLE("SIMPLE"),
     SIMPLE_DECOY("MASKED"),
     ;
+
+    fun getNextChapter(): GameChapter? {
+        val nextOrdinal = ordinal + 1
+        return if (nextOrdinal >= values().size)
+            null
+        else
+            values()[nextOrdinal]
+    }
 
     companion object {
         fun withName(name: String) =
@@ -72,7 +81,7 @@ fun getNextGameConfiguration(currentConfiguration: GameConfigId?): GameConfigura
         )
 
     } else {
-        getNextChapter(chapter)?.let {
+        chapter.getNextChapter()?.let {
             val nextChapterItems = gameConfigurations.getOrDefault(chapter, emptyList())
             if (nextChapterItems.isEmpty()) {
                 null
@@ -90,9 +99,3 @@ fun getNextGameConfiguration(currentConfiguration: GameConfigId?): GameConfigura
         getGameConfiguration(nextConfigId)
     }
 }
-
-private fun getNextChapter(chapter: GameChapter): GameChapter? =
-    when (chapter) {
-        GameChapter.SIMPLE_SINGLE -> GameChapter.SIMPLE_DECOY
-        GameChapter.SIMPLE_DECOY -> null
-    }
