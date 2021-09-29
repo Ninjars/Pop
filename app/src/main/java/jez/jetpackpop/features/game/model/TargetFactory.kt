@@ -28,7 +28,12 @@ class TargetFactory(
                         targetConfig.minSpeed.value,
                         targetConfig.maxSpeed.value
                     ),
-                    clickable = targetConfig.clickable && !isDemo,
+                    clickResult = if (isDemo) null else {
+                        when(targetConfig.clickResult) {
+                            TargetConfiguration.ClickResult.SCORE -> TargetData.ClickResult.SCORE
+                            null -> null
+                        }
+                    }
                 )
             }
         }

@@ -1,6 +1,7 @@
 package jez.jetpackpop.features.game.data
 
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.features.game.data.TargetConfiguration.ClickResult.*
 
 private const val SIMPLE_SINGLE_LEVEL_COUNT = 6
 private const val SIMPLE_DECOY_LEVEL_COUNT = 6
@@ -31,7 +32,7 @@ val gameConfigurations = hashMapOf(
                             count = (6 + 18 * progressFraction).toInt(),
                             minSpeed = (20 + 60 * progressFraction).dp,
                             maxSpeed = (30 + 80 * progressFraction).dp,
-                            clickable = true,
+                            clickResult = SCORE,
                         )
                     ),
                     isLastInChapter = index == count - 1
@@ -55,7 +56,7 @@ val gameConfigurations = hashMapOf(
                             count = (6 + 12 * progressFraction).toInt(),
                             minSpeed = (30 + 50 * progressFraction).dp,
                             maxSpeed = (40 + 70 * progressFraction).dp,
-                            clickable = true,
+                            clickResult = SCORE,
                         ),
                         TargetConfiguration(
                             color = TargetColor.DECOY,
@@ -63,7 +64,7 @@ val gameConfigurations = hashMapOf(
                             count = (2 + 3 * progressFraction).toInt(),
                             minSpeed = (20 + 30 * progressFraction).dp,
                             maxSpeed = (25 + 50 * progressFraction).dp,
-                            clickable = false,
+                            clickResult = SCORE,
                         )
                     ),
                     isLastInChapter = index == count - 1

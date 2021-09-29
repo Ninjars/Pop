@@ -31,8 +31,12 @@ data class TargetConfiguration(
     val count: Int,
     val minSpeed: Dp,
     val maxSpeed: Dp,
-    val clickable: Boolean,
-) : Parcelable
+    val clickResult: ClickResult?,
+) : Parcelable {
+    enum class ClickResult {
+        SCORE,
+    }
+}
 
 enum class GameChapter(val persistenceName: String) {
     SIMPLE_SINGLE("SIMPLE"),

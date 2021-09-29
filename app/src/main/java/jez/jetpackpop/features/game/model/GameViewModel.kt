@@ -171,7 +171,7 @@ class GameViewModel(
         val isDemo = config.isDemo
         val nextProcessState = when {
             nextRemainingTime <= 0f && !isDemo -> GameProcessState.END_LOSE
-            targets.none { it.clickable } && !isDemo -> GameProcessState.END_WIN
+            targets.none { it.clickResult != null } && !isDemo -> GameProcessState.END_WIN
             else -> processState
         }
         val processStateHasChanged = nextProcessState != processState

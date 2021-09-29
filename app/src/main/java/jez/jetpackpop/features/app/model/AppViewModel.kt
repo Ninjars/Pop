@@ -126,7 +126,7 @@ private fun demoConfiguration(): GameConfiguration =
                 count = 10,
                 minSpeed = 8.dp,
                 maxSpeed = 16.dp,
-                clickable = false,
+                clickResult = null,
             )
         ),
         isLastInChapter = false,

@@ -13,9 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.features.game.data.TargetColor
 import jez.jetpackpop.features.game.model.GameScoreData
 import jez.jetpackpop.features.game.model.GameState
-import jez.jetpackpop.features.game.data.TargetColor
 import jez.jetpackpop.features.game.model.TargetData
 import jez.jetpackpop.ui.target1
 import jez.jetpackpop.ui.target2
@@ -33,28 +33,32 @@ fun GameRenderer(
 
 @Composable
 fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
-    if (data.clickable) {
-        Box(
-            modifier = Modifier
-                .size(data.radius * 2f)
-                .offset(data.xOffset, data.yOffset)
-                .clip(CircleShape)
-                .background(data.color.toColor())
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                ) { onClick(data) }
-        )
-    } else {
-        Box(
-            modifier = Modifier
-                .size(data.radius * 2f)
-                .offset(data.xOffset, data.yOffset)
-                .clip(CircleShape)
-                .background(data.color.toColor())
-        )
-    }
+    Box(
+        modifier = Modifier
+            .size(data.radius * 2f)
+            .offset(data.xOffset, data.yOffset)
+            .clip(CircleShape)
+            .background(data.color.toColor())
+            .apply {
+                data.toOnClickAction(onClick)?.let { action ->
+                    clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) { action(data) }
+                }
+            }
+    )
 }
+
+private fun TargetData.toOnClickAction(
+    targetTapListener: (TargetData) -> Unit
+): ((TargetData) -> Unit)? =
+    when (this.clickResult) {
+        null -> null
+        TargetData.ClickResult.SCORE -> {
+            { targetTapListener(this) }
+        }
+    }
 
 @Composable
 fun GameInfo(
