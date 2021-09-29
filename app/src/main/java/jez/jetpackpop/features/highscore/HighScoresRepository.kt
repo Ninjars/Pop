@@ -53,21 +53,28 @@ class HighScoresRepository(
     suspend fun updateHighScores(scores: HighScores) =
         dataStore.updateData { proto ->
             with(proto.toBuilder()) {
-                for ((index, score) in scores.chapterScores.entries.sortedBy { it.key.ordinal }
-                    .withIndex()) {
+                val sortedScoreData = scores.chapterScores.entries
+                    .sortedBy { it.key.ordinal }
+                    .withIndex()
+                    .toList()
+                for ((index, score) in sortedScoreData) {
+                    val chapter = score.key
                     if (index < scoresCount && getScores(index).score >= score.value) continue
-
-                    val chapterScoreProto = ChapterScoreProto.newBuilder()
-                        .setChapterName(score.key.persistenceName)
-                        .setScore(score.value)
-                        .build()
-                    if (index >= scoresCount || getScores(index) == null) {
-                        addScores(index, chapterScoreProto)
-                    } else {
-                        setScores(index, chapterScoreProto)
-                    }
+                    addOrSetScore(index, chapter.persistenceName, score.value)
                 }
                 build()
             }
         }
+
+    private fun HighScoresProto.Builder.addOrSetScore(index: Int, chapterName: String, score: Int) {
+        val chapterScoreProto = ChapterScoreProto.newBuilder()
+            .setChapterName(chapterName)
+            .setScore(score)
+            .build()
+        if (index >= scoresCount || getScores(index) == null) {
+            addScores(index, chapterScoreProto)
+        } else {
+            setScores(index, chapterScoreProto)
+        }
+    }
 }

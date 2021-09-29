@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.game.GameEndState
+import jez.jetpackpop.features.game.data.GameChapter
 import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
@@ -151,7 +152,7 @@ class GameViewModel(
             )
         }
 
-    private fun GameState.recordCurrentScore(): GameState {
+    private fun GameState.recordCurrentScore(isEndOfChapter: Boolean): GameState {
         viewModelScope.launch {
             highScoresRepository.updateHighScores(
                 highScores.copy(
@@ -160,12 +161,26 @@ class GameViewModel(
                         toMutableMap().apply {
                             this[chapter] =
                                 max(getOrDefault(chapter, 0), scoreData.totalScore)
+
+                            if (isEndOfChapter) {
+                                chapter.getNextChapter()?.also {
+                                    this[it] = getOrDefault(it, 0)
+                                }
+                            }
                         }
                     }
                 )
             )
         }
         return this
+    }
+
+    private fun GameChapter.getNextChapter(): GameChapter? {
+        val nextOrdinal = ordinal + 1
+        return if (nextOrdinal >= GameChapter.values().size)
+            null
+        else
+            GameChapter.values()[nextOrdinal]
     }
 
     private fun GameState.update(deltaSeconds: Float) =
@@ -205,7 +220,7 @@ class GameViewModel(
             if (processStateHasChanged) {
                 when (it.processState) {
                     GameProcessState.END_WIN -> {
-                        it.recordCurrentScore()
+                        it.recordCurrentScore(config.isLastInChapter)
                         outputEvents.tryEmit(
                             AppInputEvent.GameEnded(it.toEndState())
                         )

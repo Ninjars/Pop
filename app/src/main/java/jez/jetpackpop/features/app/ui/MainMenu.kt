@@ -88,7 +88,7 @@ fun ChapterButton(
             modifier = Modifier
                 .wrapContentSize()
         )
-        if (highScore != null) {
+        if (highScore != null && highScore > 0) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = highScore.toString(),
