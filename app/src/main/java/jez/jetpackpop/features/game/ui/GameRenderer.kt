@@ -23,15 +23,11 @@ import kotlin.math.ceil
 
 @Composable
 fun GameRenderer(
-    showInfo: Boolean,
     gameState: GameState,
     targetTapListener: (TargetData) -> Unit,
 ) {
     gameState.targets.forEach {
         Target(it, targetTapListener)
-    }
-    if (showInfo) {
-        GameInfo(gameState)
     }
 }
 
@@ -64,6 +60,9 @@ fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
 fun GameInfo(
     gameState: GameState
 ) {
+    if (gameState.config.timeLimitSeconds < 0) {
+        return
+    }
     Row(
         modifier = Modifier
             .padding(8.dp)

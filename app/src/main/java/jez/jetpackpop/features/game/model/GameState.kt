@@ -13,12 +13,6 @@ import kotlinx.parcelize.Parcelize
 enum class GameProcessState {
     INITIALISED,
 
-    // GameState has a configuration and is ready to start
-    READY,
-
-    // GameState has been started but doesn't have dimensions yet; start delayed
-    WAITING_MEASURE,
-
     // Game is running
     RUNNING,
 

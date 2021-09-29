@@ -5,16 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.game.GameEndState
 import jez.jetpackpop.features.game.data.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
+import jez.jetpackpop.features.game.model.GameInputEvent
+import jez.jetpackpop.features.highscore.HighScores
+import jez.jetpackpop.features.highscore.HighScoresRepository
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class AppViewModel(
-    appInputEventFlow: SharedFlow<AppInputEvent>
+    private val highScoresRepository: HighScoresRepository,
+    initialHighScore: HighScores,
+    appInputEventFlow: SharedFlow<AppInputEvent>,
+    private val gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) : ViewModel() {
-    private val _appState = MutableStateFlow<AppState>(AppState.InitialisingState)
+    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState(initialHighScore))
     val appState: StateFlow<AppState> = _appState
 
     init {
@@ -23,27 +26,43 @@ class AppViewModel(
                 _appState.value = processInputEvent(it)
             }
         }
+        startDemoGame()
     }
 
-    private fun processInputEvent(event: AppInputEvent): AppState =
-        with(appState.value) {
-            when (event) {
-                is AppInputEvent.Navigation -> handleNavigation(event)
-                is AppInputEvent.StartGameFromChapter ->
-                    AppState.StartGameState(
-                        getFirstGameConfiguration(event.gameChapter),
-                        isNewChapter = true,
-                        isNewGame = true,
-                    )
-                is AppInputEvent.StartGame ->
-                    AppState.StartGameState(
-                        event.config,
-                        isNewChapter = event.isNewChapter,
-                        isNewGame = false,
-                    )
-                is AppInputEvent.GameEnded -> handleGameEnd(event.gameEndState)
-            }
+    private suspend fun processInputEvent(event: AppInputEvent): AppState =
+        when (event) {
+            is AppInputEvent.Navigation -> handleNavigation(event)
+            is AppInputEvent.StartNewGame ->
+                handleStartNewGame(event.config)
+            is AppInputEvent.StartNextChapter ->
+                handleNextChapter(event.config)
+            is AppInputEvent.StartNextLevel ->
+                handleNextLevel(event.config)
+            is AppInputEvent.GameEnded -> handleGameEnd(event.gameEndState)
         }
+
+    private fun handleNextChapter(gameConfiguration: GameConfiguration): AppState {
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNextChapter(gameConfiguration)
+        )
+        return AppState.InGameState
+    }
+
+    private fun handleNextLevel(gameConfiguration: GameConfiguration): AppState {
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNextLevel(gameConfiguration)
+        )
+        return AppState.InGameState
+    }
+
+    private fun handleStartNewGame(
+        gameConfiguration: GameConfiguration,
+    ): AppState {
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNewGame(gameConfiguration)
+        )
+        return AppState.InGameState
+    }
 
     private fun handleGameEnd(gameEndState: GameEndState): AppState {
         val nextGame =
@@ -69,18 +88,30 @@ class AppViewModel(
         }
     }
 
-    private fun handleNavigation(event: AppInputEvent.Navigation): AppState =
+    private suspend fun handleNavigation(event: AppInputEvent.Navigation): AppState =
         when (event) {
-            is AppInputEvent.Navigation.MainMenu -> AppState.MainMenuState(demoConfiguration())
+            is AppInputEvent.Navigation.MainMenu -> {
+                startDemoGame()
+                highScoresRepository.highScoresFlow.first().let {
+                    AppState.MainMenuState(it)
+                }
+            }
         }
 
     fun handleBackPressed(): Boolean =
         if (appState.value is AppState.MainMenuState) {
             false
         } else {
-            _appState.value = processInputEvent(AppInputEvent.Navigation.MainMenu)
+            viewModelScope.launch {
+                _appState.value = processInputEvent(AppInputEvent.Navigation.MainMenu)
+            }
             true
         }
+
+    private fun startDemoGame() =
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNewGame(demoConfiguration())
+        )
 }
 
 private fun demoConfiguration(): GameConfiguration =
