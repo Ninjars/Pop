@@ -35,12 +35,14 @@ data class TargetConfiguration(
 ) : Parcelable {
     enum class ClickResult {
         SCORE,
+        SPLIT,
     }
 }
 
 enum class GameChapter(val persistenceName: String) {
     SIMPLE_SINGLE("SIMPLE"),
     SIMPLE_DECOY("MASKED"),
+    SPLITTER("SPLITTER"),
     ;
 
     fun getNextChapter(): GameChapter? {
@@ -61,6 +63,7 @@ enum class GameChapter(val persistenceName: String) {
 enum class TargetColor {
     TARGET,
     DECOY,
+    SPLIT_TARGET,
 }
 
 fun getFirstGameConfiguration(chapter: GameChapter): GameConfiguration =

@@ -2,6 +2,7 @@ package jez.jetpackpop.features.game.data
 
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.features.game.data.TargetConfiguration.ClickResult.SCORE
+import jez.jetpackpop.features.game.data.TargetConfiguration.ClickResult.SPLIT
 
 private const val CHAPTER_LEVEL_COUNT = 6
 private const val LEVEL_DURATION = 10f
@@ -65,4 +66,26 @@ val gameConfigurations = hashMapOf(
                 isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
             )
         },
+    GameChapter.SPLITTER to (0 until CHAPTER_LEVEL_COUNT)
+        .map { index ->
+            val progressFraction = getProgressionFraction(
+                CHAPTER_LEVEL_COUNT,
+                index
+            )
+            GameConfiguration(
+                id = GameConfigId(GameChapter.SPLITTER, index),
+                timeLimitSeconds = LEVEL_DURATION,
+                targetConfigurations = listOf(
+                    TargetConfiguration(
+                        color = TargetColor.TARGET,
+                        radius = (42 - 6 * progressFraction).dp,
+                        count = (3 + 3 * progressFraction).toInt(),
+                        minSpeed = (30 + 50 * progressFraction).dp,
+                        maxSpeed = (40 + 70 * progressFraction).dp,
+                        clickResult = SPLIT,
+                    )
+                ),
+                isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
+            )
+        }
 )

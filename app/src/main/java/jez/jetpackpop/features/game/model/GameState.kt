@@ -38,7 +38,7 @@ data class GameState(
 
 @Parcelize
 data class TargetData(
-    val id: Int,
+    val id: String,
     val color: TargetColor,
     val radius: Dp,
     val center: Offset,
@@ -53,6 +53,7 @@ data class TargetData(
 
     enum class ClickResult {
         SCORE,
+        SCORE_AND_SPLIT,
     }
 }
 

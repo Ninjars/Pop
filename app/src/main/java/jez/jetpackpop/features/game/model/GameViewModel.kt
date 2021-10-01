@@ -119,9 +119,21 @@ class GameViewModel(
         if (processState != GameProcessState.RUNNING) {
             this
         } else {
+            val newTargets = when (data.clickResult) {
+                null -> targets
+                TargetData.ClickResult.SCORE ->
+                    targets.filter { it.id != data.id || it.color != data.color }
+                        .toList()
+                TargetData.ClickResult.SCORE_AND_SPLIT ->
+                    targets.filter { it.id != data.id || it.color != data.color }
+                        .toMutableList()
+                        .apply {
+                            addAll(targetFactory.createSplitTargets(data, 3))
+                        }
+            }
             copy(
                 scoreData = scoreData.createUpdate(true),
-                targets = targets.filter { it.id != data.id || it.color != data.color }.toList()
+                targets = newTargets
             )
         }
 

@@ -1,6 +1,7 @@
 package jez.jetpackpop.features.game.model
 
 import androidx.compose.ui.geometry.Offset
+import jez.jetpackpop.features.game.data.TargetColor
 import jez.jetpackpop.features.game.data.TargetConfiguration
 import kotlin.math.PI
 import kotlin.math.cos
@@ -16,7 +17,7 @@ class TargetFactory(
         return configurations.flatMap { targetConfig ->
             (0 until targetConfig.count).map {
                 TargetData(
-                    id = it,
+                    id = it.toString(),
                     color = targetConfig.color,
                     radius = targetConfig.radius,
                     center = Offset(
@@ -30,12 +31,30 @@ class TargetFactory(
                     ),
                     clickResult = if (isDemo) null else {
                         when(targetConfig.clickResult) {
-                            TargetConfiguration.ClickResult.SCORE -> TargetData.ClickResult.SCORE
                             null -> null
+                            TargetConfiguration.ClickResult.SCORE -> TargetData.ClickResult.SCORE
+                            TargetConfiguration.ClickResult.SPLIT -> TargetData.ClickResult.SCORE_AND_SPLIT
                         }
                     }
                 )
             }
+        }
+    }
+
+    fun createSplitTargets(data: TargetData, count: Int): List<TargetData> {
+        val baseVelocity = data.velocity.getDistance()
+        return (0 until count).map {
+            data.copy(
+                id = "${data.id} split $it",
+                velocity = getRandomVelocity(
+                    random,
+                    baseVelocity * 0.9f,
+                    baseVelocity * 1.5f
+                ),
+                radius = data.radius * 0.75f,
+                clickResult = TargetData.ClickResult.SCORE,
+                color = TargetColor.SPLIT_TARGET,
+            )
         }
     }
 

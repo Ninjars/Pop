@@ -19,6 +19,7 @@ import jez.jetpackpop.features.game.model.GameState
 import jez.jetpackpop.features.game.model.TargetData
 import jez.jetpackpop.ui.target1
 import jez.jetpackpop.ui.target2
+import jez.jetpackpop.ui.target3
 import kotlin.math.ceil
 
 @Composable
@@ -54,10 +55,10 @@ fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
 
 private fun TargetData.toOnClickAction(
     targetTapListener: (TargetData) -> Unit
-): ((TargetData) -> Unit)? =
+): (() -> Unit)? =
     when (this.clickResult) {
         null -> null
-        TargetData.ClickResult.SCORE -> {
+        else -> {
             { targetTapListener(this) }
         }
     }
@@ -122,4 +123,5 @@ private fun TargetColor.toColor() =
     when (this) {
         TargetColor.TARGET -> target1
         TargetColor.DECOY -> target2
+        TargetColor.SPLIT_TARGET -> target3
     }

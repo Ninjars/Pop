@@ -126,6 +126,7 @@ private fun ShowMainMenu(
             when (it) {
                 GameChapter.SIMPLE_SINGLE -> R.string.main_menu_chap_1
                 GameChapter.SIMPLE_DECOY -> R.string.main_menu_chap_2
+                GameChapter.SPLITTER -> R.string.main_menu_chap_3
             },
             highScores.chapterScores[it]
         ) {
@@ -136,7 +137,7 @@ private fun ShowMainMenu(
     MainMenu(
         chapterSelectButtonModels = chapterButtonModels,
         startAction = {
-            chapterSelectAction(GameChapter.SIMPLE_SINGLE)
+            chapterSelectAction(GameChapter.values().first())
         },
     )
 }
