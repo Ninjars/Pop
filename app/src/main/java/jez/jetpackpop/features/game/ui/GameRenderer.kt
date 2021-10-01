@@ -33,20 +33,22 @@ fun GameRenderer(
 
 @Composable
 fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    var modifier = Modifier
+        .size(data.radius * 2f)
+        .offset(data.xOffset, data.yOffset)
+        .clip(CircleShape)
+        .background(data.color.toColor())
+
+    data.toOnClickAction(onClick)?.let { action ->
+        modifier = modifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+        ) { action() }
+    }
+
     Box(
-        modifier = Modifier
-            .size(data.radius * 2f)
-            .offset(data.xOffset, data.yOffset)
-            .clip(CircleShape)
-            .background(data.color.toColor())
-            .apply {
-                data.toOnClickAction(onClick)?.let { action ->
-                    clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) { action(data) }
-                }
-            }
+        modifier = modifier
     )
 }
 

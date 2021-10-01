@@ -59,7 +59,7 @@ val gameConfigurations = hashMapOf(
                         count = (2 + 3 * progressFraction).toInt(),
                         minSpeed = (20 + 30 * progressFraction).dp,
                         maxSpeed = (25 + 50 * progressFraction).dp,
-                        clickResult = SCORE,
+                        clickResult = null,
                     )
                 ),
                 isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
