@@ -1,7 +1,7 @@
-package jez.jetpackpop.features.app.model
+package jez.jetpackpop.features.app.model.app
 
-import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.app.domain.GameConfiguration
+import jez.jetpackpop.features.app.model.game.GameEndState
 
 sealed class AppInputEvent {
     sealed class Navigation : AppInputEvent() {

@@ -1,27 +1,21 @@
-package jez.jetpackpop.features.game.model
+package jez.jetpackpop.features.app.domain
 
 import androidx.compose.ui.geometry.Offset
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import jez.jetpackpop.features.app.model.AppInputEvent
-import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.app.model.game.*
 import jez.jetpackpop.features.highscore.HighScores
-import jez.jetpackpop.features.highscore.HighScoresRepository
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
-class GameViewModel(
-    private val highScoresRepository: HighScoresRepository,
-    inputEvents: SharedFlow<GameInputEvent>,
-    private val outputEvents: MutableSharedFlow<AppInputEvent>, // TODO: replace with output events to be mapped to AppInputEvents
+class GameLogic(
+    val outputEvents: MutableSharedFlow<GameLogicEvent>,
     private val width: Float,
     private val height: Float,
     private val targetFactory: TargetFactory = TargetFactory(width, height)
-) : ViewModel() {
+) {
     private val _gameState = MutableStateFlow(
         GameState(
             width = width,
@@ -34,32 +28,19 @@ class GameViewModel(
             highScores = HighScores.defaultValue
         )
     )
+
     val gameState: StateFlow<GameState> = _gameState
 
-    init {
-        viewModelScope.launch {
-            highScoresRepository.highScoresFlow.collect {
-                _gameState.value = _gameState.value.copy(highScores = it)
-            }
-        }
-
-        viewModelScope.launch {
-            inputEvents.collect {
-                _gameState.value = processInputEvent(it)
-            }
-        }
-    }
-
-    private fun processInputEvent(event: GameInputEvent): GameState =
-        with(gameState.value) {
-            when (event) {
+    fun processInputEvent(event: GameInputEvent) {
+        with(_gameState.value) {
+            _gameState.value = when (event) {
                 is GameInputEvent.BackgroundTap -> onBackgroundTapped()
                 is GameInputEvent.TargetTap -> onTargetTapped(event.data)
                 is GameInputEvent.StartNewGame -> startGame(
                     event.config,
                     resetScore = true,
-                    scoreData = gameState.value.scoreData,
-                    highScores = gameState.value.highScores,
+                    scoreData = _gameState.value.scoreData,
+                    highScores = _gameState.value.highScores,
                 )
                 is GameInputEvent.StartNextLevel -> continueGame(event.config, resetScore = false)
                 is GameInputEvent.StartNextChapter -> continueGame(event.config, resetScore = true)
@@ -68,8 +49,12 @@ class GameViewModel(
                 is GameInputEvent.SystemEvent.Paused -> pause()
                 is GameInputEvent.SystemEvent.Resumed -> resume()
                 is GameInputEvent.Update -> update(event.deltaSeconds)
+                is GameInputEvent.NewHighScore -> {
+                    _gameState.value.copy(highScores = event.highScores)
+                }
             }
         }
+    }
 
     private fun GameState.continueGame(
         config: GameConfiguration,
@@ -146,29 +131,6 @@ class GameViewModel(
             )
         }
 
-    private fun GameState.recordCurrentScore(isEndOfChapter: Boolean): GameState {
-        viewModelScope.launch {
-            highScoresRepository.updateHighScores(
-                highScores.copy(
-                    chapterScores = highScores.chapterScores.run {
-                        val chapter = config.id.chapter
-                        toMutableMap().apply {
-                            this[chapter] =
-                                max(getOrDefault(chapter, 0), scoreData.totalScore)
-
-                            if (isEndOfChapter) {
-                                chapter.getNextChapter()?.also {
-                                    this[it] = getOrDefault(it, 0)
-                                }
-                            }
-                        }
-                    }
-                )
-            )
-        }
-        return this
-    }
-
     private fun GameState.update(deltaSeconds: Float) =
         when (processState) {
             GameProcessState.END_LOSE,
@@ -196,15 +158,15 @@ class GameViewModel(
         ).also {
             if (processStateHasChanged) {
                 when (it.processState) {
-                    GameProcessState.END_WIN -> {
-                        it.recordCurrentScore(config.isLastInChapter)
-                        outputEvents.tryEmit(
-                            AppInputEvent.GameEnded(it.toEndState())
-                        )
-                    }
+                    GameProcessState.END_WIN,
                     GameProcessState.END_LOSE -> {
+                        val gameState = _gameState.value
                         outputEvents.tryEmit(
-                            AppInputEvent.GameEnded(it.toEndState())
+                            GameLogicEvent.GameEnded(
+                                gameState.highScores,
+                                gameState.config,
+                                it.toEndState(),
+                            )
                         )
                     }
                     else -> {
@@ -216,7 +178,7 @@ class GameViewModel(
 
     private fun GameState.toEndState(): GameEndState =
         if (config.isLastInChapter) {
-            GameEndState.ChapterEndState(
+            jez.jetpackpop.features.app.model.game.GameEndState.ChapterEndState(
                 config.id,
                 remainingTime,
                 scoreData,
@@ -224,7 +186,7 @@ class GameViewModel(
                 highScores.chapterScores.getOrDefault(config.id.chapter, 0),
             )
         } else {
-            GameEndState.LevelEndState(
+            jez.jetpackpop.features.app.model.game.GameEndState.LevelEndState(
                 config.id,
                 remainingTime,
                 scoreData,

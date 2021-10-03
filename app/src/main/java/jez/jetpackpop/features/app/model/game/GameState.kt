@@ -1,11 +1,11 @@
-package jez.jetpackpop.features.game.model
+package jez.jetpackpop.features.app.model.game
 
 import android.os.Parcelable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import jez.jetpackpop.features.game.data.GameConfiguration
-import jez.jetpackpop.features.game.data.TargetColor
+import jez.jetpackpop.features.app.domain.GameConfiguration
+import jez.jetpackpop.features.app.domain.TargetColor
 import jez.jetpackpop.features.highscore.HighScores
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -55,15 +55,4 @@ data class TargetData(
         SCORE,
         SCORE_AND_SPLIT,
     }
-}
-
-@Parcelize
-data class GameScoreData(
-    val startingScore: Int,
-    val tapHistory: List<Boolean>,
-    val gameScore: Int,
-    val currentMultiplier: Int,
-) : Parcelable {
-    @IgnoredOnParcel
-    val totalScore: Int = startingScore + gameScore
 }

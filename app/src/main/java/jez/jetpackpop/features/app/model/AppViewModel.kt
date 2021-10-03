@@ -1,133 +1,119 @@
 package jez.jetpackpop.features.app.model
 
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.*
-import jez.jetpackpop.features.game.model.GameInputEvent
+import jez.jetpackpop.features.app.domain.*
+import jez.jetpackpop.features.app.domain.GameConfiguration
+import jez.jetpackpop.features.app.model.app.AppInputEvent
+import jez.jetpackpop.features.app.model.app.AppState
+import jez.jetpackpop.features.app.model.game.GameInputEvent
+import jez.jetpackpop.features.app.model.game.GameScoreData
+import jez.jetpackpop.features.app.model.game.GameState
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 class AppViewModel(
     private val highScoresRepository: HighScoresRepository,
-    initialHighScore: HighScores,
-    appInputEventFlow: SharedFlow<AppInputEvent>,
-    private val gameEventFlow: MutableSharedFlow<GameInputEvent>,
+    appInputEventFlow: MutableSharedFlow<AppInputEvent>,
+    gameInputEvents: SharedFlow<GameInputEvent>,
+    gameOutputEventFlow: SharedFlow<GameLogicEvent>,
+    private val appLogic: AppLogic,
+    gameLogic: GameLogic,
 ) : ViewModel() {
-    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState(initialHighScore))
-    val appState: StateFlow<AppState> = _appState
+    val gameState: StateFlow<GameState> = gameLogic.gameState
+    val appState: StateFlow<AppState> = appLogic.appState
 
     init {
         viewModelScope.launch {
             appInputEventFlow.collect {
-                _appState.value = processInputEvent(it)
+                appLogic.processInputEvent(it)
             }
         }
-        startDemoGame()
-    }
 
-    private suspend fun processInputEvent(event: AppInputEvent): AppState =
-        when (event) {
-            is AppInputEvent.Navigation -> handleNavigation(event)
-            is AppInputEvent.StartNewGame ->
-                handleStartNewGame(event.config)
-            is AppInputEvent.StartNextChapter ->
-                handleNextChapter(event.config)
-            is AppInputEvent.StartNextLevel ->
-                handleNextLevel(event.config)
-            is AppInputEvent.GameEnded -> handleGameEnd(event.gameEndState)
-        }
-
-    private fun handleNextChapter(gameConfiguration: GameConfiguration): AppState {
-        gameEventFlow.tryEmit(
-            GameInputEvent.StartNextChapter(gameConfiguration)
-        )
-        return AppState.InGameState
-    }
-
-    private fun handleNextLevel(gameConfiguration: GameConfiguration): AppState {
-        gameEventFlow.tryEmit(
-            GameInputEvent.StartNextLevel(gameConfiguration)
-        )
-        return AppState.InGameState
-    }
-
-    private fun handleStartNewGame(
-        gameConfiguration: GameConfiguration,
-    ): AppState {
-        gameEventFlow.tryEmit(
-            GameInputEvent.StartNewGame(gameConfiguration)
-        )
-        return AppState.InGameState
-    }
-
-    private fun handleGameEnd(gameEndState: GameEndState): AppState {
-        val nextGame =
-            if (gameEndState.didWin) {
-                getNextGameConfiguration(gameEndState.gameConfigId)
-            } else {
-                getGameConfiguration(gameEndState.gameConfigId)
+        viewModelScope.launch {
+            highScoresRepository.highScoresFlow.collect {
+                gameLogic.processInputEvent(GameInputEvent.NewHighScore(it))
             }
-
-        return when {
-            nextGame == null ->
-                AppState.VictoryMenuState
-
-            gameEndState.gameConfigId.chapter != nextGame.id.chapter ->
-                AppState.ChapterCompleteMenuState(
-                    gameEndState.gameConfigId,
-                    nextGame,
-                    gameEndState.score
-                )
-
-            else ->
-                AppState.EndMenuState(nextGame, gameEndState.didWin, gameEndState.score)
         }
-    }
 
-    private suspend fun handleNavigation(event: AppInputEvent.Navigation): AppState =
-        when (event) {
-            is AppInputEvent.Navigation.MainMenu -> {
-                startDemoGame()
-                highScoresRepository.highScoresFlow.first().let {
-                    AppState.MainMenuState(it)
+        viewModelScope.launch {
+            gameInputEvents.collect {
+                gameLogic.processInputEvent(it)
+            }
+        }
+
+        viewModelScope.launch {
+            gameOutputEventFlow.collect {
+                when (it) {
+                    is GameLogicEvent.GameEnded ->
+                        appInputEventFlow.tryEmit(
+                            AppInputEvent.GameEnded(
+                                it.gameEndState
+                            )
+                        )
                 }
             }
         }
+
+        viewModelScope.launch {
+            gameLogic.outputEvents.collect {
+                when (it) {
+                    is GameLogicEvent.GameEnded -> {
+                        val state = it.gameEndState
+                        if (state.didWin) {
+                            recordCurrentScore(
+                                it.highScores,
+                                state.score,
+                                it.config,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        appLogic.startDemoGame()
+    }
 
     fun handleBackPressed(): Boolean =
         if (appState.value is AppState.MainMenuState) {
             false
         } else {
             viewModelScope.launch {
-                _appState.value = processInputEvent(AppInputEvent.Navigation.MainMenu)
+                appLogic.processInputEvent(AppInputEvent.Navigation.MainMenu)
             }
             true
         }
 
-    private fun startDemoGame() =
-        gameEventFlow.tryEmit(
-            GameInputEvent.StartNewGame(demoConfiguration())
-        )
-}
+    private fun recordCurrentScore(
+        highScores: HighScores,
+        scoreData: GameScoreData,
+        config: GameConfiguration,
+    ) {
+        viewModelScope.launch {
+            highScoresRepository.updateHighScores(
+                highScores.copy(
+                    chapterScores = highScores.chapterScores.run {
+                        val chapter = config.id.chapter
+                        toMutableMap().apply {
+                            this[chapter] =
+                                max(getOrDefault(chapter, 0), scoreData.totalScore)
 
-private fun demoConfiguration(): GameConfiguration =
-    GameConfiguration(
-        id = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
-        isDemo = true,
-        timeLimitSeconds = -1f,
-        targetConfigurations = listOf(
-            TargetConfiguration(
-                color = TargetColor.TARGET,
-                radius = 30.dp,
-                count = 10,
-                minSpeed = 8.dp,
-                maxSpeed = 16.dp,
-                clickResult = null,
+                            if (config.isLastInChapter) {
+                                chapter.getNextChapter()?.also {
+                                    this[it] = getOrDefault(it, 0)
+                                }
+                            }
+                        }
+                    }
+                )
             )
-        ),
-        isLastInChapter = false,
-    )
+        }
+    }
+}

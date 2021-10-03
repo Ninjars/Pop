@@ -1,12 +1,10 @@
-package jez.jetpackpop.features.game
+package jez.jetpackpop.features.app.model.game
 
 import android.os.Parcelable
-import jez.jetpackpop.features.game.data.GameConfigId
-import jez.jetpackpop.features.game.model.GameScoreData
+import jez.jetpackpop.features.app.domain.GameConfigId
 import kotlinx.parcelize.Parcelize
 
-sealed class GameEndState(
-): Parcelable {
+sealed class GameEndState: Parcelable {
 
     abstract val gameConfigId: GameConfigId
     abstract val remainingTime: Float

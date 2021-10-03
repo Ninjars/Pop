@@ -13,11 +13,10 @@ import jez.jetpackpop.HighScoresProto
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.audio.SoundManagerImpl
-import jez.jetpackpop.features.app.model.AppInputEvent
+import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.app.ui.App
-import jez.jetpackpop.features.game.model.GameInputEvent
-import jez.jetpackpop.features.game.model.GameViewModel
+import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.highscore.HighScoreDataSerializer
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.android.awaitFrame
@@ -28,7 +27,6 @@ class MainActivity : ComponentActivity() {
     private val gameEventFlow = MutableSharedFlow<GameInputEvent>(extraBufferCapacity = 5)
     private val appEventFlow = MutableSharedFlow<AppInputEvent>(extraBufferCapacity = 5)
     private lateinit var appViewModel: AppViewModel
-    private lateinit var gameViewModel: GameViewModel
 
     init {
         lifecycle.addObserver(soundManager)
@@ -45,18 +43,16 @@ class MainActivity : ComponentActivity() {
                         HighScoresRepository(
                             dataStore = this@MainActivity.highScoresStore
                         ),
-                        gameEventFlow,
-                        appEventFlow,
                         maxWidth.value,
                         maxHeight.value,
+                        gameEventFlow,
+                        appEventFlow,
                     )
                 )
                 appViewModel = viewModelFactory.get(AppViewModel::class.java)
-                gameViewModel = viewModelFactory.get(GameViewModel::class.java)
                 App(
                     soundManager,
                     appViewModel,
-                    gameViewModel,
                     appEventFlow,
                     gameEventFlow,
                 )

@@ -1,6 +1,5 @@
 package jez.jetpackpop.features.app.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
@@ -11,16 +10,12 @@ import androidx.compose.ui.Modifier
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
-import jez.jetpackpop.features.app.model.AppInputEvent
-import jez.jetpackpop.features.app.model.AppState
+import jez.jetpackpop.features.app.model.app.AppInputEvent
+import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.AppViewModel
-import jez.jetpackpop.features.game.data.GameChapter
-import jez.jetpackpop.features.game.data.getFirstGameConfiguration
-import jez.jetpackpop.features.game.model.GameInputEvent
-import jez.jetpackpop.features.game.model.GameViewModel
-import jez.jetpackpop.features.game.ui.GameEndMenu
-import jez.jetpackpop.features.game.ui.GameScreen
-import jez.jetpackpop.features.game.ui.VictoryMenu
+import jez.jetpackpop.features.app.domain.GameChapter
+import jez.jetpackpop.features.app.domain.getFirstGameConfiguration
+import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,17 +24,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 fun App(
     soundManager: SoundManager,
     appViewModel: AppViewModel,
-    gameViewModel: GameViewModel,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
-    Log.e("App", "RECOMPOSE")
     AppTheme {
         Box(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
         ) {
-            val gameState = gameViewModel.gameState.collectAsState()
+            val gameState = appViewModel.gameState.collectAsState()
             val appState = appViewModel.appState.collectAsState()
 
             GameScreen(
@@ -64,7 +57,6 @@ fun UI(
     appEventFlow: MutableSharedFlow<AppInputEvent>,
 ) {
     val appState = appStateSource.value
-    Log.e("UI", "recompose $appState")
     when (appState) {
         is AppState.MainMenuState -> {
             ShowMainMenu(

@@ -1,8 +1,7 @@
-package jez.jetpackpop.features.game.model
+package jez.jetpackpop.features.app.domain
 
 import androidx.compose.ui.geometry.Offset
-import jez.jetpackpop.features.game.data.TargetColor
-import jez.jetpackpop.features.game.data.TargetConfiguration
+import jez.jetpackpop.features.app.model.game.TargetData
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
