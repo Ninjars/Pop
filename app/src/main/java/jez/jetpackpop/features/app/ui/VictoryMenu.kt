@@ -1,4 +1,4 @@
-package jez.jetpackpop.features.game.ui
+package jez.jetpackpop.features.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

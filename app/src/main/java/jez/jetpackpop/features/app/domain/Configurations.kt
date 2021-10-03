@@ -1,4 +1,4 @@
-package jez.jetpackpop.features.game.data
+package jez.jetpackpop.features.app.domain
 
 import android.os.Parcelable
 import androidx.compose.ui.unit.Dp

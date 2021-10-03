@@ -1,8 +1,7 @@
-package jez.jetpackpop.features.game.model
+package jez.jetpackpop.features.app.domain
 
 import androidx.compose.ui.geometry.Offset
-import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.app.model.game.*
 import jez.jetpackpop.features.highscore.HighScores
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -179,7 +178,7 @@ class GameLogic(
 
     private fun GameState.toEndState(): GameEndState =
         if (config.isLastInChapter) {
-            GameEndState.ChapterEndState(
+            jez.jetpackpop.features.app.model.game.GameEndState.ChapterEndState(
                 config.id,
                 remainingTime,
                 scoreData,
@@ -187,7 +186,7 @@ class GameLogic(
                 highScores.chapterScores.getOrDefault(config.id.chapter, 0),
             )
         } else {
-            GameEndState.LevelEndState(
+            jez.jetpackpop.features.app.model.game.GameEndState.LevelEndState(
                 config.id,
                 remainingTime,
                 scoreData,

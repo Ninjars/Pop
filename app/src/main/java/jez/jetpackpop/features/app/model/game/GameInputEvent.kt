@@ -1,6 +1,6 @@
-package jez.jetpackpop.features.game.model
+package jez.jetpackpop.features.app.model.game
 
-import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.app.domain.GameConfiguration
 import jez.jetpackpop.features.highscore.HighScores
 
 sealed class GameInputEvent {

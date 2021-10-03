@@ -1,9 +1,9 @@
-package jez.jetpackpop.features.app.model
+package jez.jetpackpop.features.app.model.app
 
 import android.os.Parcelable
-import jez.jetpackpop.features.game.data.GameConfiguration
-import jez.jetpackpop.features.game.data.GameConfigId
-import jez.jetpackpop.features.game.model.GameScoreData
+import jez.jetpackpop.features.app.domain.GameConfiguration
+import jez.jetpackpop.features.app.domain.GameConfigId
+import jez.jetpackpop.features.app.model.game.GameScoreData
 import jez.jetpackpop.features.highscore.HighScores
 import kotlinx.parcelize.Parcelize
 

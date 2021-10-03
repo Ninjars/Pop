@@ -6,8 +6,8 @@ import jez.jetpackpop.R
 import jez.jetpackpop.audio.NoOpSoundManager
 import jez.jetpackpop.features.app.ui.ChapterSelectButtonModel
 import jez.jetpackpop.features.app.ui.MainMenu
-import jez.jetpackpop.features.game.ui.GameEndMenu
-import jez.jetpackpop.features.game.ui.VictoryMenu
+import jez.jetpackpop.features.app.ui.GameEndMenu
+import jez.jetpackpop.features.app.ui.VictoryMenu
 
 
 @Preview("MainMenu")

@@ -1,9 +1,10 @@
-package jez.jetpackpop.features.app.model
+package jez.jetpackpop.features.app.domain
 
 import androidx.compose.ui.unit.dp
-import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.*
-import jez.jetpackpop.features.game.model.GameInputEvent
+import jez.jetpackpop.features.app.model.app.AppInputEvent
+import jez.jetpackpop.features.app.model.app.AppState
+import jez.jetpackpop.features.app.model.game.GameEndState
+import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.MutableSharedFlow

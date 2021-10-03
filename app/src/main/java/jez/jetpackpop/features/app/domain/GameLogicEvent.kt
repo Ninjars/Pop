@@ -1,7 +1,6 @@
-package jez.jetpackpop.features.game.model
+package jez.jetpackpop.features.app.domain
 
-import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.GameConfiguration
+import jez.jetpackpop.features.app.model.game.GameEndState
 import jez.jetpackpop.features.highscore.HighScores
 
 sealed class GameLogicEvent {

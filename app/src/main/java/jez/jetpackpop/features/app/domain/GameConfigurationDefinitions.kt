@@ -1,8 +1,8 @@
-package jez.jetpackpop.features.game.data
+package jez.jetpackpop.features.app.domain
 
 import androidx.compose.ui.unit.dp
-import jez.jetpackpop.features.game.data.TargetConfiguration.ClickResult.SCORE
-import jez.jetpackpop.features.game.data.TargetConfiguration.ClickResult.SPLIT
+import jez.jetpackpop.features.app.domain.TargetConfiguration.ClickResult.SCORE
+import jez.jetpackpop.features.app.domain.TargetConfiguration.ClickResult.SPLIT
 
 private const val CHAPTER_LEVEL_COUNT = 6
 private const val LEVEL_DURATION = 10f

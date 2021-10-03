@@ -2,8 +2,13 @@ package jez.jetpackpop.features.app.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jez.jetpackpop.features.game.data.GameConfiguration
-import jez.jetpackpop.features.game.model.*
+import jez.jetpackpop.features.app.domain.*
+import jez.jetpackpop.features.app.domain.GameConfiguration
+import jez.jetpackpop.features.app.model.app.AppInputEvent
+import jez.jetpackpop.features.app.model.app.AppState
+import jez.jetpackpop.features.app.model.game.GameInputEvent
+import jez.jetpackpop.features.app.model.game.GameScoreData
+import jez.jetpackpop.features.app.model.game.GameState
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
