@@ -16,7 +16,6 @@ import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.game.data.GameChapter
 import jez.jetpackpop.features.game.data.getFirstGameConfiguration
 import jez.jetpackpop.features.game.model.GameInputEvent
-import jez.jetpackpop.features.game.model.GameViewModel
 import jez.jetpackpop.features.game.ui.GameEndMenu
 import jez.jetpackpop.features.game.ui.GameScreen
 import jez.jetpackpop.features.game.ui.VictoryMenu
@@ -28,7 +27,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 fun App(
     soundManager: SoundManager,
     appViewModel: AppViewModel,
-    gameViewModel: GameViewModel,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
@@ -37,7 +35,7 @@ fun App(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
         ) {
-            val gameState = gameViewModel.gameState.collectAsState()
+            val gameState = appViewModel.gameState.collectAsState()
             val appState = appViewModel.appState.collectAsState()
 
             GameScreen(
