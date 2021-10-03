@@ -3,6 +3,7 @@ package jez.jetpackpop.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import jez.jetpackpop.features.app.model.AppInputEvent
+import jez.jetpackpop.features.app.model.AppLogic
 import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.game.model.GameInputEvent
 import jez.jetpackpop.features.game.model.GameLogic
@@ -42,7 +43,12 @@ class AppViewModelFactory (
             modelClass.isAssignableFrom(AppViewModel::class.java) -> {
                 runBlocking {
                     val highScores = highScoresRepository.highScoresFlow.first()
-                    AppViewModel(highScoresRepository, highScores, appInputEventFlow, gameInputEventFlow) as T
+                    val appLogic = AppLogic(
+                        highScores,
+                        highScoresRepository,
+                        gameInputEventFlow,
+                    )
+                    AppViewModel(appInputEventFlow, appLogic) as T
                 }
             }
 
