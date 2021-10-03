@@ -104,7 +104,7 @@ fun UI(
             ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
                 appEventFlow.tryEmit(
-                    AppInputEvent.StartNextChapter(
+                    AppInputEvent.StartNextLevel(
                         appState.nextGameConfiguration
                     )
                 )
