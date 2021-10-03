@@ -45,10 +45,10 @@ class MainActivity : ComponentActivity() {
                         HighScoresRepository(
                             dataStore = this@MainActivity.highScoresStore
                         ),
-                        gameEventFlow,
-                        appEventFlow,
                         maxWidth.value,
                         maxHeight.value,
+                        gameEventFlow,
+                        appEventFlow,
                     )
                 )
                 appViewModel = viewModelFactory.get(AppViewModel::class.java)
