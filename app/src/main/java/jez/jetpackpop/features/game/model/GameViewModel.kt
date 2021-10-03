@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.app.model.AppInputEvent
 import jez.jetpackpop.features.game.GameEndState
-import jez.jetpackpop.features.game.data.GameChapter
 import jez.jetpackpop.features.game.data.GameConfiguration
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.math.*
-import kotlin.random.Random
+import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 
 class GameViewModel(
     private val highScoresRepository: HighScoresRepository,
@@ -20,6 +20,7 @@ class GameViewModel(
     private val outputEvents: MutableSharedFlow<AppInputEvent>, // TODO: replace with output events to be mapped to AppInputEvents
     private val width: Float,
     private val height: Float,
+    private val targetFactory: TargetFactory = TargetFactory(width, height)
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState(
@@ -87,26 +88,7 @@ class GameViewModel(
         scoreData: GameScoreData,
         highScores: HighScores,
     ): GameState {
-        val random = Random.Default
-        val targets = config.targetConfigurations.flatMap { targetConfig ->
-            (0 until targetConfig.count).map {
-                TargetData(
-                    id = it,
-                    color = targetConfig.color,
-                    radius = targetConfig.radius,
-                    center = Offset(
-                        random.nextFloat() * width,
-                        random.nextFloat() * height
-                    ),
-                    velocity = getRandomVelocity(
-                        random,
-                        targetConfig.minSpeed.value,
-                        targetConfig.maxSpeed.value
-                    ),
-                    clickable = targetConfig.clickable && !config.isDemo,
-                )
-            }
-        }
+        val targets = targetFactory.createTargets(config.isDemo, config.targetConfigurations)
         return GameState(
             config = config,
             processState = GameProcessState.RUNNING,
@@ -137,9 +119,21 @@ class GameViewModel(
         if (processState != GameProcessState.RUNNING) {
             this
         } else {
+            val newTargets = when (data.clickResult) {
+                null -> targets
+                TargetData.ClickResult.SCORE ->
+                    targets.filter { it.id != data.id || it.color != data.color }
+                        .toList()
+                TargetData.ClickResult.SCORE_AND_SPLIT ->
+                    targets.filter { it.id != data.id || it.color != data.color }
+                        .toMutableList()
+                        .apply {
+                            addAll(targetFactory.createSplitTargets(data, 3))
+                        }
+            }
             copy(
                 scoreData = scoreData.createUpdate(true),
-                targets = targets.filter { it.id != data.id || it.color != data.color }.toList()
+                targets = newTargets
             )
         }
 
@@ -175,29 +169,12 @@ class GameViewModel(
         return this
     }
 
-    private fun GameChapter.getNextChapter(): GameChapter? {
-        val nextOrdinal = ordinal + 1
-        return if (nextOrdinal >= GameChapter.values().size)
-            null
-        else
-            GameChapter.values()[nextOrdinal]
-    }
-
     private fun GameState.update(deltaSeconds: Float) =
         when (processState) {
             GameProcessState.END_LOSE,
             GameProcessState.RUNNING -> iterateState(deltaSeconds)
             else -> this
         }
-
-    private fun getRandomVelocity(random: Random, min: Float, max: Float): Offset {
-        val speed = random.nextFloat() * (max - min) + min
-        val angle = random.nextFloat() * 2 * PI
-        return Offset(
-            x = (cos(angle) * speed).toFloat(),
-            y = (sin(angle) * speed).toFloat(),
-        )
-    }
 
     private fun GameState.iterateState(deltaSeconds: Float): GameState {
         val nextRemainingTime =
@@ -206,7 +183,7 @@ class GameViewModel(
         val isDemo = config.isDemo
         val nextProcessState = when {
             nextRemainingTime <= 0f && !isDemo -> GameProcessState.END_LOSE
-            targets.none { it.clickable } && !isDemo -> GameProcessState.END_WIN
+            targets.none { it.clickResult != null } && !isDemo -> GameProcessState.END_WIN
             else -> processState
         }
         val processStateHasChanged = nextProcessState != processState

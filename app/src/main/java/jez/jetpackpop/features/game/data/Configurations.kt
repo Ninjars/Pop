@@ -13,7 +13,8 @@ data class GameConfiguration(
     val isDemo: Boolean = false,
 ) : Parcelable {
     companion object {
-        val DEFAULT = GameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, -1), -1f, emptyList(), false)
+        val DEFAULT =
+            GameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, -1), -1f, emptyList(), false)
     }
 }
 
@@ -30,13 +31,27 @@ data class TargetConfiguration(
     val count: Int,
     val minSpeed: Dp,
     val maxSpeed: Dp,
-    val clickable: Boolean,
-) : Parcelable
+    val clickResult: ClickResult?,
+) : Parcelable {
+    enum class ClickResult {
+        SCORE,
+        SPLIT,
+    }
+}
 
 enum class GameChapter(val persistenceName: String) {
     SIMPLE_SINGLE("SIMPLE"),
     SIMPLE_DECOY("MASKED"),
+    SPLITTER("SPLITTER"),
     ;
+
+    fun getNextChapter(): GameChapter? {
+        val nextOrdinal = ordinal + 1
+        return if (nextOrdinal >= values().size)
+            null
+        else
+            values()[nextOrdinal]
+    }
 
     companion object {
         fun withName(name: String) =
@@ -48,6 +63,7 @@ enum class GameChapter(val persistenceName: String) {
 enum class TargetColor {
     TARGET,
     DECOY,
+    SPLIT_TARGET,
 }
 
 fun getFirstGameConfiguration(chapter: GameChapter): GameConfiguration =
@@ -72,7 +88,7 @@ fun getNextGameConfiguration(currentConfiguration: GameConfigId?): GameConfigura
         )
 
     } else {
-        getNextChapter(chapter)?.let {
+        chapter.getNextChapter()?.let {
             val nextChapterItems = gameConfigurations.getOrDefault(chapter, emptyList())
             if (nextChapterItems.isEmpty()) {
                 null
@@ -90,9 +106,3 @@ fun getNextGameConfiguration(currentConfiguration: GameConfigId?): GameConfigura
         getGameConfiguration(nextConfigId)
     }
 }
-
-private fun getNextChapter(chapter: GameChapter): GameChapter? =
-    when (chapter) {
-        GameChapter.SIMPLE_SINGLE -> GameChapter.SIMPLE_DECOY
-        GameChapter.SIMPLE_DECOY -> null
-    }

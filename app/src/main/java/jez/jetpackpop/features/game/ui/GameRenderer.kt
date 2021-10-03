@@ -13,12 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import jez.jetpackpop.features.game.data.TargetColor
 import jez.jetpackpop.features.game.model.GameScoreData
 import jez.jetpackpop.features.game.model.GameState
-import jez.jetpackpop.features.game.data.TargetColor
 import jez.jetpackpop.features.game.model.TargetData
 import jez.jetpackpop.ui.target1
 import jez.jetpackpop.ui.target2
+import jez.jetpackpop.ui.target3
 import kotlin.math.ceil
 
 @Composable
@@ -33,28 +34,34 @@ fun GameRenderer(
 
 @Composable
 fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
-    if (data.clickable) {
-        Box(
-            modifier = Modifier
-                .size(data.radius * 2f)
-                .offset(data.xOffset, data.yOffset)
-                .clip(CircleShape)
-                .background(data.color.toColor())
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                ) { onClick(data) }
-        )
-    } else {
-        Box(
-            modifier = Modifier
-                .size(data.radius * 2f)
-                .offset(data.xOffset, data.yOffset)
-                .clip(CircleShape)
-                .background(data.color.toColor())
-        )
+    val interactionSource = remember { MutableInteractionSource() }
+    var modifier = Modifier
+        .size(data.radius * 2f)
+        .offset(data.xOffset, data.yOffset)
+        .clip(CircleShape)
+        .background(data.color.toColor())
+
+    data.toOnClickAction(onClick)?.let { action ->
+        modifier = modifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+        ) { action() }
     }
+
+    Box(
+        modifier = modifier
+    )
 }
+
+private fun TargetData.toOnClickAction(
+    targetTapListener: (TargetData) -> Unit
+): (() -> Unit)? =
+    when (this.clickResult) {
+        null -> null
+        else -> {
+            { targetTapListener(this) }
+        }
+    }
 
 @Composable
 fun GameInfo(
@@ -116,4 +123,5 @@ private fun TargetColor.toColor() =
     when (this) {
         TargetColor.TARGET -> target1
         TargetColor.DECOY -> target2
+        TargetColor.SPLIT_TARGET -> target3
     }

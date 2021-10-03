@@ -38,18 +38,23 @@ data class GameState(
 
 @Parcelize
 data class TargetData(
-    val id: Int,
+    val id: String,
     val color: TargetColor,
     val radius: Dp,
     val center: Offset,
-    val clickable: Boolean,
-    val velocity: Offset
+    val velocity: Offset,
+    val clickResult: ClickResult?,
 ) : Parcelable {
     @IgnoredOnParcel
     val xOffset: Dp = center.x.dp - radius
 
     @IgnoredOnParcel
     val yOffset: Dp = center.y.dp - radius
+
+    enum class ClickResult {
+        SCORE,
+        SCORE_AND_SPLIT,
+    }
 }
 
 @Parcelize
