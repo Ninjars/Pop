@@ -1,6 +1,5 @@
 package jez.jetpackpop.features.app.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
@@ -33,7 +32,6 @@ fun App(
     appEventFlow: MutableSharedFlow<AppInputEvent>,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
-    Log.e("App", "RECOMPOSE")
     AppTheme {
         Box(
             modifier = Modifier
@@ -64,7 +62,6 @@ fun UI(
     appEventFlow: MutableSharedFlow<AppInputEvent>,
 ) {
     val appState = appStateSource.value
-    Log.e("UI", "recompose $appState")
     when (appState) {
         is AppState.MainMenuState -> {
             ShowMainMenu(
