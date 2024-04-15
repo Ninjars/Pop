@@ -14,6 +14,8 @@ import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.model.game.GameProcessState
 import jez.jetpackpop.features.app.model.game.GameState
+import jez.jetpackpop.features.app.ui.game.GameInfo
+import jez.jetpackpop.features.app.ui.game.GameRenderer
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
