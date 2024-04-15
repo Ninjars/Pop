@@ -1,7 +1,7 @@
 package jez.jetpackpop.features.app.domain
 
+import androidx.compose.ui.geometry.Offset
 import jez.jetpackpop.features.app.model.game.TargetData
-import jez.jetpackpop.features.app.model.game.Vec2
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -22,7 +22,7 @@ class TargetFactory(
                     id = it.toString(),
                     color = targetConfig.color,
                     radius = targetConfig.radius,
-                    center = Vec2(
+                    center = Offset(
                         random.nextFloat() * width,
                         random.nextFloat() * height
                     ),
@@ -60,10 +60,10 @@ class TargetFactory(
         }
     }
 
-    private fun getRandomVelocity(random: Random, min: Float, max: Float): Vec2 {
+    private fun getRandomVelocity(random: Random, min: Float, max: Float): Offset {
         val speed = random.nextFloat() * (max - min) + min
         val angle = random.nextFloat() * 2 * PI
-        return Vec2(
+        return Offset(
             x = (cos(angle) * speed).toFloat(),
             y = (sin(angle) * speed).toFloat(),
         )

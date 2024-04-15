@@ -1,12 +1,12 @@
 package jez.jetpackpop.features.app.domain
 
+import androidx.compose.ui.geometry.Offset
 import jez.jetpackpop.features.app.model.game.GameEndState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.model.game.GameProcessState
 import jez.jetpackpop.features.app.model.game.GameScoreData
 import jez.jetpackpop.features.app.model.game.GameState
 import jez.jetpackpop.features.app.model.game.TargetData
-import jez.jetpackpop.features.app.model.game.Vec2
 import jez.jetpackpop.features.highscore.HighScores
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +47,7 @@ class GameLogic(
                     scoreData = _gameState.value.scoreData,
                     highScores = _gameState.value.highScores,
                 )
+
                 is GameInputEvent.StartNextLevel -> continueGame(event.config, resetScore = false)
                 is GameInputEvent.StartNextChapter -> continueGame(event.config, resetScore = true)
                 is GameInputEvent.Pause -> pause()
@@ -95,6 +96,7 @@ class GameLogic(
         when (processState) {
             GameProcessState.PAUSED ->
                 copy(processState = GameProcessState.RUNNING)
+
             else -> this
         }
 
@@ -102,6 +104,7 @@ class GameLogic(
         when (processState) {
             GameProcessState.RUNNING ->
                 copy(processState = GameProcessState.PAUSED)
+
             else -> this
         }
 
@@ -114,6 +117,7 @@ class GameLogic(
                 TargetData.ClickResult.SCORE ->
                     targets.filter { it.id != data.id || it.color != data.color }
                         .toList()
+
                 TargetData.ClickResult.SCORE_AND_SPLIT ->
                     targets.filter { it.id != data.id || it.color != data.color }
                         .toMutableList()
@@ -140,6 +144,7 @@ class GameLogic(
         when (processState) {
             GameProcessState.END_LOSE,
             GameProcessState.RUNNING -> iterateState(deltaSeconds)
+
             else -> this
         }
 
@@ -174,6 +179,7 @@ class GameLogic(
                             )
                         )
                     }
+
                     else -> {
                     }
                 }
@@ -201,21 +207,21 @@ class GameLogic(
 
     private fun TargetData.update(deltaTime: Float, state: GameState): TargetData {
         val projectedPosition = center + velocity * deltaTime
-        var newVelocity: Vec2 = velocity
+        var newVelocity: Offset = velocity
         if (projectedPosition.x - radius < 0) {
-            newVelocity = Vec2(velocity.x.absoluteValue, velocity.y)
+            newVelocity = Offset(velocity.x.absoluteValue, velocity.y)
         } else if (projectedPosition.x + radius >= state.width) {
-            newVelocity = Vec2(-velocity.x.absoluteValue, velocity.y)
+            newVelocity = Offset(-velocity.x.absoluteValue, velocity.y)
         }
         if (projectedPosition.y - radius < 0) {
-            newVelocity = Vec2(velocity.x, velocity.y.absoluteValue)
+            newVelocity = Offset(velocity.x, velocity.y.absoluteValue)
         } else if (projectedPosition.y + radius >= state.height) {
-            newVelocity = Vec2(velocity.x, -velocity.y.absoluteValue)
+            newVelocity = Offset(velocity.x, -velocity.y.absoluteValue)
         }
 
         val intendedPos = center + newVelocity * deltaTime
         return copy(
-            center = Vec2(
+            center = Offset(
                 x = max(radius, min(state.width - radius, intendedPos.x)),
                 y = max(radius, min(state.height - radius, intendedPos.y)),
             ),
