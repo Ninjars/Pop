@@ -54,13 +54,13 @@ private fun CountdownTimer(
             modifier = Modifier
                 .size(60.dp)
         )
-        Text(
-            text = remainingSeconds.toString(),
+        AnimatedCounter(
+            count = remainingSeconds,
             style = MaterialTheme.typography.h3,
             color = MaterialTheme.colors.onPrimary,
             fontSize = 30.sp,
             modifier = Modifier
-                .align(BiasAlignment(0f, 2f))
+                .align(BiasAlignment(0f, 1.8f))
         )
     }
 }
