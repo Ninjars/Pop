@@ -10,11 +10,11 @@ import androidx.compose.ui.Modifier
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
-import jez.jetpackpop.features.app.model.app.AppInputEvent
-import jez.jetpackpop.features.app.model.app.AppState
-import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.app.domain.GameChapter
 import jez.jetpackpop.features.app.domain.getFirstGameConfiguration
+import jez.jetpackpop.features.app.model.AppViewModel
+import jez.jetpackpop.features.app.model.app.AppInputEvent
+import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
@@ -56,8 +56,7 @@ fun UI(
     appStateSource: State<AppState>,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
 ) {
-    val appState = appStateSource.value
-    when (appState) {
+    when (val appState = appStateSource.value) {
         is AppState.MainMenuState -> {
             ShowMainMenu(
                 appState.highScores,

@@ -122,4 +122,3 @@ data class Vec2(val x: Float, val y: Float) : Parcelable {
     @Stable
     operator fun times(operand: Float): Offset = Offset(x * operand, y * operand)
 }
-

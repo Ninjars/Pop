@@ -1,9 +1,11 @@
 package jez.jetpackpop.features.app.domain
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
+@Immutable
 data class GameConfiguration(
     val id: GameConfigId,
     val timeLimitSeconds: Float,
