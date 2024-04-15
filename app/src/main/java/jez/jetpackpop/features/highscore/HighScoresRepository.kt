@@ -45,8 +45,7 @@ class HighScoresRepository(
         }
         .map { proto ->
             HighScores(
-                proto.scoresOrBuilderList.map { GameChapter.withName(it.chapterName) to it.score }
-                    .toMap()
+                proto.scoresOrBuilderList.associate { GameChapter.withName(it.chapterName) to it.score }
             )
         }
 
