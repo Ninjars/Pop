@@ -52,8 +52,9 @@ fun AnimatedCounter(
                 label = "AnimatedCounter $i",
                 targetState = displayChar,
                 transitionSpec = {
-                    fadeIn().plus(slideInVertically { it / 4 }) togetherWith fadeOut().plus(
-                        slideOutVertically { -it / 4 })
+                    val factor = if (count > oldCount) 1 else -1
+                    fadeIn().plus(slideInVertically { factor * it / 4 }) togetherWith fadeOut().plus(
+                        slideOutVertically { factor * -it / 4 })
                 }
             ) { char ->
                 Text(
