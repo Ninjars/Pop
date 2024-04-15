@@ -25,10 +25,14 @@ import androidx.compose.ui.unit.dp
 import jez.jetpackpop.features.app.model.game.GameScoreData
 import kotlin.math.ceil
 
+data class GameInfoState(
+    val remainingTime: Float,
+    val scoreData: GameScoreData,
+)
+
 @Composable
 fun GameInfo(
-    remainingTime: Float,
-    scoreData: GameScoreData
+    state: GameInfoState
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -37,10 +41,10 @@ fun GameInfo(
             .padding(8.dp)
             .fillMaxWidth()
     ) {
-        Multiplier(scoreData.currentMultiplier)
-        ScoreReadout(scoreData.totalScore)
+        Multiplier(state.scoreData.currentMultiplier)
+        ScoreReadout(state.scoreData.totalScore)
         CountdownTimer(
-            remainingSeconds = ceil(remainingTime).toInt(),
+            remainingSeconds = ceil(state.remainingTime).toInt(),
         )
     }
 }
@@ -117,12 +121,14 @@ private fun Multiplier(
 @Composable
 private fun GameInfoPreview() {
     GameInfo(
-        remainingTime = 10f,
-        scoreData = GameScoreData(
-            startingScore = 10,
-            tapHistory = emptyList(),
-            gameScore = 20,
-            currentMultiplier = 8
+        GameInfoState(
+            remainingTime = 10f,
+            scoreData = GameScoreData(
+                startingScore = 10,
+                tapHistory = emptyList(),
+                gameScore = 20,
+                currentMultiplier = 8
+            )
         )
     )
 }

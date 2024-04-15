@@ -1,5 +1,8 @@
 package jez.jetpackpop.features.app.ui.game
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -42,10 +45,19 @@ fun GameScreen(
                 gameEventFlow.tryEmit(GameInputEvent.TargetTap(target))
             }
         )
-        if (gameState.shouldShowInfo()) {
-            GameInfo(gameState.remainingTime, gameState.scoreData)
+        AnimatedVisibility(
+            visible = gameState.shouldShowInfo(),
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            val gameInfoState = GameInfoState(
+                gameState.remainingTime,
+                gameState.scoreData,
+            )
+            GameInfo(gameInfoState)
         }
     }
 }
 
-private fun GameState.shouldShowInfo() = remainingTime >= 0
+private fun GameState.shouldShowInfo() =
+    remainingTime >= 0 && processState != GameProcessState.END_LOSE
