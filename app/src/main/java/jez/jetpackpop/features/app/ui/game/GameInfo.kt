@@ -11,29 +11,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.features.app.model.game.GameScoreData
-import jez.jetpackpop.features.app.model.game.GameState
 import kotlin.math.ceil
 
 @Composable
 fun GameInfo(
-    gameState: GameState
+    remainingTime: Float,
+    scoreData: GameScoreData
 ) {
-    if (gameState.config.timeLimitSeconds < 0) {
-        return
-    }
     Row(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
     ) {
         ScoreReadout(
-            gameScoreData = gameState.scoreData,
+            gameScoreData = scoreData,
             modifier = Modifier
                 .wrapContentSize(Alignment.CenterStart)
                 .weight(1f)
         )
         Text(
-            text = ceil(gameState.remainingTime).toInt().toString(),
+            text = ceil(remainingTime).toInt().toString(),
             style = MaterialTheme.typography.h3,
             color = MaterialTheme.colors.onSurface,
             modifier = Modifier

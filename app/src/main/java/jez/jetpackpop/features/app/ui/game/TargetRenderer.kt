@@ -13,18 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.features.app.domain.TargetColor
-import jez.jetpackpop.features.app.model.game.GameState
 import jez.jetpackpop.features.app.model.game.TargetData
 import jez.jetpackpop.ui.target1
 import jez.jetpackpop.ui.target2
 import jez.jetpackpop.ui.target3
 
 @Composable
-fun GameRenderer(
-    gameState: GameState,
+fun TargetRenderer(
+    targets: List<TargetData>,
     targetTapListener: (TargetData) -> Unit,
 ) {
-    gameState.targets.forEach {
+    targets.forEach {
         Target(it, targetTapListener)
     }
 }

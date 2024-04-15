@@ -1,4 +1,4 @@
-package jez.jetpackpop.features.app.ui
+package jez.jetpackpop.features.app.ui.game
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,8 +14,6 @@ import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.model.game.GameProcessState
 import jez.jetpackpop.features.app.model.game.GameState
-import jez.jetpackpop.features.app.ui.game.GameInfo
-import jez.jetpackpop.features.app.ui.game.GameRenderer
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
@@ -37,13 +35,17 @@ fun GameScreen(
                 gameEventFlow.tryEmit(GameInputEvent.BackgroundTap)
             }
     ) {
-        GameRenderer(
-            gameState = gameState,
+        TargetRenderer(
+            targets = gameState.targets,
             targetTapListener = { target ->
                 soundManager.playEffect(GameSoundEffect.TARGET_TAPPED)
                 gameEventFlow.tryEmit(GameInputEvent.TargetTap(target))
             }
         )
-        GameInfo(gameState)
+        if (gameState.shouldShowInfo()) {
+            GameInfo(gameState.remainingTime, gameState.scoreData)
+        }
     }
 }
+
+private fun GameState.shouldShowInfo() = remainingTime >= 0

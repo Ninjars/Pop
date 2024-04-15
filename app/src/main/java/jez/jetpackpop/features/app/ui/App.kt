@@ -16,6 +16,7 @@ import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
+import jez.jetpackpop.features.app.ui.game.GameScreen
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
