@@ -1,7 +1,12 @@
 package jez.jetpackpop.features.app.domain
 
-import androidx.compose.ui.geometry.Offset
-import jez.jetpackpop.features.app.model.game.*
+import jez.jetpackpop.features.app.model.game.GameEndState
+import jez.jetpackpop.features.app.model.game.GameInputEvent
+import jez.jetpackpop.features.app.model.game.GameProcessState
+import jez.jetpackpop.features.app.model.game.GameScoreData
+import jez.jetpackpop.features.app.model.game.GameState
+import jez.jetpackpop.features.app.model.game.TargetData
+import jez.jetpackpop.features.app.model.game.Vec2
 import jez.jetpackpop.features.highscore.HighScores
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -178,7 +183,7 @@ class GameLogic(
 
     private fun GameState.toEndState(): GameEndState =
         if (config.isLastInChapter) {
-            jez.jetpackpop.features.app.model.game.GameEndState.ChapterEndState(
+            GameEndState.ChapterEndState(
                 config.id,
                 remainingTime,
                 scoreData,
@@ -186,7 +191,7 @@ class GameLogic(
                 highScores.chapterScores.getOrDefault(config.id.chapter, 0),
             )
         } else {
-            jez.jetpackpop.features.app.model.game.GameEndState.LevelEndState(
+            GameEndState.LevelEndState(
                 config.id,
                 remainingTime,
                 scoreData,
@@ -196,23 +201,23 @@ class GameLogic(
 
     private fun TargetData.update(deltaTime: Float, state: GameState): TargetData {
         val projectedPosition = center + velocity * deltaTime
-        var newVelocity: Offset = velocity
-        if (projectedPosition.x - radius.value < 0) {
-            newVelocity = Offset(velocity.x.absoluteValue, velocity.y)
-        } else if (projectedPosition.x + radius.value >= state.width) {
-            newVelocity = Offset(-velocity.x.absoluteValue, velocity.y)
+        var newVelocity: Vec2 = velocity
+        if (projectedPosition.x - radius < 0) {
+            newVelocity = Vec2(velocity.x.absoluteValue, velocity.y)
+        } else if (projectedPosition.x + radius >= state.width) {
+            newVelocity = Vec2(-velocity.x.absoluteValue, velocity.y)
         }
-        if (projectedPosition.y - radius.value < 0) {
-            newVelocity = Offset(velocity.x, velocity.y.absoluteValue)
-        } else if (projectedPosition.y + radius.value >= state.height) {
-            newVelocity = Offset(velocity.x, -velocity.y.absoluteValue)
+        if (projectedPosition.y - radius < 0) {
+            newVelocity = Vec2(velocity.x, velocity.y.absoluteValue)
+        } else if (projectedPosition.y + radius >= state.height) {
+            newVelocity = Vec2(velocity.x, -velocity.y.absoluteValue)
         }
 
         val intendedPos = center + newVelocity * deltaTime
         return copy(
-            center = Offset(
-                x = max(radius.value, min(state.width - radius.value, intendedPos.x)),
-                y = max(radius.value, min(state.height - radius.value, intendedPos.y)),
+            center = Vec2(
+                x = max(radius, min(state.width - radius, intendedPos.x)),
+                y = max(radius, min(state.height - radius, intendedPos.y)),
             ),
             velocity = newVelocity,
         )

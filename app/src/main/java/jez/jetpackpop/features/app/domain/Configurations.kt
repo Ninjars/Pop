@@ -1,7 +1,6 @@
 package jez.jetpackpop.features.app.domain
 
 import android.os.Parcelable
-import androidx.compose.ui.unit.Dp
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -27,10 +26,10 @@ data class GameConfigId(
 @Parcelize
 data class TargetConfiguration(
     val color: TargetColor,
-    val radius: Dp,
+    val radius: Float,
     val count: Int,
-    val minSpeed: Dp,
-    val maxSpeed: Dp,
+    val minSpeed: Float,
+    val maxSpeed: Float,
     val clickResult: ClickResult?,
 ) : Parcelable {
     enum class ClickResult {

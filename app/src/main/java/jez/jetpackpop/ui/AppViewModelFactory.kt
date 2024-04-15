@@ -2,12 +2,12 @@ package jez.jetpackpop.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.domain.AppLogic
-import jez.jetpackpop.features.app.model.AppViewModel
-import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.domain.GameLogic
 import jez.jetpackpop.features.app.domain.GameLogicEvent
+import jez.jetpackpop.features.app.model.AppViewModel
+import jez.jetpackpop.features.app.model.app.AppInputEvent
+import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -24,7 +24,7 @@ class AppViewModelFactory(
     ),
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(AppViewModel::class.java) -> {
                 runBlocking {

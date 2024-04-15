@@ -1,6 +1,5 @@
 package jez.jetpackpop.features.app.domain
 
-import androidx.compose.ui.unit.dp
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameEndState
@@ -70,10 +69,10 @@ class AppLogic(
             targetConfigurations = listOf(
                 TargetConfiguration(
                     color = TargetColor.TARGET,
-                    radius = 30.dp,
+                    radius = 30f,
                     count = 10,
-                    minSpeed = 8.dp,
-                    maxSpeed = 16.dp,
+                    minSpeed = 8f,
+                    maxSpeed = 16f,
                     clickResult = null,
                 )
             ),

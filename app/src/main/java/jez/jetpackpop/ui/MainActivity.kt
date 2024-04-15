@@ -13,10 +13,10 @@ import jez.jetpackpop.HighScoresProto
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.audio.SoundManagerImpl
-import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.AppViewModel
-import jez.jetpackpop.features.app.ui.App
+import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.game.GameInputEvent
+import jez.jetpackpop.features.app.ui.App
 import jez.jetpackpop.features.highscore.HighScoreDataSerializer
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.android.awaitFrame
@@ -89,6 +89,7 @@ class MainActivity : ComponentActivity() {
         gameEventFlow.tryEmit(GameInputEvent.Resume)
     }
 
+    @Deprecated("refactor to use getOnBackPressedDispatcher()")
     override fun onBackPressed() {
         if (!appViewModel.handleBackPressed()) {
             super.onBackPressed()
