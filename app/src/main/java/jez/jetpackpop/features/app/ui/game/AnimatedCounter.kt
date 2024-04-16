@@ -1,6 +1,10 @@
 package jez.jetpackpop.features.app.ui.game
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -19,6 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
+import kotlin.math.roundToInt
+
+val stiffSpring: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessHigh)
+val softSpring: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessLow)
 
 /**
  * Based on https://github.com/philipplackner/AnimatedCounterCompose
@@ -30,15 +38,21 @@ fun AnimatedCounter(
     style: TextStyle = MaterialTheme.typography.body1,
     color: Color = MaterialTheme.colors.onPrimary,
     fontSize: TextUnit = TextUnit.Unspecified,
+    animationSpec: AnimationSpec<Float> = stiffSpring,
 ) {
+    val animCount by animateFloatAsState(
+        targetValue = count.toFloat(),
+        animationSpec = animationSpec,
+        label = "count anim",
+    )
     var oldCount by remember {
         mutableIntStateOf(count)
     }
     SideEffect {
-        oldCount = count
+        oldCount = animCount.roundToInt()
     }
     Row(modifier = modifier) {
-        val countString = count.toString()
+        val countString = animCount.roundToInt().toString()
         val oldCountString = oldCount.toString()
         for (i in countString.indices) {
             val oldChar = oldCountString.getOrNull(i)
