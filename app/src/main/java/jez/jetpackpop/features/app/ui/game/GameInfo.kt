@@ -77,10 +77,11 @@ private fun CountdownTimer(
 private fun ScoreReadout(
     totalScore: Int,
 ) {
-    Text(
-        text = totalScore.toString(),
+    AnimatedCounter(
+        count = totalScore,
         style = MaterialTheme.typography.h3,
         color = MaterialTheme.colors.onSurface,
+        animationSpec = softSpring,
     )
 }
 
