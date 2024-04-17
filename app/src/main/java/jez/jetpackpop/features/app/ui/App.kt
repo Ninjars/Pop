@@ -96,9 +96,15 @@ fun UI(
             ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
                 appEventFlow.tryEmit(
-                    AppInputEvent.StartNextLevel(
-                        appState.nextGameConfiguration
-                    )
+                    if (appState.didWin) {
+                        AppInputEvent.StartNextLevel(
+                            appState.nextGameConfiguration
+                        )
+                    } else {
+                        AppInputEvent.RestartLevel(
+                            appState.nextGameConfiguration
+                        )
+                    }
                 )
             }
 

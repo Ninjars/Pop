@@ -20,5 +20,9 @@ sealed class AppInputEvent {
         val config: GameConfiguration
     ) : AppInputEvent()
 
+    data class RestartLevel(
+        val config: GameConfiguration
+    ) : AppInputEvent()
+
     data class GameEnded(val gameEndState: GameEndState) : AppInputEvent()
 }

@@ -24,10 +24,16 @@ class AppLogic(
             is AppInputEvent.Navigation -> handleNavigation(event)
             is AppInputEvent.StartNewGame ->
                 handleStartNewGame(event.config)
+
             is AppInputEvent.StartNextChapter ->
                 handleNextChapter(event.config)
+
             is AppInputEvent.StartNextLevel ->
                 handleNextLevel(event.config)
+
+            is AppInputEvent.RestartLevel ->
+                handleRestartLevel(event.config)
+
             is AppInputEvent.GameEnded -> handleGameEnd(event.gameEndState)
         }
     }
@@ -42,6 +48,13 @@ class AppLogic(
     private fun handleNextLevel(gameConfiguration: GameConfiguration): AppState {
         gameEventFlow.tryEmit(
             GameInputEvent.StartNextLevel(gameConfiguration)
+        )
+        return AppState.InGameState
+    }
+
+    private fun handleRestartLevel(gameConfiguration: GameConfiguration): AppState {
+        gameEventFlow.tryEmit(
+            GameInputEvent.RestartLevel(gameConfiguration)
         )
         return AppState.InGameState
     }

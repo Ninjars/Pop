@@ -6,6 +6,7 @@ import jez.jetpackpop.features.highscore.HighScores
 sealed class GameInputEvent {
     data class StartNewGame(val config: GameConfiguration) : GameInputEvent()
     data class StartNextLevel(val config: GameConfiguration) : GameInputEvent()
+    data class RestartLevel(val config: GameConfiguration) : GameInputEvent()
     data class StartNextChapter(val config: GameConfiguration) : GameInputEvent()
     data class Update(val deltaSeconds: Float) : GameInputEvent()
     object Pause : GameInputEvent()

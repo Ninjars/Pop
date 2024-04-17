@@ -49,6 +49,7 @@ class GameLogic(
                 )
 
                 is GameInputEvent.StartNextLevel -> continueGame(event.config, resetScore = false)
+                is GameInputEvent.RestartLevel -> continueGame(event.config, resetScore = true)
                 is GameInputEvent.StartNextChapter -> continueGame(event.config, resetScore = true)
                 is GameInputEvent.Pause -> pause()
                 is GameInputEvent.Resume -> resume()
