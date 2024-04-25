@@ -116,11 +116,11 @@ class GameLogic(
             val newTargets = when (data.clickResult) {
                 null -> targets
                 TargetData.ClickResult.SCORE ->
-                    targets.filter { it.id != data.id || it.color != data.color }
+                    targets.filter { it.id != data.id }
                         .toList()
 
                 TargetData.ClickResult.SCORE_AND_SPLIT ->
-                    targets.filter { it.id != data.id || it.color != data.color }
+                    targets.filter { it.id != data.id }
                         .toMutableList()
                         .apply {
                             addAll(targetFactory.createSplitTargets(data, 3))

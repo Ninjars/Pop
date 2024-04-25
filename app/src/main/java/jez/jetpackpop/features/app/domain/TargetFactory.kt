@@ -14,12 +14,12 @@ class TargetFactory(
 ) {
     fun createTargets(
         isDemo: Boolean,
-        configurations: List<TargetConfiguration>
+        configurations: List<TargetConfiguration>,
     ): List<TargetData> {
         return configurations.flatMap { targetConfig ->
             (0 until targetConfig.count).map {
                 TargetData(
-                    id = it.toString(),
+                    id = "${targetConfig.color.name}_$it",
                     color = targetConfig.color,
                     radius = targetConfig.radius,
                     center = Offset(
