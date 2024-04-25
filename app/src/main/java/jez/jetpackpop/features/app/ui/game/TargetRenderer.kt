@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.features.app.domain.TargetColor
 import jez.jetpackpop.features.app.model.game.TargetData
@@ -33,7 +34,7 @@ private fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     var modifier = Modifier
         .size((data.radius * 2f).dp)
-        .offset(data.xOffset, data.yOffset)
+        .offset { IntOffset(data.xOffset.roundToPx(), data.yOffset.roundToPx()) }
         .clip(CircleShape)
         .background(data.color.toColor())
 
