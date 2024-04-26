@@ -1,6 +1,9 @@
 package jez.jetpackpop.features.app.domain
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.util.fastLastOrNull
+import jez.jetpackpop.audio.GameSoundEffect
+import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.model.game.GameEndState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.model.game.GameProcessState
@@ -16,9 +19,10 @@ import kotlin.math.min
 
 class GameLogic(
     val outputEvents: MutableSharedFlow<GameLogicEvent>,
+    private val soundManager: SoundManager,
     private val width: Float,
     private val height: Float,
-    private val targetFactory: TargetFactory = TargetFactory(width, height)
+    private val targetFactory: TargetFactory = TargetFactory(width, height),
 ) {
     private val _gameState = MutableStateFlow(
         GameState(
@@ -37,8 +41,7 @@ class GameLogic(
     fun processInputEvent(event: GameInputEvent) {
         with(_gameState.value) {
             _gameState.value = when (event) {
-                is GameInputEvent.BackgroundTap -> onBackgroundTapped()
-                is GameInputEvent.TargetTap -> onTargetTapped(event.data)
+                is GameInputEvent.GameTap -> onTap(event.position)
                 is GameInputEvent.StartNewGame -> startGame(
                     event.config,
                     resetScore = true,
@@ -100,37 +103,46 @@ class GameLogic(
             else -> this
         }
 
-    private fun GameState.onTargetTapped(data: TargetData): GameState =
-        if (processState != GameProcessState.RUNNING) {
-            this
-        } else {
-            val newTargets = when (data.clickResult) {
-                null -> targets
-                TargetData.ClickResult.SCORE ->
-                    targets.filter { it.id != data.id }
-                        .toList()
-
-                TargetData.ClickResult.SCORE_AND_SPLIT ->
-                    targets.filter { it.id != data.id }
-                        .toMutableList()
-                        .apply {
-                            addAll(targetFactory.createSplitTargets(data, 3))
-                        }
-            }
-            copy(
-                scoreData = scoreData.createUpdate(true),
-                targets = newTargets
-            )
+    private fun GameState.onTap(position: Offset): GameState {
+        if (processState != GameProcessState.RUNNING || config.isDemo) {
+            return this
         }
 
-    private fun GameState.onBackgroundTapped(): GameState =
-        if (processState != GameProcessState.RUNNING) {
-            this
-        } else {
+        val tappedTarget = targets.fastLastOrNull {
+            it.clickResult != null
+                    && (position - it.center).getDistanceSquared() < (it.radius * it.radius)
+        }
+        return if (tappedTarget == null) {
+            soundManager.playSound(GameSoundEffect.BACKGROUND_TAPPED)
             copy(
                 scoreData = scoreData.createUpdate(false),
             )
+        } else {
+            soundManager.playSound(GameSoundEffect.TARGET_TAPPED)
+            onTargetTapped(tappedTarget)
         }
+    }
+
+    private fun GameState.onTargetTapped(data: TargetData): GameState {
+        val newTargets = when (data.clickResult) {
+            null -> targets
+            TargetData.ClickResult.SCORE ->
+                targets.filter { it.id != data.id }
+                    .toList()
+
+            TargetData.ClickResult.SCORE_AND_SPLIT ->
+                targets.filter { it.id != data.id }
+                    .toMutableList()
+                    .apply {
+                        addAll(targetFactory.createSplitTargets(data, 3))
+                    }
+        }
+        return copy(
+            scoreData = scoreData.createUpdate(true),
+            targets = newTargets
+        )
+    }
+
 
     private fun GameState.update(deltaSeconds: Float) =
         when (processState) {

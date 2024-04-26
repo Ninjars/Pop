@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
                         HighScoresRepository(
                             dataStore = this@MainActivity.highScoresStore
                         ),
+                        soundManager,
                         maxWidth.value,
                         maxHeight.value,
                         gameEventFlow,

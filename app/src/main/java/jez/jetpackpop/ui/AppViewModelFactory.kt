@@ -2,6 +2,7 @@ package jez.jetpackpop.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.domain.AppLogic
 import jez.jetpackpop.features.app.domain.GameLogic
 import jez.jetpackpop.features.app.domain.GameLogicEvent
@@ -15,6 +16,7 @@ import kotlinx.coroutines.runBlocking
 
 class AppViewModelFactory(
     private val highScoresRepository: HighScoresRepository,
+    private val soundManager: SoundManager,
     private val width: Float,
     private val height: Float,
     private val gameInputEventFlow: MutableSharedFlow<GameInputEvent>,
@@ -36,6 +38,7 @@ class AppViewModelFactory(
                     )
                     val gameLogic = GameLogic(
                         gameOutputEventFlow,
+                        soundManager,
                         width,
                         height,
                     )

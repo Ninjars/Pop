@@ -37,7 +37,6 @@ fun App(
             val appState = appViewModel.appState.collectAsState()
 
             GameScreen(
-                soundManager = soundManager,
                 gameStateSource = gameState,
                 gameEventFlow = gameEventFlow,
             )
