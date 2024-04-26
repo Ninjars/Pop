@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         gameEventFlow.tryEmit(GameInputEvent.Resume)
     }
 
-    @Deprecated("refactor to use getOnBackPressedDispatcher()")
+    @Deprecated("onBackPressedDispatcher doesn't prevent onBackPressed propagation on api 32 and lower and so is unsuitable")
     override fun onBackPressed() {
         if (!appViewModel.handleBackPressed()) {
             super.onBackPressed()
