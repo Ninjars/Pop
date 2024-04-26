@@ -1,5 +1,6 @@
 package jez.jetpackpop.features.app.domain
 
+import jez.jetpackpop.features.app.model.app.ActiveScreen
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameEndState
@@ -16,61 +17,79 @@ class AppLogic(
     private val highScoresRepository: HighScoresRepository,
     private val gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
-    private val _appState = MutableStateFlow<AppState>(AppState.MainMenuState(initialHighScore))
+    private val _appState = MutableStateFlow(AppState.Default.copy(highScores = initialHighScore))
     val appState: StateFlow<AppState> = _appState
 
     suspend fun processInputEvent(event: AppInputEvent) {
-        _appState.value = when (event) {
-            is AppInputEvent.Navigation -> handleNavigation(event)
-            is AppInputEvent.StartNewGame ->
-                handleStartNewGame(event.config)
+        with(_appState.value) {
+            _appState.value = when (event) {
+                is AppInputEvent.Navigation -> handleNavigation(event)
+                is AppInputEvent.StartNewGame ->
+                    handleStartNewGame(this, event.config)
 
-            is AppInputEvent.StartNextChapter ->
-                handleNextChapter(event.config)
+                is AppInputEvent.StartNextChapter ->
+                    handleNextChapter(this, event.config)
 
-            is AppInputEvent.StartNextLevel ->
-                handleNextLevel(event.config)
+                is AppInputEvent.StartNextLevel ->
+                    handleNextLevel(this, event.config)
 
-            is AppInputEvent.RestartLevel ->
-                handleRestartLevel(event.config)
+                is AppInputEvent.RestartLevel ->
+                    handleRestartLevel(this, event.config)
 
-            is AppInputEvent.GameEnded -> handleGameEnd(event.gameEndState)
+                is AppInputEvent.GameEnded -> handleGameEnd(this, event.gameEndState)
+            }
         }
     }
 
-    private fun handleNextChapter(gameConfiguration: GameConfiguration): AppState {
+    private fun handleNextChapter(
+        appState: AppState,
+        gameConfiguration: GameConfiguration,
+    ): AppState {
         gameEventFlow.tryEmit(
             GameInputEvent.StartNextChapter(gameConfiguration)
         )
-        return AppState.InGameState
+        return appState.copy(
+            activeScreen = ActiveScreen.InGame,
+            activeGameConfig = gameConfiguration,
+        )
     }
 
-    private fun handleNextLevel(gameConfiguration: GameConfiguration): AppState {
+    private fun handleNextLevel(
+        appState: AppState,
+        gameConfiguration: GameConfiguration,
+    ): AppState {
         gameEventFlow.tryEmit(
             GameInputEvent.StartNextLevel(gameConfiguration)
         )
-        return AppState.InGameState
+        return appState.copy(
+            activeScreen = ActiveScreen.InGame,
+            activeGameConfig = gameConfiguration,
+        )
     }
 
-    private fun handleRestartLevel(gameConfiguration: GameConfiguration): AppState {
+    private fun handleRestartLevel(
+        appState: AppState,
+        gameConfiguration: GameConfiguration,
+    ): AppState {
         gameEventFlow.tryEmit(
             GameInputEvent.RestartLevel(gameConfiguration)
         )
-        return AppState.InGameState
+        return appState.copy(
+            activeScreen = ActiveScreen.InGame,
+            activeGameConfig = gameConfiguration,
+        )
     }
 
     private fun handleStartNewGame(
+        appState: AppState,
         gameConfiguration: GameConfiguration,
     ): AppState {
         gameEventFlow.tryEmit(
             GameInputEvent.StartNewGame(gameConfiguration)
         )
-        return AppState.InGameState
-    }
-
-    fun startDemoGame() {
-        gameEventFlow.tryEmit(
-            GameInputEvent.StartNewGame(demoConfiguration())
+        return appState.copy(
+            activeScreen = ActiveScreen.InGame,
+            activeGameConfig = gameConfiguration,
         )
     }
 
@@ -92,7 +111,7 @@ class AppLogic(
             isLastInChapter = false,
         )
 
-    private fun handleGameEnd(gameEndState: GameEndState): AppState {
+    private fun handleGameEnd(appState: AppState, gameEndState: GameEndState): AppState {
         val nextGame =
             if (gameEndState.didWin) {
                 getNextGameConfiguration(gameEndState.gameConfigId)
@@ -102,17 +121,21 @@ class AppLogic(
 
         return when {
             nextGame == null ->
-                AppState.VictoryMenuState
+                appState.copy(activeScreen = ActiveScreen.Victory)
 
             gameEndState.gameConfigId.chapter != nextGame.id.chapter ->
-                AppState.ChapterCompleteMenuState(
-                    gameEndState.gameConfigId,
-                    nextGame,
-                    gameEndState.score
+                appState.copy(
+                    activeScreen = ActiveScreen.ChapterComplete,
+                    activeGameConfig = getGameConfiguration(gameEndState.gameConfigId)!!,
+                    nextGameConfiguration = nextGame,
                 )
 
             else ->
-                AppState.EndMenuState(nextGame, gameEndState.didWin, gameEndState.score)
+                appState.copy(
+                    activeScreen = ActiveScreen.GameEnd,
+                    nextGameConfiguration = nextGame,
+                    hasWonActiveGame = gameEndState.didWin,
+                )
         }
     }
 
@@ -120,9 +143,20 @@ class AppLogic(
         when (event) {
             is AppInputEvent.Navigation.MainMenu -> {
                 startDemoGame()
+
                 highScoresRepository.highScoresFlow.first().let {
-                    AppState.MainMenuState(it)
+                    AppState(
+                        highScores = it,
+                        activeScreen = ActiveScreen.MainMenu,
+                        activeGameConfig = demoConfiguration(),
+                    )
                 }
             }
         }
+
+    fun startDemoGame() {
+        gameEventFlow.tryEmit(
+            GameInputEvent.StartNewGame(demoConfiguration())
+        )
+    }
 }

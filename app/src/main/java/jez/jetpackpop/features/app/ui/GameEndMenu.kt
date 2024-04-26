@@ -3,7 +3,13 @@ package jez.jetpackpop.features.app.ui
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -37,30 +43,24 @@ fun GameEndMenu(
             }
         )
     }
-    Box(
+    Column(
         modifier = Modifier
-            .fillMaxSize()
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            if (didWin) {
-                DisplayMenu(
-                    color = MaterialTheme.colors.win,
-                    titleText = R.string.game_end_win_title,
-                    buttonText = R.string.game_end_win_start,
-                ) { startGameAction() }
-            } else {
-                DisplayMenu(
-                    color = MaterialTheme.colors.lose,
-                    titleText = R.string.game_end_lose_title,
-                    buttonText = R.string.game_end_lose_start,
-                ) { startGameAction() }
-            }
+        if (didWin) {
+            DisplayMenu(
+                color = MaterialTheme.colors.win,
+                titleText = R.string.game_end_win_title,
+                buttonText = R.string.game_end_win_start,
+            ) { startGameAction() }
+        } else {
+            DisplayMenu(
+                color = MaterialTheme.colors.lose,
+                titleText = R.string.game_end_lose_title,
+                buttonText = R.string.game_end_lose_start,
+            ) { startGameAction() }
         }
     }
 }

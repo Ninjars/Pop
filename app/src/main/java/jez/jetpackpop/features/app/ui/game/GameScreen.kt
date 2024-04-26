@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
@@ -22,10 +21,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
 fun GameScreen(
-    gameStateSource: State<GameState>,
+    gameState: GameState,
     gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
-    val gameState = gameStateSource.value
     Box(
         modifier = Modifier
             .fillMaxSize()

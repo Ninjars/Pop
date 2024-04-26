@@ -29,7 +29,7 @@ class GameLogic(
             width = width,
             height = height,
             processState = GameProcessState.INITIALISED,
-            config = GameConfiguration.DEFAULT,
+            config = GameConfiguration.Default,
             targets = emptyList(),
             remainingTime = -1f,
             scoreData = createGameScore(0),

@@ -6,6 +6,7 @@ import jez.jetpackpop.features.app.domain.AppLogic
 import jez.jetpackpop.features.app.domain.GameChapter
 import jez.jetpackpop.features.app.domain.GameLogic
 import jez.jetpackpop.features.app.domain.GameLogicEvent
+import jez.jetpackpop.features.app.model.app.ActiveScreen
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
@@ -73,7 +74,7 @@ class AppViewModel(
     }
 
     fun handleBackPressed(): Boolean =
-        if (appState.value is AppState.MainMenuState) {
+        if (appState.value.activeScreen == ActiveScreen.MainMenu) {
             false
         } else {
             viewModelScope.launch {

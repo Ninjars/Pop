@@ -1,6 +1,10 @@
 package jez.jetpackpop.ui
 
-import androidx.compose.material.*
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.Colors
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberUpdatedState
@@ -35,7 +39,7 @@ private val AppColors = lightColors(
     onError = Color.White,
 )
 
-val Colors.overlay: Color @Composable get() = Color(0f, 0f, 0f, 0.33f)
+val Colors.overlay: Color @Composable get() = Color(1f, 1f, 1f, 0.33f)
 
 val Colors.win: Color @Composable get() = Color(0xFF239643)
 val Colors.lose: Color @Composable get() = Color(0xFFA71B4A)

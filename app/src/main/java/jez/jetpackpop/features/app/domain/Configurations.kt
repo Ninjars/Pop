@@ -14,8 +14,8 @@ data class GameConfiguration(
     val isDemo: Boolean = false,
 ) : Parcelable {
     companion object {
-        val DEFAULT =
-            GameConfiguration(GameConfigId(GameChapter.SIMPLE_SINGLE, -1), -1f, emptyList(), false)
+        val Default =
+            GameConfiguration(GameConfigId.Default, -1f, emptyList(), false, isDemo = true)
     }
 }
 
@@ -23,7 +23,11 @@ data class GameConfiguration(
 data class GameConfigId(
     val chapter: GameChapter,
     val id: Int,
-) : Parcelable
+) : Parcelable {
+    companion object {
+        val Default = GameConfigId(GameChapter.SIMPLE_SINGLE, -1)
+    }
+}
 
 @Parcelize
 data class TargetConfiguration(

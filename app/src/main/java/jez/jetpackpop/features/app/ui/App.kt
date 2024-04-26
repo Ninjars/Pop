@@ -1,24 +1,34 @@
 package jez.jetpackpop.features.app.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.domain.GameChapter
 import jez.jetpackpop.features.app.domain.getFirstGameConfiguration
 import jez.jetpackpop.features.app.model.AppViewModel
+import jez.jetpackpop.features.app.model.app.ActiveScreen
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.ui.game.GameScreen
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
+import jez.jetpackpop.ui.overlay
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
@@ -37,13 +47,13 @@ fun App(
             val appState = appViewModel.appState.collectAsState()
 
             GameScreen(
-                gameStateSource = gameState,
+                gameState = gameState.value,
                 gameEventFlow = gameEventFlow,
             )
 
             UI(
                 soundManager = soundManager,
-                appStateSource = appState,
+                appState = appState.value,
                 appEventFlow = appEventFlow,
             )
         }
@@ -53,11 +63,24 @@ fun App(
 @Composable
 fun UI(
     soundManager: SoundManager,
-    appStateSource: State<AppState>,
+    appState: AppState,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
 ) {
-    when (val appState = appStateSource.value) {
-        is AppState.MainMenuState -> {
+    val backgroundColor = animateColorAsState(
+        label = "background color",
+        targetValue = if (appState.activeScreen == ActiveScreen.InGame) Color.Transparent else MaterialTheme.colors.overlay,
+    )
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = backgroundColor.value)
+    ) {
+        AnimatedVisibility(
+            visible = appState.activeScreen == ActiveScreen.MainMenu,
+            enter = fadeIn().plus(slideInVertically { it / 2 }),
+            exit = fadeOut().plus(slideOutVertically { it }),
+        ) {
             ShowMainMenu(
                 appState.highScores,
             ) {
@@ -70,15 +93,25 @@ fun UI(
             }
         }
 
-        is AppState.VictoryMenuState ->
+        AnimatedVisibility(
+            visible = appState.activeScreen == ActiveScreen.Victory,
+            enter = fadeIn().plus(slideInVertically { it / 2 }),
+            exit = fadeOut().plus(slideOutVertically { it }),
+        ) {
             VictoryMenu(
                 mainMenuAction = {
                     appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
                 },
                 nextGameAction = null
             )
+        }
 
-        is AppState.ChapterCompleteMenuState ->
+
+        AnimatedVisibility(
+            visible = appState.activeScreen == ActiveScreen.ChapterComplete,
+            enter = fadeIn().plus(slideInVertically { it / 2 }),
+            exit = fadeOut().plus(slideOutVertically { it }),
+        ) {
             ChapterComplete(soundManager) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
                 appEventFlow.tryEmit(
@@ -87,15 +120,21 @@ fun UI(
                     )
                 )
             }
+        }
 
-        is AppState.EndMenuState ->
+
+        AnimatedVisibility(
+            visible = appState.activeScreen == ActiveScreen.GameEnd,
+            enter = fadeIn().plus(slideInVertically { it / 2 }),
+            exit = fadeOut().plus(slideOutVertically { it }),
+        ) {
             LevelEnd(
                 soundManager,
-                appState.didWin,
+                appState.hasWonActiveGame,
             ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
                 appEventFlow.tryEmit(
-                    if (appState.didWin) {
+                    if (appState.hasWonActiveGame) {
                         AppInputEvent.StartNextLevel(
                             appState.nextGameConfiguration
                         )
@@ -106,9 +145,6 @@ fun UI(
                     }
                 )
             }
-
-        is AppState.InGameState -> {
-            // TODO: show game info here instead of within game screen?
         }
     }
 }
