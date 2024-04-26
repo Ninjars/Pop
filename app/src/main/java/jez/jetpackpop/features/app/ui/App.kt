@@ -119,7 +119,7 @@ private fun ShowMainMenu(
     highScores: HighScores,
     chapterSelectAction: (GameChapter) -> Unit
 ) {
-    val chapterButtonModels = GameChapter.values().map {
+    val chapterButtonModels = GameChapter.entries.map {
         ChapterSelectButtonModel(
             when (it) {
                 GameChapter.SIMPLE_SINGLE -> R.string.main_menu_chap_1
@@ -135,7 +135,7 @@ private fun ShowMainMenu(
     MainMenu(
         chapterSelectButtonModels = chapterButtonModels,
         startAction = {
-            chapterSelectAction(GameChapter.values().first())
+            chapterSelectAction(GameChapter.entries.first())
         },
     )
 }
