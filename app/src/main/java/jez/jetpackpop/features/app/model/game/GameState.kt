@@ -28,7 +28,10 @@ data class GameState(
     val targets: List<TargetData>,
     val remainingTime: Float,
     val scoreData: GameScoreData,
-)
+) {
+    val gameIsRunning =
+        processState == GameProcessState.RUNNING || processState == GameProcessState.END_LOSE
+}
 
 @Stable
 data class TargetData(
