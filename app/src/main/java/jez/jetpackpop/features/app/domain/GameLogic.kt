@@ -7,7 +7,6 @@ import jez.jetpackpop.features.app.model.game.GameProcessState
 import jez.jetpackpop.features.app.model.game.GameScoreData
 import jez.jetpackpop.features.app.model.game.GameState
 import jez.jetpackpop.features.app.model.game.TargetData
-import jez.jetpackpop.features.highscore.HighScores
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +29,6 @@ class GameLogic(
             targets = emptyList(),
             remainingTime = -1f,
             scoreData = createGameScore(0),
-            highScores = HighScores.defaultValue
         )
     )
 
@@ -45,7 +43,6 @@ class GameLogic(
                     event.config,
                     resetScore = true,
                     scoreData = _gameState.value.scoreData,
-                    highScores = _gameState.value.highScores,
                 )
 
                 is GameInputEvent.StartNextLevel -> continueGame(event.config, resetScore = false)
@@ -56,9 +53,6 @@ class GameLogic(
                 is GameInputEvent.SystemEvent.Paused -> pause()
                 is GameInputEvent.SystemEvent.Resumed -> resume()
                 is GameInputEvent.Update -> update(event.deltaSeconds)
-                is GameInputEvent.NewHighScore -> {
-                    _gameState.value.copy(highScores = event.highScores)
-                }
             }
         }
     }
@@ -71,14 +65,12 @@ class GameLogic(
             config,
             resetScore,
             scoreData,
-            highScores
         )
 
     private fun startGame(
         config: GameConfiguration,
         resetScore: Boolean,
         scoreData: GameScoreData,
-        highScores: HighScores,
     ): GameState {
         val targets = targetFactory.createTargets(config.isDemo, config.targetConfigurations)
         return GameState(
@@ -89,7 +81,6 @@ class GameLogic(
             width = width,
             height = height,
             scoreData = createGameScore(if (resetScore) 0 else scoreData.totalScore),
-            highScores = highScores,
         )
     }
 
@@ -174,7 +165,6 @@ class GameLogic(
                         val gameState = _gameState.value
                         outputEvents.tryEmit(
                             GameLogicEvent.GameEnded(
-                                gameState.highScores,
                                 gameState.config,
                                 it.toEndState(),
                             )
@@ -195,7 +185,6 @@ class GameLogic(
                 remainingTime,
                 scoreData,
                 processState == GameProcessState.END_WIN,
-                highScores.chapterScores.getOrDefault(config.id.chapter, 0),
             )
         } else {
             GameEndState.LevelEndState(

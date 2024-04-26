@@ -1,7 +1,6 @@
 package jez.jetpackpop.features.app.model.game
 
 import jez.jetpackpop.features.app.domain.GameConfiguration
-import jez.jetpackpop.features.highscore.HighScores
 
 sealed class GameInputEvent {
     data class StartNewGame(val config: GameConfiguration) : GameInputEvent()
@@ -14,8 +13,6 @@ sealed class GameInputEvent {
 
     data class TargetTap(val data: TargetData) : GameInputEvent()
     object BackgroundTap : GameInputEvent()
-
-    data class NewHighScore(val highScores: HighScores) : GameInputEvent()
 
     sealed class SystemEvent : GameInputEvent() {
         object Paused : SystemEvent()

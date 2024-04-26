@@ -2,21 +2,19 @@ package jez.jetpackpop.features.app.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jez.jetpackpop.features.app.domain.*
-import jez.jetpackpop.features.app.domain.GameConfiguration
+import jez.jetpackpop.features.app.domain.AppLogic
+import jez.jetpackpop.features.app.domain.GameChapter
+import jez.jetpackpop.features.app.domain.GameLogic
+import jez.jetpackpop.features.app.domain.GameLogicEvent
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
-import jez.jetpackpop.features.app.model.game.GameScoreData
 import jez.jetpackpop.features.app.model.game.GameState
-import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.features.highscore.HighScoresRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 class AppViewModel(
     private val highScoresRepository: HighScoresRepository,
@@ -33,12 +31,6 @@ class AppViewModel(
         viewModelScope.launch {
             appInputEventFlow.collect {
                 appLogic.processInputEvent(it)
-            }
-        }
-
-        viewModelScope.launch {
-            highScoresRepository.highScoresFlow.collect {
-                gameLogic.processInputEvent(GameInputEvent.NewHighScore(it))
             }
         }
 
@@ -68,9 +60,8 @@ class AppViewModel(
                         val state = it.gameEndState
                         if (state.didWin) {
                             recordCurrentScore(
-                                it.highScores,
-                                state.score,
-                                it.config,
+                                it.config.id.chapter,
+                                state.score.totalScore,
                             )
                         }
                     }
@@ -92,28 +83,11 @@ class AppViewModel(
         }
 
     private fun recordCurrentScore(
-        highScores: HighScores,
-        scoreData: GameScoreData,
-        config: GameConfiguration,
+        chapter: GameChapter,
+        score: Int,
     ) {
         viewModelScope.launch {
-            highScoresRepository.updateHighScores(
-                highScores.copy(
-                    chapterScores = highScores.chapterScores.run {
-                        val chapter = config.id.chapter
-                        toMutableMap().apply {
-                            this[chapter] =
-                                max(getOrDefault(chapter, 0), scoreData.totalScore)
-
-                            if (config.isLastInChapter) {
-                                chapter.getNextChapter()?.also {
-                                    this[it] = getOrDefault(it, 0)
-                                }
-                            }
-                        }
-                    }
-                )
-            )
+            highScoresRepository.updateScore(chapter.persistenceName, score)
         }
     }
 }

@@ -6,7 +6,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.features.app.domain.GameConfiguration
 import jez.jetpackpop.features.app.domain.TargetColor
-import jez.jetpackpop.features.highscore.HighScores
 
 enum class GameProcessState {
     INITIALISED,
@@ -31,7 +30,6 @@ data class GameState(
     val targets: List<TargetData>,
     val remainingTime: Float,
     val scoreData: GameScoreData,
-    val highScores: HighScores,
 )
 
 @Stable

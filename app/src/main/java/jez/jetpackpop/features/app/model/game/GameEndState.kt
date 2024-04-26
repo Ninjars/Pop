@@ -25,6 +25,5 @@ sealed class GameEndState: Parcelable {
         override val remainingTime: Float,
         override val score: GameScoreData,
         override val didWin: Boolean,
-        val previousScore: Int,
     ): GameEndState()
 }

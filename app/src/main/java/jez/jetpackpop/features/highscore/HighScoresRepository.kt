@@ -1,6 +1,5 @@
 package jez.jetpackpop.features.highscore
 
-import android.util.Log
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
@@ -11,11 +10,11 @@ import jez.jetpackpop.features.app.domain.GameChapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-@Suppress("BlockingMethodInNonBlockingContext")
 object HighScoreDataSerializer : Serializer<HighScoresProto> {
     override val defaultValue: HighScoresProto = HighScoresProto.getDefaultInstance()
 
@@ -37,7 +36,7 @@ class HighScoresRepository(
         .catch { exception ->
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
-                Log.e("HighScoresRepository", "Error reading sort order preferences.", exception)
+                Timber.e("HighScoresRepository", "Error reading sort order preferences.", exception)
                 emit(HighScoresProto.getDefaultInstance())
             } else {
                 throw exception
@@ -64,6 +63,26 @@ class HighScoresRepository(
                 build()
             }
         }
+
+    suspend fun updateScore(chapterName: String, score: Int) {
+        dataStore.updateData { proto ->
+            val index = proto.scoresList.indexOfFirst { it.chapterName == chapterName }.let {
+                if (it < 0) proto.scoresCount
+                else it
+            }
+            val existingScore = proto.scoresList.getOrNull(index)?.score ?: -1
+
+            Timber.i("updatesScore: existingScore $existingScore newScore $score")
+            if (score > existingScore) {
+                with(proto.toBuilder()) {
+                    addOrSetScore(index, chapterName, score)
+                    build()
+                }
+            } else {
+                proto
+            }
+        }
+    }
 
     private fun HighScoresProto.Builder.addOrSetScore(index: Int, chapterName: String, score: Int) {
         val chapterScoreProto = ChapterScoreProto.newBuilder()
