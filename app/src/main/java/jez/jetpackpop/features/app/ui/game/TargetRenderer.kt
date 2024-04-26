@@ -38,27 +38,15 @@ private fun Target(data: TargetData, onClick: (TargetData) -> Unit) {
         .clip(CircleShape)
         .background(data.color.toColor())
 
-    data.toOnClickAction(onClick)?.let { action ->
-        modifier = modifier.clickable(
-            interactionSource = interactionSource,
-            indication = null,
-        ) { action() }
+    if (data.clickResult != null) {
+        modifier = modifier
+            .clickable(interactionSource = interactionSource, indication = null) { onClick(data) }
     }
 
     Box(
         modifier = modifier
     )
 }
-
-private fun TargetData.toOnClickAction(
-    targetTapListener: (TargetData) -> Unit
-): (() -> Unit)? =
-    when (this.clickResult) {
-        null -> null
-        else -> {
-            { targetTapListener(this) }
-        }
-    }
 
 private fun TargetColor.toColor() =
     when (this) {
