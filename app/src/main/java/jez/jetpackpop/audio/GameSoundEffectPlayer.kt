@@ -25,7 +25,7 @@ class GameSoundEffectPlayer {
             .setAudioAttributes(AudioAttributes.Builder().setUsage(USAGE_GAME).build())
             .build()
 
-        soundIds = GameSoundEffect.values()
+        soundIds = GameSoundEffect.entries
             .map {
                 when (it) {
                     GameSoundEffect.BACK_INVOKED -> R.raw.back_action

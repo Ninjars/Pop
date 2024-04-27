@@ -4,21 +4,27 @@ import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import jez.jetpackpop.audio.SoundManager.SoundVariance
 
 interface SoundManager : LifecycleEventObserver {
     /**
      * Plays an indicated sound effect with a random small pitch adjustment
      */
-    fun playEffect(effect: GameSoundEffect)
+    fun playEffect(effect: GameSoundEffect, variance: SoundVariance)
 
     /**
      * Plays an indicated sound effect without any pitch adjustment
      */
     fun playSound(effect: GameSoundEffect)
+
+    enum class SoundVariance {
+        Low,
+        High
+    }
 }
 
 class NoOpSoundManager : SoundManager {
-    override fun playEffect(effect: GameSoundEffect) {
+    override fun playEffect(effect: GameSoundEffect, variance: SoundVariance) {
     }
 
     override fun playSound(effect: GameSoundEffect) {
@@ -51,8 +57,14 @@ class SoundManagerImpl(private val context: Context) : SoundManager {
     /**
      * Plays an indicated sound effect with a random small pitch adjustment
      */
-    override fun playEffect(effect: GameSoundEffect) {
-        popEffectPlayer.play(effect)
+    override fun playEffect(effect: GameSoundEffect, variance: SoundVariance) {
+        popEffectPlayer.play(
+            effect = effect,
+            pitchVariance = when (variance) {
+                SoundVariance.Low -> 0.05f
+                SoundVariance.High -> 0.2f
+            }
+        )
     }
 
     /**

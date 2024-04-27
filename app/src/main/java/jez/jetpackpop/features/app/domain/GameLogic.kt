@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastLastOrNull
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
+import jez.jetpackpop.audio.SoundManager.SoundVariance
 import jez.jetpackpop.features.app.model.game.CircleEffectData
 import jez.jetpackpop.features.app.model.game.CircleEffectData.EffectType
 import jez.jetpackpop.features.app.model.game.GameEndState
@@ -121,7 +122,7 @@ class GameLogic(
                     && (position - it.center).getDistanceSquared() < (it.radius * it.radius)
         }
         return if (tappedTarget == null) {
-            soundManager.playSound(GameSoundEffect.BACKGROUND_TAPPED)
+            soundManager.playEffect(GameSoundEffect.BACKGROUND_TAPPED, SoundVariance.Low)
             val now = System.currentTimeMillis()
             copy(
                 scoreData = scoreData.createUpdate(false),
@@ -132,7 +133,7 @@ class GameLogic(
                 effectCounter = effectCounter + 1,
             )
         } else {
-            soundManager.playSound(GameSoundEffect.TARGET_TAPPED)
+            soundManager.playEffect(GameSoundEffect.TARGET_TAPPED, SoundVariance.High)
             onTargetTapped(tappedTarget)
         }
     }
