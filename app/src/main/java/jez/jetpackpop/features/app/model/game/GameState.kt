@@ -30,10 +30,14 @@ data class GameState(
     val remainingTime: Float,
     val scoreData: GameScoreData,
     val effectCounter: Int = 0,
+    val overtime: Float = 0f,
 ) {
-    val gameIsRunning =
+    val gameIsLooping =
         processState == GameProcessState.RUNNING
                 || processState == GameProcessState.END_LOSE
+                || processState == GameProcessState.END_WIN
+    val gameHasEnded =
+        processState == GameProcessState.END_LOSE
                 || processState == GameProcessState.END_WIN
 }
 

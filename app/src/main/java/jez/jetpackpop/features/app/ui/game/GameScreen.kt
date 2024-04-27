@@ -54,8 +54,8 @@ fun GameScreen(
         }
     }
 
-    LaunchedEffect(gameState.gameIsRunning) {
-        if (gameState.gameIsRunning) {
+    LaunchedEffect(gameState.gameIsLooping) {
+        if (gameState.gameIsLooping) {
             runGameLoop(gameEventFlow)
         }
     }

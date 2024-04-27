@@ -204,9 +204,14 @@ class GameLogic(
 
 
     private fun GameState.update(deltaSeconds: Float) =
-        if (gameIsRunning) iterateState(deltaSeconds)
+        if (gameIsLooping) {
+            if (gameHasEnded) {
+                copy(overtime = overtime + deltaSeconds)
+            } else {
+                iterateState(deltaSeconds)
+            }
+        }
         else this
-
 
     private fun GameState.iterateState(deltaSeconds: Float): GameState {
         val nextRemainingTime =
