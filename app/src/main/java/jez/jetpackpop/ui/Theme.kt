@@ -49,6 +49,8 @@ val target1: Color = Color(0xFFDB3069)
 val target2: Color = Color(0xFFF5D547)
 val target3: Color = Color(0xFF31C059)
 
+val missEffectColor: Color = Color(0xffb49128)
+
 class VictoryContinueButtonColours() : ButtonColors {
     @Composable
     override fun backgroundColor(enabled: Boolean): State<Color> {

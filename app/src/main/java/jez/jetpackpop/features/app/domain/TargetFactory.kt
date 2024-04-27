@@ -19,8 +19,8 @@ class TargetFactory(
         return configurations.flatMap { targetConfig ->
             (0 until targetConfig.count).map {
                 TargetData(
-                    id = "${targetConfig.color.name}_$it",
-                    color = targetConfig.color,
+                    id = "${targetConfig.type.name}_$it",
+                    type = targetConfig.type,
                     radius = targetConfig.radius,
                     center = Offset(
                         random.nextFloat() * width,
@@ -55,7 +55,7 @@ class TargetFactory(
                 ),
                 radius = data.radius * 0.75f,
                 clickResult = TargetData.ClickResult.SCORE,
-                color = TargetColor.SPLIT_TARGET,
+                type = TargetType.SPLIT_TARGET,
             )
         }
     }

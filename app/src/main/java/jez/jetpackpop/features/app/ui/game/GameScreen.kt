@@ -35,6 +35,9 @@ fun GameScreen(
                 }
             }
     ) {
+        EffectRenderer(
+            effects = gameState.effects,
+        )
         TargetRenderer(
             targets = gameState.targets,
         )

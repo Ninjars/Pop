@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import jez.jetpackpop.features.app.domain.TargetColor
+import jez.jetpackpop.features.app.domain.TargetType
 import jez.jetpackpop.features.app.model.game.TargetData
 import jez.jetpackpop.ui.target1
 import jez.jetpackpop.ui.target2
@@ -19,22 +19,22 @@ fun TargetRenderer(
         modifier = Modifier.fillMaxSize()
     ) {
         targets.forEach {
-            drawTarget(it, density)
+            drawTarget(it)
         }
     }
 }
 
-private fun DrawScope.drawTarget(data: TargetData, scale: Float) {
+private fun DrawScope.drawTarget(data: TargetData) {
     drawCircle(
-        color = data.color.toColor(),
-        center = data.center * scale,
-        radius = data.radius * scale,
+        color = data.type.toColor(),
+        center = data.center * density,
+        radius = data.radius * density,
     )
 }
 
-private fun TargetColor.toColor() =
+private fun TargetType.toColor() =
     when (this) {
-        TargetColor.TARGET -> target1
-        TargetColor.DECOY -> target2
-        TargetColor.SPLIT_TARGET -> target3
+        TargetType.TARGET -> target1
+        TargetType.DECOY -> target2
+        TargetType.SPLIT_TARGET -> target3
     }

@@ -24,7 +24,7 @@ val gameConfigurations = hashMapOf(
                 timeLimitSeconds = LEVEL_DURATION,
                 targetConfigurations = listOf(
                     TargetConfiguration(
-                        color = TargetColor.TARGET,
+                        type = TargetType.TARGET,
                         radius = 40 - 16 * progressFraction,
                         count = (6 + 18 * progressFraction).toInt(),
                         minSpeed = 20 + 60 * progressFraction,
@@ -46,7 +46,7 @@ val gameConfigurations = hashMapOf(
                 timeLimitSeconds = LEVEL_DURATION,
                 targetConfigurations = listOf(
                     TargetConfiguration(
-                        color = TargetColor.TARGET,
+                        type = TargetType.TARGET,
                         radius = 36 - 12 * progressFraction,
                         count = (6 + 12 * progressFraction).toInt(),
                         minSpeed = 30 + 50 * progressFraction,
@@ -54,7 +54,7 @@ val gameConfigurations = hashMapOf(
                         clickResult = SCORE,
                     ),
                     TargetConfiguration(
-                        color = TargetColor.DECOY,
+                        type = TargetType.DECOY,
                         radius = 80f,
                         count = (2 + 3 * progressFraction).toInt(),
                         minSpeed = 20 + 30 * progressFraction,
@@ -76,7 +76,7 @@ val gameConfigurations = hashMapOf(
                 timeLimitSeconds = LEVEL_DURATION,
                 targetConfigurations = listOf(
                     TargetConfiguration(
-                        color = TargetColor.TARGET,
+                        type = TargetType.TARGET,
                         radius = 42 - 6 * progressFraction,
                         count = (3 + 3 * progressFraction).toInt(),
                         minSpeed = 30 + 50 * progressFraction,

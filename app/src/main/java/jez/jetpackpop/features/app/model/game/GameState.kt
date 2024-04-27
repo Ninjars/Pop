@@ -1,9 +1,9 @@
 package jez.jetpackpop.features.app.model.game
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import jez.jetpackpop.features.app.domain.GameConfiguration
-import jez.jetpackpop.features.app.domain.TargetColor
+import jez.jetpackpop.features.app.domain.TargetType
 
 enum class GameProcessState {
     INITIALISED,
@@ -19,24 +19,45 @@ enum class GameProcessState {
     END_LOSE,
 }
 
-@Stable
+@Immutable
 data class GameState(
     val width: Float,
     val height: Float,
     val processState: GameProcessState,
     val config: GameConfiguration,
     val targets: List<TargetData>,
+    val effects: List<CircleEffectData>,
     val remainingTime: Float,
     val scoreData: GameScoreData,
+    val effectCounter: Int = 0,
 ) {
     val gameIsRunning =
-        processState == GameProcessState.RUNNING || processState == GameProcessState.END_LOSE
+        processState == GameProcessState.RUNNING
+                || processState == GameProcessState.END_LOSE
+                || processState == GameProcessState.END_WIN
 }
 
-@Stable
+@Immutable
+data class CircleEffectData(
+    val id: Int,
+    val type: EffectType,
+    val center: Offset,
+    val startRadius: Float,
+    val endRadius: Float,
+    val startAtMs: Long,
+    val endAtMs: Long,
+) {
+    enum class EffectType {
+        MISS,
+        POP_TARGET,
+        POP_SPLIT,
+    }
+}
+
+@Immutable
 data class TargetData(
     val id: String,
-    val color: TargetColor,
+    val type: TargetType,
     val radius: Float,
     val center: Offset,
     val velocity: Offset,

@@ -100,7 +100,7 @@ class AppLogic(
             timeLimitSeconds = -1f,
             targetConfigurations = listOf(
                 TargetConfiguration(
-                    color = TargetColor.TARGET,
+                    type = TargetType.TARGET,
                     radius = 30f,
                     count = 10,
                     minSpeed = 8f,

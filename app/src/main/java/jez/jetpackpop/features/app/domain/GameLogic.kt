@@ -4,6 +4,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastLastOrNull
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
+import jez.jetpackpop.features.app.model.game.CircleEffectData
+import jez.jetpackpop.features.app.model.game.CircleEffectData.EffectType
 import jez.jetpackpop.features.app.model.game.GameEndState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.model.game.GameProcessState
@@ -16,6 +18,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
+
+private val EffectRadiusMiss: Float = 100f
+private val EffectDurationMsMiss: Long = 333L
+private val EffectDurationMsPop: Long = 750L
 
 class GameLogic(
     val outputEvents: MutableSharedFlow<GameLogicEvent>,
@@ -31,6 +37,7 @@ class GameLogic(
             processState = GameProcessState.INITIALISED,
             config = GameConfiguration.Default,
             targets = emptyList(),
+            effects = emptyList(),
             remainingTime = -1f,
             scoreData = createGameScore(0),
         )
@@ -80,6 +87,7 @@ class GameLogic(
             config = config,
             processState = GameProcessState.RUNNING,
             targets = targets,
+            effects = emptyList(),
             remainingTime = config.timeLimitSeconds,
             width = width,
             height = height,
@@ -114,13 +122,55 @@ class GameLogic(
         }
         return if (tappedTarget == null) {
             soundManager.playSound(GameSoundEffect.BACKGROUND_TAPPED)
+            val now = System.currentTimeMillis()
             copy(
                 scoreData = scoreData.createUpdate(false),
+                effects = (effects + createMissTapEffect(
+                    effectCounter,
+                    position
+                )).filterNot { it.endAtMs < now },
+                effectCounter = effectCounter + 1,
             )
         } else {
             soundManager.playSound(GameSoundEffect.TARGET_TAPPED)
             onTargetTapped(tappedTarget)
         }
+    }
+
+    private fun createMissTapEffect(effectCount: Int, position: Offset): CircleEffectData {
+        val now = System.currentTimeMillis()
+        return CircleEffectData(
+            id = effectCount,
+            type = EffectType.MISS,
+            center = position,
+            startRadius = EffectRadiusMiss * 0.01f,
+            endRadius = EffectRadiusMiss,
+            startAtMs = now,
+            endAtMs = now + EffectDurationMsMiss,
+        )
+    }
+
+    private fun createPopTapEffect(
+        effectCount: Int,
+        position: Offset,
+        radius: Float,
+        targetType: TargetType,
+    ): CircleEffectData {
+        val now = System.currentTimeMillis()
+        return CircleEffectData(
+            id = effectCount,
+            type = when (targetType) {
+                TargetType.DECOY,
+                TargetType.TARGET -> EffectType.POP_TARGET
+
+                TargetType.SPLIT_TARGET -> EffectType.POP_SPLIT
+            },
+            center = position,
+            startRadius = radius,
+            endRadius = radius * 3f,
+            startAtMs = now,
+            endAtMs = now + EffectDurationMsPop,
+        )
     }
 
     private fun GameState.onTargetTapped(data: TargetData): GameState {
@@ -137,20 +187,25 @@ class GameLogic(
                         addAll(targetFactory.createSplitTargets(data, 3))
                     }
         }
+        val now = System.currentTimeMillis()
         return copy(
             scoreData = scoreData.createUpdate(true),
-            targets = newTargets
+            targets = newTargets,
+            effects = (effects + createPopTapEffect(
+                effectCounter,
+                data.center,
+                data.radius,
+                data.type,
+            )).filterNot { it.endAtMs < now },
+            effectCounter = effectCounter + 1,
         )
     }
 
 
     private fun GameState.update(deltaSeconds: Float) =
-        when (processState) {
-            GameProcessState.END_LOSE,
-            GameProcessState.RUNNING -> iterateState(deltaSeconds)
+        if (gameIsRunning) iterateState(deltaSeconds)
+        else this
 
-            else -> this
-        }
 
     private fun GameState.iterateState(deltaSeconds: Float): GameState {
         val nextRemainingTime =

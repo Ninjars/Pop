@@ -31,7 +31,7 @@ data class GameConfigId(
 
 @Parcelize
 data class TargetConfiguration(
-    val color: TargetColor,
+    val type: TargetType,
     val radius: Float,
     val count: Int,
     val minSpeed: Float,
@@ -65,7 +65,7 @@ enum class GameChapter(val persistenceName: String) {
     }
 }
 
-enum class TargetColor {
+enum class TargetType {
     TARGET,
     DECOY,
     SPLIT_TARGET,
