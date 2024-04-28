@@ -4,8 +4,10 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
+import jez.jetpackpop.ChapterLevelScoresProto
 import jez.jetpackpop.ChapterScoreProto
 import jez.jetpackpop.HighScoresProto
+import jez.jetpackpop.LevelScoreProto
 import jez.jetpackpop.features.app.domain.GameChapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -44,38 +46,88 @@ class HighScoresRepository(
         }
         .map { proto ->
             HighScores(
-                proto.scoresOrBuilderList.associate { GameChapter.withName(it.chapterName) to it.score }
+                proto.chapterScoresOrBuilderList.associate { GameChapter.withName(it.chapterName) to it.score }
             )
         }
 
-    suspend fun updateHighScores(scores: HighScores) =
+    suspend fun updateLevelScore(
+        chapterName: String,
+        levelIndex: Int,
+        score: Int,
+        timeRemaining: Int
+    ) {
         dataStore.updateData { proto ->
-            with(proto.toBuilder()) {
-                val sortedScoreData = scores.chapterScores.entries
-                    .sortedBy { it.key.ordinal }
-                    .withIndex()
-                    .toList()
-                for ((index, score) in sortedScoreData) {
-                    val chapter = score.key
-                    if (index < scoresCount && getScores(index).score >= score.value) continue
-                    addOrSetScore(index, chapter.persistenceName, score.value)
+            val existingChapterRecord =
+                proto.chapterLevelScoresList.firstOrNull { it.chapterName == chapterName }
+            val existingLevelRecord = existingChapterRecord?.scoresList?.getOrNull(levelIndex)
+            val isExistingRecordHigherScore =
+                existingLevelRecord?.score?.let { it > score } ?: false
+
+            if (existingChapterRecord == null) {
+                proto
+            } else if (isExistingRecordHigherScore) {
+                with(proto.toBuilder()) {
+                    addNewChapterLevelScore(chapterName, levelIndex, score, timeRemaining)
+                    build()
                 }
-                build()
+            } else {
+                with(proto.toBuilder()) {
+                    addOrSetLevelScore(existingChapterRecord, levelIndex, score, timeRemaining)
+                    build()
+                }
             }
         }
+    }
 
-    suspend fun updateScore(chapterName: String, score: Int) {
+    private fun HighScoresProto.Builder.addNewChapterLevelScore(
+        chapterName: String,
+        levelIndex: Int,
+        score: Int,
+        timeRemaining: Int,
+    ) {
+        val levelScoreProto = LevelScoreProto.newBuilder()
+            .setLevel(levelIndex)
+            .setScore(score)
+            .setTimeRemaining(timeRemaining)
+            .build()
+        val chapterLevelRecord = ChapterLevelScoresProto.newBuilder()
+            .setChapterName(chapterName)
+            .addScores(levelScoreProto)
+        addChapterLevelScores(chapterLevelRecord)
+    }
+
+    private fun HighScoresProto.Builder.addOrSetLevelScore(
+        existingChapterRecord: ChapterLevelScoresProto,
+        index: Int,
+        score: Int,
+        timeRemaining: Int,
+    ) {
+        val levelScoreProto = LevelScoreProto.newBuilder()
+            .setLevel(index)
+            .setScore(score)
+            .setTimeRemaining(timeRemaining)
+            .build()
+        if (index >= chapterScoresCount || getChapterScores(index) == null) {
+            existingChapterRecord.toBuilder()
+                .addScores(index, levelScoreProto)
+        } else {
+            existingChapterRecord.toBuilder()
+                .setScores(index, levelScoreProto)
+        }
+    }
+
+    suspend fun updateChapterScore(chapterName: String, score: Int) {
         dataStore.updateData { proto ->
-            val index = proto.scoresList.indexOfFirst { it.chapterName == chapterName }.let {
-                if (it < 0) proto.scoresCount
+            val index = proto.chapterScoresList.indexOfFirst { it.chapterName == chapterName }.let {
+                if (it < 0) proto.chapterScoresCount
                 else it
             }
-            val existingScore = proto.scoresList.getOrNull(index)?.score ?: -1
+            val existingScore = proto.chapterScoresList.getOrNull(index)?.score ?: -1
 
             Timber.i("updatesScore: existingScore $existingScore newScore $score")
             if (score > existingScore) {
                 with(proto.toBuilder()) {
-                    addOrSetScore(index, chapterName, score)
+                    addOrSetChapterScore(index, chapterName, score)
                     build()
                 }
             } else {
@@ -84,15 +136,19 @@ class HighScoresRepository(
         }
     }
 
-    private fun HighScoresProto.Builder.addOrSetScore(index: Int, chapterName: String, score: Int) {
+    private fun HighScoresProto.Builder.addOrSetChapterScore(
+        index: Int,
+        chapterName: String,
+        score: Int
+    ) {
         val chapterScoreProto = ChapterScoreProto.newBuilder()
             .setChapterName(chapterName)
             .setScore(score)
             .build()
-        if (index >= scoresCount || getScores(index) == null) {
-            addScores(index, chapterScoreProto)
+        if (index >= chapterScoresCount || getChapterScores(index) == null) {
+            addChapterScores(index, chapterScoreProto)
         } else {
-            setScores(index, chapterScoreProto)
+            setChapterScores(index, chapterScoreProto)
         }
     }
 }

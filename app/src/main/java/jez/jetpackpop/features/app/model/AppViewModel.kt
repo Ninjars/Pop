@@ -88,7 +88,7 @@ class AppViewModel(
         score: Int,
     ) {
         viewModelScope.launch {
-            highScoresRepository.updateScore(chapter.persistenceName, score)
+            highScoresRepository.updateChapterScore(chapter.persistenceName, score)
         }
     }
 }
