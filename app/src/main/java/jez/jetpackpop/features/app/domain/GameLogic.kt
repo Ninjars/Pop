@@ -235,17 +235,12 @@ class GameLogic(
                 when (it.processState) {
                     GameProcessState.END_WIN,
                     GameProcessState.END_LOSE -> {
-                        val gameState = _gameState.value
                         outputEvents.tryEmit(
-                            GameLogicEvent.GameEnded(
-                                gameState.config,
-                                it.toEndState(),
-                            )
+                            GameLogicEvent.GameEnded(it.toEndState())
                         )
                     }
 
-                    else -> {
-                    }
+                    else -> Unit
                 }
             }
         }

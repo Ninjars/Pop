@@ -62,7 +62,7 @@ class HighScoresRepository(
             builder
                 .updateLevelScore(
                     chapterName = chapterName,
-                    levelIndex = levelIndex,
+                    level = levelIndex,
                     score = levelScore,
                     timeRemaining = timeRemaining,
                 )
@@ -70,30 +70,50 @@ class HighScoresRepository(
                     chapterName = chapterName,
                     score = totalChapterScore,
                 )
-            builder.build()
+                .build()
         }
     }
 
     private fun HighScoresProto.Builder.updateLevelScore(
         chapterName: String,
-        levelIndex: Int,
+        level: Int,
         score: Int,
         timeRemaining: Int
     ): HighScoresProto.Builder {
-        val existingChapterRecord =
-            this.chapterLevelScoresList.firstOrNull { it.chapterName == chapterName }
-        val existingLevelRecord = existingChapterRecord?.scoresList?.getOrNull(levelIndex)
-        val isExistingRecordHigherScore =
-            existingLevelRecord?.score?.let { it > score } ?: false
+        val chapterLevelScoresIndex =
+            chapterLevelScoresList.indexOfFirst { it.chapterName == chapterName }.let {
+                if (it < 0) chapterLevelScoresCount
+                else it
+            }
+        val existingChapterRecord = chapterLevelScoresList.getOrNull(chapterLevelScoresIndex)
 
-        return if (existingChapterRecord == null) {
+        if (existingChapterRecord == null) {
+            Timber.d("updateLevelScore: addNewChapterLevelScore $chapterName level $level score $score time $timeRemaining")
+            return addNewChapterLevelScore(chapterName, level, score, timeRemaining)
+        }
+
+        val existingLevelRecordIndex =
+            existingChapterRecord.scoresList.indexOfFirst { it.level == level }
+        val existingLevelScoreRecord =
+            existingChapterRecord.scoresList.getOrNull(existingLevelRecordIndex)
+        val isExistingRecordHigherScore =
+            existingLevelScoreRecord?.score?.let { it > score } ?: false
+
+        return if (isExistingRecordHigherScore) {
+            Timber.d("updateLevelScore: existing record has higher score ${existingLevelScoreRecord?.score} vs $score")
             this
-        } else if (isExistingRecordHigherScore) {
-            Timber.i("updateLevelScore: addNewChapterLevelScore $chapterName level $levelIndex score $score time $timeRemaining")
-            addNewChapterLevelScore(chapterName, levelIndex, score, timeRemaining)
         } else {
-            Timber.i("updateLevelScore: addOrSetLevelScore $chapterName level $levelIndex score $score time $timeRemaining")
-            addOrSetLevelScore(existingChapterRecord, levelIndex, score, timeRemaining)
+            Timber.d("updateLevelScore: addOrSetLevelScore $chapterName level $level existingRecordIndex $existingLevelRecordIndex score $score time $timeRemaining")
+            addOrSetLevelScore(
+                chapterLevelsRecordIndex = chapterLevelScoresIndex,
+                existingChapterLevelsRecord = existingChapterRecord,
+                level = level,
+                recordIndex = existingLevelRecordIndex,
+                score = score,
+                timeRemaining = timeRemaining
+            ).also {
+                Timber.d("updateLevelScore: updated level scores list $chapterLevelScoresList")
+            }
         }
     }
 
@@ -107,7 +127,6 @@ class HighScoresRepository(
             .setLevel(levelIndex)
             .setScore(score)
             .setTimeRemaining(timeRemaining)
-            .build()
         val chapterLevelRecord = ChapterLevelScoresProto.newBuilder()
             .setChapterName(chapterName)
             .addScores(levelScoreProto)
@@ -116,23 +135,31 @@ class HighScoresRepository(
     }
 
     private fun HighScoresProto.Builder.addOrSetLevelScore(
-        existingChapterRecord: ChapterLevelScoresProto,
-        index: Int,
+        chapterLevelsRecordIndex: Int,
+        existingChapterLevelsRecord: ChapterLevelScoresProto,
+        level: Int,
+        recordIndex: Int,
         score: Int,
         timeRemaining: Int,
     ): HighScoresProto.Builder {
         val levelScoreProto = LevelScoreProto.newBuilder()
-            .setLevel(index)
+            .setLevel(level)
             .setScore(score)
             .setTimeRemaining(timeRemaining)
-            .build()
-        if (index >= chapterScoresCount || getChapterScores(index) == null) {
-            existingChapterRecord.toBuilder()
+        val existingScoresCount = existingChapterLevelsRecord.scoresCount
+        val index = if (recordIndex < 0) existingScoresCount else recordIndex
+        val builder =
+            if (index >= existingScoresCount || existingChapterLevelsRecord.getScores(index) == null) {
+                Timber.d("addOrSetLevelScore: adding new score. chapterLevelsRecordIndex $chapterLevelsRecordIndex level $level recordIndex $recordIndex targetIndex $index chapterLevelScoresCount $existingScoresCount")
+                existingChapterLevelsRecord.toBuilder()
                 .addScores(index, levelScoreProto)
+
         } else {
-            existingChapterRecord.toBuilder()
+                Timber.d("addOrSetLevelScore: updating new score. chapterLevelsRecordIndex $chapterLevelsRecordIndex level $level recordIndex $recordIndex targetIndex $index chapterLevelScoresCount $existingScoresCount")
+                existingChapterLevelsRecord.toBuilder()
                 .setScores(index, levelScoreProto)
         }
+        setChapterLevelScores(chapterLevelsRecordIndex, builder)
         return this
     }
 
@@ -146,7 +173,7 @@ class HighScoresRepository(
         }
         val existingScore = chapterScoresList.getOrNull(index)?.score ?: -1
 
-        Timber.i("updateChapterScore: existingScore $existingScore newScore $score")
+        Timber.d("updateChapterScore: $chapterName existingScore $existingScore newScore $score")
         return if (score > existingScore) {
             addOrSetChapterScore(index, chapterName, score)
         } else {
@@ -162,7 +189,6 @@ class HighScoresRepository(
         val chapterScoreProto = ChapterScoreProto.newBuilder()
             .setChapterName(chapterName)
             .setScore(score)
-            .build()
         return if (index >= chapterScoresCount || getChapterScores(index) == null) {
             addChapterScores(index, chapterScoreProto)
         } else {

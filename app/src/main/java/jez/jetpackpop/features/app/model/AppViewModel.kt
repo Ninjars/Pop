@@ -3,12 +3,12 @@ package jez.jetpackpop.features.app.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.app.domain.AppLogic
-import jez.jetpackpop.features.app.domain.GameChapter
 import jez.jetpackpop.features.app.domain.GameLogic
 import jez.jetpackpop.features.app.domain.GameLogicEvent
 import jez.jetpackpop.features.app.model.app.ActiveScreen
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
+import jez.jetpackpop.features.app.model.game.GameEndState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.model.game.GameState
 import jez.jetpackpop.features.highscore.HighScoresRepository
@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.ceil
 
 class AppViewModel(
     private val highScoresRepository: HighScoresRepository,
@@ -60,10 +61,7 @@ class AppViewModel(
                     is GameLogicEvent.GameEnded -> {
                         val state = it.gameEndState
                         if (state.didWin) {
-                            recordCurrentScore(
-                                it.config.id.chapter,
-                                state.score.totalScore,
-                            )
+                            recordGameEnd(state)
                         }
                     }
                 }
@@ -83,12 +81,17 @@ class AppViewModel(
             true
         }
 
-    private fun recordCurrentScore(
-        chapter: GameChapter,
-        score: Int,
+    private fun recordGameEnd(
+        state: GameEndState,
     ) {
         viewModelScope.launch {
-            highScoresRepository.updateChapterScore(chapter.persistenceName, score)
+            highScoresRepository.recordEndOfLevel(
+                chapterName = state.gameConfigId.chapter.persistenceName,
+                levelIndex = state.gameConfigId.id,
+                levelScore = state.score.gameScore,
+                timeRemaining = ceil(state.remainingTime).toInt(),
+                totalChapterScore = state.score.totalScore,
+            )
         }
     }
 }
