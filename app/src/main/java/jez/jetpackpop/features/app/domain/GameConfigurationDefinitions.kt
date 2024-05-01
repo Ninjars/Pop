@@ -25,10 +25,10 @@ val gameConfigurations = hashMapOf(
                 targetConfigurations = listOf(
                     TargetConfiguration(
                         type = TargetType.TARGET,
-                        radius = 40 - 16 * progressFraction,
+                        radius = 40 - 14 * progressFraction,
                         count = (6 + 18 * progressFraction).toInt(),
-                        minSpeed = 20 + 60 * progressFraction,
-                        maxSpeed = 30 + 80 * progressFraction,
+                        minSpeed = 20 + 65 * progressFraction,
+                        maxSpeed = 30 + 90 * progressFraction,
                         clickResult = SCORE,
                     )
                 ),
@@ -47,10 +47,10 @@ val gameConfigurations = hashMapOf(
                 targetConfigurations = listOf(
                     TargetConfiguration(
                         type = TargetType.TARGET,
-                        radius = 36 - 12 * progressFraction,
+                        radius = 36 - 10 * progressFraction,
                         count = (6 + 12 * progressFraction).toInt(),
-                        minSpeed = 30 + 50 * progressFraction,
-                        maxSpeed = 40 + 70 * progressFraction,
+                        minSpeed = 30 + 65 * progressFraction,
+                        maxSpeed = 40 + 80 * progressFraction,
                         clickResult = SCORE,
                     ),
                     TargetConfiguration(
@@ -60,7 +60,7 @@ val gameConfigurations = hashMapOf(
                         minSpeed = 20 + 30 * progressFraction,
                         maxSpeed = 25 + 50 * progressFraction,
                         clickResult = null,
-                    )
+                    ),
                 ),
                 isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
             )
@@ -78,7 +78,7 @@ val gameConfigurations = hashMapOf(
                     TargetConfiguration(
                         type = TargetType.TARGET,
                         radius = 42 - 6 * progressFraction,
-                        count = (3 + 3 * progressFraction).toInt(),
+                        count = (3 + 6 * progressFraction).toInt(),
                         minSpeed = 30 + 50 * progressFraction,
                         maxSpeed = 40 + 70 * progressFraction,
                         clickResult = SPLIT,
