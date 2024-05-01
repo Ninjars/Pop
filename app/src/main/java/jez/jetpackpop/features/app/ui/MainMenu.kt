@@ -9,19 +9,20 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -49,15 +50,17 @@ fun MainMenu(
     startAction: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxSize()
     ) {
         StartButton(
             startAction = startAction,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
+                .weight(1f)
         )
         ChapterMenu(
             chapterSelectButtonModels = chapterSelectButtonModels,
@@ -70,8 +73,6 @@ private fun StartButton(
     startAction: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val mod = modifier
-        .aspectRatio(1f, true)
 
     val infiniteTransition = rememberInfiniteTransition()
     val color by infiniteTransition.animateColor(
@@ -92,8 +93,12 @@ private fun StartButton(
             repeatMode = RepeatMode.Reverse,
         )
     )
+    val mod = Modifier
+        .aspectRatio(1f, true)
+
     Box(
-        modifier = Modifier.offset { IntOffset(0, position.roundToInt()) }
+        contentAlignment = Alignment.Center,
+        modifier = modifier.offset { IntOffset(0, position.roundToInt()) }
     ) {
         Button(
             onClick = startAction,
@@ -120,8 +125,20 @@ private fun ChapterMenu(
     chapterSelectButtonModels: List<ChapterSelectButtonModel>,
     modifier: Modifier = Modifier,
 ) {
-    for (model in chapterSelectButtonModels.filter { it.highScore != null }) {
-        ChapterButton(model.titleRes, model.highScore, model.chapterSelectAction)
+    val visibleButtonModels = chapterSelectButtonModels.filter { it.highScore != null }
+    if (visibleButtonModels.isEmpty()) return
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colors.secondary,
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            )
+            .padding(top = 8.dp, bottom = 16.dp, start = 8.dp, end = 8.dp)
+    ) {
+        for (model in chapterSelectButtonModels.filter { it.highScore != null }) {
+            ChapterButton(model.titleRes, model.highScore, model.chapterSelectAction)
+        }
     }
 }
 
@@ -131,34 +148,42 @@ private fun ChapterButton(
     highScore: Int?,
     action: () -> Unit,
 ) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+    Button(
+        onClick = action,
+        shape = CircleShape,
         modifier = Modifier
             .wrapContentSize()
-            .clickable(onClick = action)
-            .clip(CircleShape)
-            .background(color = MaterialTheme.colors.primary)
             .padding(8.dp)
     ) {
-        Text(
-            text = stringResource(text),
-            style = MaterialTheme.typography.h5,
-            color = MaterialTheme.colors.onPrimary,
-            modifier = Modifier
-                .wrapContentSize()
-        )
-        if (highScore != null && highScore > 0) {
-            Spacer(modifier = Modifier.width(8.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+//            modifier = Modifier
+//                .wrapContentSize()
+//                .clickable(onClick = action)
+//                .clip(CircleShape)
+//                .background(color = MaterialTheme.colors.primary)
+//                .padding(8.dp)
+        ) {
             Text(
-                text = highScore.toString(),
+                text = stringResource(text),
                 style = MaterialTheme.typography.h5,
-                color = MaterialTheme.colors.onSecondary,
+                color = MaterialTheme.colors.onPrimary,
                 modifier = Modifier
                     .wrapContentSize()
-                    .background(color = MaterialTheme.colors.secondary, shape = CircleShape)
-                    .padding(4.dp)
             )
+            if (highScore != null && highScore > 0) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = highScore.toString(),
+                    style = MaterialTheme.typography.h5,
+                    color = MaterialTheme.colors.onSecondary,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .background(color = MaterialTheme.colors.secondary, shape = CircleShape)
+                        .padding(4.dp)
+                )
+            }
         }
     }
 }
