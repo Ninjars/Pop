@@ -102,7 +102,6 @@ fun UI(
                 mainMenuAction = {
                     appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
                 },
-                nextGameAction = null
             )
         }
 

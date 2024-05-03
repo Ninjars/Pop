@@ -35,26 +35,25 @@ fun GameEndMenu(
             }
         )
     }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-    ) {
-        if (didWin) {
-            DisplayMenu(
-                color = MaterialTheme.colors.win,
-                titleText = R.string.game_end_win_title,
-                buttonText = R.string.game_end_win_start,
-            ) { startGameAction() }
-        } else {
-            DisplayMenu(
-                color = MaterialTheme.colors.lose,
-                titleText = R.string.game_end_lose_title,
-                buttonText = R.string.game_end_lose_start,
-            ) { startGameAction() }
+    ScreenScaffold(
+        centralSection = {
+            if (didWin) {
+                DisplayMenu(
+                    color = MaterialTheme.colors.win,
+                    titleText = R.string.game_end_win_title,
+                    buttonText = R.string.game_end_win_start,
+                    modifier = it,
+                ) { startGameAction() }
+            } else {
+                DisplayMenu(
+                    color = MaterialTheme.colors.lose,
+                    titleText = R.string.game_end_lose_title,
+                    buttonText = R.string.game_end_lose_start,
+                    modifier = it,
+                ) { startGameAction() }
+            }
         }
-    }
+    )
 }
 
 @Composable
@@ -62,6 +61,7 @@ private fun DisplayMenu(
     color: Color,
     @StringRes titleText: Int,
     @StringRes buttonText: Int,
+    modifier: Modifier,
     onClick: () -> Unit,
 ) {
     PopMegaButton(
@@ -74,7 +74,6 @@ private fun DisplayMenu(
             disabledBackgroundColor = color,
             disabledContentColor = Color.White,
         ),
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
+        modifier = modifier
     )
 }

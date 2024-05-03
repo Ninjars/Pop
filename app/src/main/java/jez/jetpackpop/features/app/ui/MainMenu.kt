@@ -6,13 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -23,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
 import jez.jetpackpop.ui.PopMegaButton
+import jez.jetpackpop.ui.ScreenScaffold
 
 data class ChapterSelectButtonModel(
     @StringRes val titleRes: Int,
@@ -35,24 +33,26 @@ fun MainMenu(
     chapterSelectButtonModels: List<ChapterSelectButtonModel>,
     startAction: () -> Unit,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .fillMaxSize()
-    ) {
-        PopMegaButton(
-            mainText = R.string.main_menu_title,
-            onClick = startAction,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .weight(1f),
-        )
-        ChapterMenu(
-            chapterSelectButtonModels = chapterSelectButtonModels,
-        )
-    }
+    val visibleButtonModels = chapterSelectButtonModels.filter { it.highScore != null }
+
+    ScreenScaffold(
+        centralSection = {
+            PopMegaButton(
+                mainText = R.string.main_menu_title,
+                onClick = startAction,
+                modifier = it,
+            )
+        },
+        bottomSection = if (visibleButtonModels.isEmpty()) {
+            null
+        } else {
+            {
+                ChapterMenu(
+                    chapterSelectButtonModels = visibleButtonModels,
+                )
+            }
+        }
+    )
 }
 
 @Composable
@@ -60,16 +60,10 @@ private fun ChapterMenu(
     chapterSelectButtonModels: List<ChapterSelectButtonModel>,
     modifier: Modifier = Modifier,
 ) {
-    val visibleButtonModels = chapterSelectButtonModels.filter { it.highScore != null }
-    if (visibleButtonModels.isEmpty()) return
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
-            .background(
-                color = MaterialTheme.colors.secondary,
-                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            )
-            .padding(top = 8.dp, bottom = 16.dp, start = 8.dp, end = 8.dp)
     ) {
         for (model in chapterSelectButtonModels.filter { it.highScore != null }) {
             ChapterButton(model.titleRes, model.highScore, model.chapterSelectAction)
@@ -88,17 +82,10 @@ private fun ChapterButton(
         shape = CircleShape,
         modifier = Modifier
             .wrapContentSize()
-            .padding(8.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-//            modifier = Modifier
-//                .wrapContentSize()
-//                .clickable(onClick = action)
-//                .clip(CircleShape)
-//                .background(color = MaterialTheme.colors.primary)
-//                .padding(8.dp)
         ) {
             Text(
                 text = stringResource(text),

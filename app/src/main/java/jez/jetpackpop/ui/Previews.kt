@@ -51,7 +51,6 @@ fun PreviewVictory() {
     AppTheme {
         VictoryMenu(
             mainMenuAction = { /* NA */ },
-            nextGameAction = null
         )
     }
 }
