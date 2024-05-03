@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
+import jez.jetpackpop.ui.autoresizetext.AutoSizeText
 import kotlin.math.roundToInt
 
 @Composable
@@ -75,10 +76,11 @@ fun PopMegaButton(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.wrapContentSize()
             ) {
-                Text(
+                AutoSizeText(
                     text = stringResource(mainText),
                     style = MaterialTheme.typography.h1,
                     color = colors.contentColor(enabled = true).value,
+                    maxLines = 1,
                     modifier = Modifier.wrapContentSize()
                 )
                 subText?.let {
