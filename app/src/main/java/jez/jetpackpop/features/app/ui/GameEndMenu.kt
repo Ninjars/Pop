@@ -1,31 +1,23 @@
 package jez.jetpackpop.features.app.ui
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
+import jez.jetpackpop.ui.PopMegaButton
 import jez.jetpackpop.ui.lose
-import jez.jetpackpop.ui.onEnd
 import jez.jetpackpop.ui.win
 
 @Composable
@@ -44,10 +36,10 @@ fun GameEndMenu(
         )
     }
     Column(
-        modifier = Modifier
-            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         if (didWin) {
             DisplayMenu(
@@ -70,36 +62,19 @@ private fun DisplayMenu(
     color: Color,
     @StringRes titleText: Int,
     @StringRes buttonText: Int,
-    startAction: () -> Unit,
+    onClick: () -> Unit,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
+    PopMegaButton(
+        mainText = titleText,
+        subText = buttonText,
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = color,
+            contentColor = Color.White,
+            disabledBackgroundColor = color,
+            disabledContentColor = Color.White,
+        ),
         modifier = Modifier
-            .background(
-                color = color,
-                shape = CircleShape
-            )
             .fillMaxWidth(0.8f)
-            .clip(CircleShape)
-            .clickable { startAction() }
-            .aspectRatio(1f, true),
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.wrapContentSize()
-        ) {
-            Text(
-                text = stringResource(titleText),
-                style = MaterialTheme.typography.h1,
-                color = MaterialTheme.colors.onEnd,
-                modifier = Modifier.wrapContentSize()
-            )
-            Text(
-                text = stringResource(buttonText),
-                style = MaterialTheme.typography.h5,
-                color = MaterialTheme.colors.onEnd,
-                modifier = Modifier.wrapContentSize()
-            )
-        }
-    }
+    )
 }
