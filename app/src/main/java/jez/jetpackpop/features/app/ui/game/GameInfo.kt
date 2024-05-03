@@ -23,10 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jez.jetpackpop.features.app.model.game.GameScoreData
-import kotlin.math.ceil
 
 data class GameInfoState(
-    val remainingTime: Float,
+    val remainingSeconds: Int,
     val scoreData: GameScoreData,
 )
 
@@ -44,7 +43,7 @@ fun GameInfo(
         Multiplier(state.scoreData.currentMultiplier)
         ScoreReadout(state.scoreData.totalScore)
         CountdownTimer(
-            remainingSeconds = ceil(state.remainingTime).toInt(),
+            remainingSeconds = state.remainingSeconds,
         )
     }
 }
@@ -123,7 +122,7 @@ private fun Multiplier(
 private fun GameInfoPreview() {
     GameInfo(
         GameInfoState(
-            remainingTime = 10f,
+            remainingSeconds = 10,
             scoreData = GameScoreData(
                 startingScore = 10,
                 tapHistory = emptyList(),

@@ -47,7 +47,7 @@ fun GameScreen(
             exit = fadeOut(),
         ) {
             val gameInfoState = GameInfoState(
-                gameState.remainingTime,
+                gameState.remainingSeconds,
                 gameState.scoreData,
             )
             GameInfo(gameInfoState)

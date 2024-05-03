@@ -250,14 +250,14 @@ class GameLogic(
         if (config.isLastInChapter) {
             GameEndState.ChapterEndState(
                 config.id,
-                remainingTime,
+                remainingSeconds,
                 scoreData,
                 processState == GameProcessState.END_WIN,
             )
         } else {
             GameEndState.LevelEndState(
                 config.id,
-                remainingTime,
+                remainingSeconds,
                 scoreData,
                 processState == GameProcessState.END_WIN,
             )

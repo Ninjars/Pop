@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import jez.jetpackpop.features.app.domain.GameConfiguration
 import jez.jetpackpop.features.app.domain.TargetType
+import kotlin.math.ceil
 
 enum class GameProcessState {
     INITIALISED,
@@ -39,6 +40,8 @@ data class GameState(
     val gameHasEnded =
         processState == GameProcessState.END_LOSE
                 || processState == GameProcessState.END_WIN
+
+    val remainingSeconds = ceil(remainingTime).toInt()
 }
 
 @Immutable

@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlin.math.ceil
 
 class AppViewModel(
     private val highScoresRepository: HighScoresRepository,
@@ -89,7 +88,7 @@ class AppViewModel(
                 chapterName = state.gameConfigId.chapter.persistenceName,
                 levelIndex = state.gameConfigId.id,
                 levelScore = state.score.gameScore,
-                timeRemaining = ceil(state.remainingTime).toInt(),
+                timeRemaining = state.remainingSeconds,
                 totalChapterScore = state.score.totalScore,
             )
         }
