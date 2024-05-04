@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
 import jez.jetpackpop.features.app.model.game.GameInputEvent
-import jez.jetpackpop.features.app.model.game.GameProcessState
 import jez.jetpackpop.features.app.model.game.GameState
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,7 +41,7 @@ fun GameScreen(
             targets = gameState.targets,
         )
         AnimatedVisibility(
-            visible = gameState.shouldShowInfo(),
+            visible = !gameState.gameHasEnded,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -74,6 +73,3 @@ private suspend fun runGameLoop(
         lastFrame = nextFrame
     }
 }
-
-private fun GameState.shouldShowInfo() =
-    remainingTime >= 0 && processState != GameProcessState.END_LOSE
