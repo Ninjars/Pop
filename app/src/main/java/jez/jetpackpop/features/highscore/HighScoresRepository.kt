@@ -46,7 +46,17 @@ class HighScoresRepository(
         }
         .map { proto ->
             HighScores(
-                proto.chapterScoresOrBuilderList.associate { GameChapter.withName(it.chapterName) to it.score }
+                proto.chapterScoresOrBuilderList.associate { GameChapter.withName(it.chapterName) to it.score },
+                proto.chapterLevelScoresOrBuilderList
+                    .associate {
+                        GameChapter.withName(it.chapterName) to it.scoresList.map { levelScore ->
+                            HighScores.LevelScore(
+                                level = levelScore.level,
+                                highestScore = levelScore.score,
+                                mostSecondsRemaining = levelScore.timeRemaining,
+                            )
+                        }
+                    }
             )
         }
 
@@ -152,13 +162,13 @@ class HighScoresRepository(
             if (index >= existingScoresCount || existingChapterLevelsRecord.getScores(index) == null) {
                 Timber.d("addOrSetLevelScore: adding new score. chapterLevelsRecordIndex $chapterLevelsRecordIndex level $level recordIndex $recordIndex targetIndex $index chapterLevelScoresCount $existingScoresCount")
                 existingChapterLevelsRecord.toBuilder()
-                .addScores(index, levelScoreProto)
+                    .addScores(index, levelScoreProto)
 
-        } else {
+            } else {
                 Timber.d("addOrSetLevelScore: updating new score. chapterLevelsRecordIndex $chapterLevelsRecordIndex level $level recordIndex $recordIndex targetIndex $index chapterLevelScoresCount $existingScoresCount")
                 existingChapterLevelsRecord.toBuilder()
-                .setScores(index, levelScoreProto)
-        }
+                    .setScores(index, levelScoreProto)
+            }
         setChapterLevelScores(chapterLevelsRecordIndex, builder)
         return this
     }

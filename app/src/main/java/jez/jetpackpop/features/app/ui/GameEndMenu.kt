@@ -20,10 +20,19 @@ import jez.jetpackpop.ui.PopMegaButton
 import jez.jetpackpop.ui.lose
 import jez.jetpackpop.ui.win
 
+data class ScoreInfo(
+    val remainingSeconds: Int,
+    val levelScore: Int,
+    val totalScore: Int,
+    val isNewHighScore: Boolean,
+    val isNewTimeRecord: Boolean,
+)
+
 @Composable
 fun GameEndMenu(
     soundManager: SoundManager,
     didWin: Boolean,
+    scoreInfo: ScoreInfo,
     startGameAction: () -> Unit,
 ) {
     LaunchedEffect(Unit) {

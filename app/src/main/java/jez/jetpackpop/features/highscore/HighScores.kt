@@ -1,14 +1,21 @@
 package jez.jetpackpop.features.highscore
 
-import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import jez.jetpackpop.features.app.domain.GameChapter
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
 @Immutable
-data class HighScores(val chapterScores: Map<GameChapter, Int>) : Parcelable {
+data class HighScores(
+    val chapterScores: Map<GameChapter, Int>,
+    val levelScores: Map<GameChapter, List<LevelScore>>,
+) {
+
+    data class LevelScore(
+        val level: Int,
+        val highestScore: Int,
+        val mostSecondsRemaining: Int,
+    )
+
     companion object {
-        val defaultValue = HighScores(emptyMap())
+        val defaultValue = HighScores(emptyMap(), emptyMap())
     }
 }
