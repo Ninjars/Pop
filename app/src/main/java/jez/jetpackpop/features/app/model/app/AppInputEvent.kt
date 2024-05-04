@@ -5,7 +5,7 @@ import jez.jetpackpop.features.app.model.game.GameEndState
 
 sealed class AppInputEvent {
     sealed class Navigation : AppInputEvent() {
-        object MainMenu : Navigation()
+        data object MainMenu : Navigation()
     }
 
     data class StartNewGame(

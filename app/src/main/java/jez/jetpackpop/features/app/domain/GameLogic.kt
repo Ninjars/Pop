@@ -20,9 +20,9 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
-private val EffectRadiusMiss: Float = 100f
-private val EffectDurationMsMiss: Long = 333L
-private val EffectDurationMsPop: Long = 750L
+private const val EffectRadiusMiss: Float = 100f
+private const val EffectDurationMsMiss: Long = 333L
+private const val EffectDurationMsPop: Long = 750L
 
 class GameLogic(
     val outputEvents: MutableSharedFlow<GameLogicEvent>,
