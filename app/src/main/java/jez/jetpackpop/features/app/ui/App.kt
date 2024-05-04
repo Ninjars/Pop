@@ -116,8 +116,7 @@ fun UI(
         ) {
             ChapterComplete(
                 soundManager,
-                appState.highScores.chapterScores,
-                appState.highScores.levelScores,
+                appState.highScores,
                 gameStateProvider,
             ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
@@ -138,7 +137,7 @@ fun UI(
             LevelEnd(
                 soundManager,
                 appState.hasWonActiveGame,
-                appState.highScores.levelScores,
+                appState.highScores,
                 gameStateProvider,
             ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
@@ -187,18 +186,19 @@ private fun ShowMainMenu(
 @Composable
 private fun ChapterComplete(
     soundManager: SoundManager,
-    chapterScores: Map<GameChapter, Int>,
-    levelScores: Map<GameChapter, List<HighScores.LevelScore>>,
+    highScores: HighScores,
     gameStateProvider: () -> GameState,
     nextGameAction: () -> Unit
 ) {
     val gameState = gameStateProvider()
-    val levelScore = levelScores[gameState.config.id.chapter]
-        ?.firstOrNull { it.level == gameState.config.id.id }
+    val levelId = gameState.config.id
+    val levelScore = highScores.levelScores[levelId.chapter]
+        ?.firstOrNull { it.level == levelId.id }
+    val chapterScore = highScores.chapterScores[levelId.chapter]
     GameEndMenu(
         soundManager = soundManager,
         didWin = true,
-        scoreInfo = gameState.toScoreInfo(levelScore),
+        scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
         startGameAction = nextGameAction,
     )
 }
@@ -207,23 +207,26 @@ private fun ChapterComplete(
 private fun LevelEnd(
     soundManager: SoundManager,
     didWin: Boolean,
-    levelScores: Map<GameChapter, List<HighScores.LevelScore>>,
+    highScores: HighScores,
     gameStateProvider: () -> GameState,
     nextGameAction: () -> Unit
 ) {
     val gameState = gameStateProvider()
-    val levelScore = levelScores[gameState.config.id.chapter]
-        ?.firstOrNull { it.level == gameState.config.id.id }
+    val levelId = gameState.config.id
+    val levelScore = highScores.levelScores[levelId.chapter]
+        ?.firstOrNull { it.level == levelId.id }
+    val chapterScore = highScores.chapterScores[levelId.chapter]
     GameEndMenu(
         soundManager = soundManager,
         didWin = didWin,
-        scoreInfo = gameState.toScoreInfo(levelScore),
+        scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
         startGameAction = nextGameAction,
     )
 }
 
 private fun GameState.toScoreInfo(
-    levelScore: HighScores.LevelScore?
+    levelScore: HighScores.LevelScore?,
+    chapterScore: Int?,
 ): ScoreInfo =
     ScoreInfo(
         remainingSeconds = remainingSeconds,
@@ -231,4 +234,5 @@ private fun GameState.toScoreInfo(
         totalScore = scoreData.totalScore,
         levelScoreRecord = levelScore?.highestScore,
         levelTimeRecord = levelScore?.mostSecondsRemaining,
+        chapterScoreRecord = chapterScore,
     )

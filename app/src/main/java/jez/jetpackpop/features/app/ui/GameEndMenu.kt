@@ -40,6 +40,7 @@ data class ScoreInfo(
     val totalScore: Int,
     val levelScoreRecord: Int?,
     val levelTimeRecord: Int?,
+    val chapterScoreRecord: Int?,
 )
 
 @Composable
@@ -122,7 +123,11 @@ private fun ScoreReadout(scoreInfo: ScoreInfo) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        ScoreRow(stringResource(R.string.game_end_heading_total_score), scoreInfo.totalScore)
+        ScoreRow(
+            stringResource(R.string.game_end_heading_total_score),
+            scoreInfo.totalScore,
+            isRecord = scoreInfo.totalScore >= (scoreInfo.chapterScoreRecord ?: 0)
+        )
         ScoreRow(
             stringResource(R.string.game_end_heading_level_score),
             scoreInfo.levelScore,

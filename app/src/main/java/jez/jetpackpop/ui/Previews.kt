@@ -37,6 +37,7 @@ fun PreviewGameEndMenuWin() {
                 totalScore = 200,
                 levelScoreRecord = 5,
                 levelTimeRecord = 8,
+                chapterScoreRecord = 150,
             )
         ) {}
     }
@@ -55,6 +56,7 @@ fun PreviewGameEndMenuLose() {
                 totalScore = 200,
                 levelScoreRecord = 15,
                 levelTimeRecord = 2,
+                chapterScoreRecord = null,
             )
         ) {}
     }
