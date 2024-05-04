@@ -5,8 +5,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.NoOpSoundManager
 import jez.jetpackpop.features.app.ui.ChapterSelectButtonModel
-import jez.jetpackpop.features.app.ui.MainMenu
 import jez.jetpackpop.features.app.ui.GameEndMenu
+import jez.jetpackpop.features.app.ui.MainMenu
+import jez.jetpackpop.features.app.ui.ScoreInfo
 import jez.jetpackpop.features.app.ui.VictoryMenu
 
 
@@ -30,6 +31,13 @@ fun PreviewGameEndMenuWin() {
         GameEndMenu(
             soundManager = NoOpSoundManager(),
             didWin = true,
+            scoreInfo = ScoreInfo(
+                remainingSeconds = 5,
+                levelScore = 10,
+                totalScore = 200,
+                isNewHighScore = true,
+                isNewTimeRecord = true,
+            )
         ) {}
     }
 }
@@ -41,6 +49,13 @@ fun PreviewGameEndMenuLose() {
         GameEndMenu(
             soundManager = NoOpSoundManager(),
             didWin = false,
+            scoreInfo = ScoreInfo(
+                remainingSeconds = 5,
+                levelScore = 10,
+                totalScore = 200,
+                isNewHighScore = false,
+                isNewTimeRecord = false,
+            )
         ) {}
     }
 }

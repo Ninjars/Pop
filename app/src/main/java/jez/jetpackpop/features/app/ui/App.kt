@@ -25,6 +25,7 @@ import jez.jetpackpop.features.app.model.app.ActiveScreen
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
+import jez.jetpackpop.features.app.model.game.GameState
 import jez.jetpackpop.features.app.ui.game.GameScreen
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
@@ -54,6 +55,7 @@ fun App(
             UI(
                 soundManager = soundManager,
                 appState = appState.value,
+                gameStateProvider = { gameState.value },
                 appEventFlow = appEventFlow,
             )
         }
@@ -64,6 +66,7 @@ fun App(
 fun UI(
     soundManager: SoundManager,
     appState: AppState,
+    gameStateProvider: () -> GameState,
     appEventFlow: MutableSharedFlow<AppInputEvent>,
 ) {
     val backgroundColor = animateColorAsState(
@@ -111,7 +114,12 @@ fun UI(
             enter = fadeIn().plus(slideInVertically { it / 2 }),
             exit = fadeOut().plus(slideOutVertically { it }),
         ) {
-            ChapterComplete(soundManager) {
+            ChapterComplete(
+                soundManager,
+                appState.highScores.chapterScores,
+                appState.highScores.levelScores,
+                gameStateProvider,
+            ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
                 appEventFlow.tryEmit(
                     AppInputEvent.StartNextChapter(
@@ -130,6 +138,8 @@ fun UI(
             LevelEnd(
                 soundManager,
                 appState.hasWonActiveGame,
+                appState.highScores.levelScores,
+                gameStateProvider,
             ) {
                 soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
                 appEventFlow.tryEmit(
@@ -177,11 +187,18 @@ private fun ShowMainMenu(
 @Composable
 private fun ChapterComplete(
     soundManager: SoundManager,
+    chapterScores: Map<GameChapter, Int>,
+    levelScores: Map<GameChapter, List<HighScores.LevelScore>>,
+    gameStateProvider: () -> GameState,
     nextGameAction: () -> Unit
 ) {
+    val gameState = gameStateProvider()
+    val levelScore = levelScores[gameState.config.id.chapter]
+        ?.firstOrNull { it.level == gameState.config.id.id }
     GameEndMenu(
         soundManager = soundManager,
         didWin = true,
+        scoreInfo = gameState.toScoreInfo(gameState.remainingSeconds, levelScore),
         startGameAction = nextGameAction
     )
 }
@@ -190,11 +207,29 @@ private fun ChapterComplete(
 private fun LevelEnd(
     soundManager: SoundManager,
     didWin: Boolean,
+    levelScores: Map<GameChapter, List<HighScores.LevelScore>>,
+    gameStateProvider: () -> GameState,
     nextGameAction: () -> Unit
 ) {
+    val gameState = gameStateProvider()
+    val levelScore = levelScores[gameState.config.id.chapter]
+        ?.firstOrNull { it.level == gameState.config.id.id }
     GameEndMenu(
         soundManager = soundManager,
         didWin = didWin,
+        scoreInfo = gameState.toScoreInfo(gameState.remainingSeconds, levelScore),
         startGameAction = nextGameAction
     )
 }
+
+private fun GameState.toScoreInfo(
+    secondsRemaining: Int,
+    levelScore: HighScores.LevelScore?
+): ScoreInfo =
+    ScoreInfo(
+        remainingSeconds = remainingSeconds,
+        levelScore = scoreData.gameScore,
+        totalScore = scoreData.totalScore,
+        isNewHighScore = scoreData.gameScore >= (levelScore?.highestScore ?: 0),
+        isNewTimeRecord = secondsRemaining >= (levelScore?.mostSecondsRemaining ?: 0)
+    )
