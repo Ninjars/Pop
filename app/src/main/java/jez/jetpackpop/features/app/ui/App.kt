@@ -4,8 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -84,8 +84,8 @@ fun UI(
     ) {
         AnimatedVisibility(
             visible = appState.activeScreen == ActiveScreen.MainMenu,
-            enter = fadeIn().plus(slideInVertically { it / 2 }),
-            exit = fadeOut().plus(slideOutVertically { it }),
+            enter = fadeIn().plus(scaleIn(initialScale = 2f)),
+            exit = fadeOut().plus(scaleOut(targetScale = 2f)),
         ) {
             ShowMainMenu(
                 appState.highScores,
@@ -101,8 +101,8 @@ fun UI(
 
         AnimatedVisibility(
             visible = appState.activeScreen == ActiveScreen.Victory,
-            enter = fadeIn().plus(slideInVertically { it / 2 }),
-            exit = fadeOut().plus(slideOutVertically { it }),
+            enter = fadeIn().plus(scaleIn(initialScale = 2f)),
+            exit = fadeOut().plus(scaleOut(targetScale = 2f)),
         ) {
             VictoryMenu(
                 mainMenuAction = {
@@ -114,8 +114,8 @@ fun UI(
 
         AnimatedVisibility(
             visible = appState.activeScreen == ActiveScreen.ChapterComplete,
-            enter = fadeIn().plus(slideInVertically { it / 2 }),
-            exit = fadeOut().plus(slideOutVertically { it }),
+            enter = fadeIn().plus(scaleIn(initialScale = 2f)),
+            exit = fadeOut().plus(scaleOut(targetScale = 2f)),
         ) {
             ChapterComplete(
                 soundManager,
@@ -134,8 +134,8 @@ fun UI(
 
         AnimatedVisibility(
             visible = appState.activeScreen == ActiveScreen.GameEnd,
-            enter = fadeIn().plus(slideInVertically { it / 2 }),
-            exit = fadeOut().plus(slideOutVertically { it }),
+            enter = fadeIn().plus(scaleIn(initialScale = 2f)),
+            exit = fadeOut().plus(scaleOut(targetScale = 2f)),
         ) {
             LevelEnd(
                 soundManager,
