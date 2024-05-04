@@ -35,8 +35,8 @@ fun PreviewGameEndMenuWin() {
                 remainingSeconds = 5,
                 levelScore = 10,
                 totalScore = 200,
-                isNewHighScore = true,
-                isNewTimeRecord = true,
+                levelScoreRecord = 5,
+                levelTimeRecord = 8,
             )
         ) {}
     }
@@ -53,8 +53,8 @@ fun PreviewGameEndMenuLose() {
                 remainingSeconds = 5,
                 levelScore = 10,
                 totalScore = 200,
-                isNewHighScore = false,
-                isNewTimeRecord = false,
+                levelScoreRecord = 15,
+                levelTimeRecord = 2,
             )
         ) {}
     }

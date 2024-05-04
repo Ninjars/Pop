@@ -1,12 +1,30 @@
 package jez.jetpackpop.features.app.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.dp
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
@@ -14,13 +32,14 @@ import jez.jetpackpop.ui.PopMegaButton
 import jez.jetpackpop.ui.ScreenScaffold
 import jez.jetpackpop.ui.lose
 import jez.jetpackpop.ui.win
+import kotlin.math.max
 
 data class ScoreInfo(
     val remainingSeconds: Int,
     val levelScore: Int,
     val totalScore: Int,
-    val isNewHighScore: Boolean,
-    val isNewTimeRecord: Boolean,
+    val levelScoreRecord: Int?,
+    val levelTimeRecord: Int?,
 )
 
 @Composable
@@ -56,8 +75,117 @@ fun GameEndMenu(
                     modifier = it,
                 ) { startGameAction() }
             }
+        },
+        bottomSection =
+        if (didWin) {
+            { ScoreReadout(scoreInfo) }
+        } else {
+            if (scoreInfo.levelScoreRecord != null || scoreInfo.levelTimeRecord != null) {
+                {
+                    HighScoreReadout(
+                        scoreInfo.levelScoreRecord,
+                        scoreInfo.levelTimeRecord,
+                    )
+                }
+            } else {
+                null
+            }
         }
     )
+}
+
+@Composable
+private fun HighScoreReadout(
+    levelScoreRecord: Int?,
+    levelTimeRecord: Int?,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        levelScoreRecord?.let {
+            ScoreRow(
+                stringResource(R.string.game_end_heading_level_score_record),
+                it,
+            )
+        }
+        levelTimeRecord?.let {
+            ScoreRow(
+                stringResource(R.string.game_end_heading_remaining_time_record),
+                it,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ScoreReadout(scoreInfo: ScoreInfo) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        ScoreRow(stringResource(R.string.game_end_heading_total_score), scoreInfo.totalScore)
+        ScoreRow(
+            stringResource(R.string.game_end_heading_level_score),
+            scoreInfo.levelScore,
+            isRecord = scoreInfo.levelScore >= (scoreInfo.levelScoreRecord ?: 0),
+        )
+        ScoreRow(
+            stringResource(R.string.game_end_heading_remaining_time),
+            scoreInfo.remainingSeconds,
+            isRecord = scoreInfo.remainingSeconds >= (scoreInfo.levelTimeRecord ?: 0),
+        )
+    }
+}
+
+@Composable
+private fun ScoreRow(
+    label: String,
+    score: Int,
+    isRecord: Boolean = false,
+) {
+    Row(
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        var maxBaseline by remember { mutableFloatStateOf(0f) }
+        fun updateMaxBaseline(textLayoutResult: TextLayoutResult) {
+            maxBaseline =
+                max(maxBaseline, textLayoutResult.size.height - textLayoutResult.lastBaseline)
+        }
+
+        val topBaselinePadding = with(LocalDensity.current) { maxBaseline.toDp() }
+        Text(
+            text = label,
+            onTextLayout = ::updateMaxBaseline,
+            modifier = Modifier.paddingFromBaseline(bottom = topBaselinePadding)
+        )
+        Spacer(
+            modifier = Modifier
+                .padding(topBaselinePadding)
+                .weight(1f)
+                .height(1.dp)
+                .background(LocalContentColor.current)
+
+        )
+        if (isRecord) {
+            Text(
+                text = stringResource(R.string.game_end_new_record),
+                onTextLayout = ::updateMaxBaseline,
+                modifier = Modifier.paddingFromBaseline(bottom = topBaselinePadding)
+            )
+            Spacer(
+                modifier = Modifier
+                    .padding(topBaselinePadding)
+                    .weight(1f)
+                    .height(1.dp)
+                    .background(LocalContentColor.current)
+
+            )
+        }
+        Text(
+            text = score.toString(),
+            onTextLayout = ::updateMaxBaseline,
+            modifier = Modifier.paddingFromBaseline(bottom = topBaselinePadding)
+        )
+    }
 }
 
 @Composable

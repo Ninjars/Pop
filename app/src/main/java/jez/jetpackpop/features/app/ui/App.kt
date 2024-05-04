@@ -198,8 +198,8 @@ private fun ChapterComplete(
     GameEndMenu(
         soundManager = soundManager,
         didWin = true,
-        scoreInfo = gameState.toScoreInfo(gameState.remainingSeconds, levelScore),
-        startGameAction = nextGameAction
+        scoreInfo = gameState.toScoreInfo(levelScore),
+        startGameAction = nextGameAction,
     )
 }
 
@@ -217,19 +217,18 @@ private fun LevelEnd(
     GameEndMenu(
         soundManager = soundManager,
         didWin = didWin,
-        scoreInfo = gameState.toScoreInfo(gameState.remainingSeconds, levelScore),
-        startGameAction = nextGameAction
+        scoreInfo = gameState.toScoreInfo(levelScore),
+        startGameAction = nextGameAction,
     )
 }
 
 private fun GameState.toScoreInfo(
-    secondsRemaining: Int,
     levelScore: HighScores.LevelScore?
 ): ScoreInfo =
     ScoreInfo(
         remainingSeconds = remainingSeconds,
         levelScore = scoreData.gameScore,
         totalScore = scoreData.totalScore,
-        isNewHighScore = scoreData.gameScore >= (levelScore?.highestScore ?: 0),
-        isNewTimeRecord = secondsRemaining >= (levelScore?.mostSecondsRemaining ?: 0)
+        levelScoreRecord = levelScore?.highestScore,
+        levelTimeRecord = levelScore?.mostSecondsRemaining,
     )
