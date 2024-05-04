@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">POP</string>
     <string name="main_menu_title">POP</string>
-    <string name="main_menu_chap_1">TAP ATTACK</string>
-    <string name="main_menu_chap_2">DECOY DODGE</string>
-    <string name="main_menu_chap_3">SPLITTERS</string>
+    <string name="chapter_title_simple_single">Get Popping</string>
+    <string name="chapter_title_simple_decoy">Obstruction</string>
+    <string name="chapter_title_splitter">Multitudes</string>
+    <string name="chapter_title_simple_single_hard">Pop Harder</string>
+    <string name="chapter_title_simple_decoy_hard">Instincts</string>
+    <string name="chapter_title_splitter_hard">The Horde</string>
     <string name="game_end_lose_title">BOO!</string>
     <string name="game_end_lose_cta">RETRY</string>
     <string name="game_end_win_title">WOO!</string>

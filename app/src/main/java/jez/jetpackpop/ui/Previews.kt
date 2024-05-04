@@ -18,7 +18,7 @@ fun PreviewMainMenu() {
     AppTheme {
         MainMenu(
             chapterSelectButtonModels = listOf(
-                ChapterSelectButtonModel(R.string.main_menu_chap_1, 10) {}
+                ChapterSelectButtonModel(R.string.chapter_title_simple_single, 10) {}
             ),
             startAction = {},
         )

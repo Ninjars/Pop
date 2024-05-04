@@ -1,10 +1,10 @@
 package jez.jetpackpop.features.app.domain
 
+import androidx.compose.ui.util.lerp
 import jez.jetpackpop.features.app.domain.TargetConfiguration.ClickResult.SCORE
 import jez.jetpackpop.features.app.domain.TargetConfiguration.ClickResult.SPLIT
 
-private const val CHAPTER_LEVEL_COUNT = 6
-private const val LEVEL_DURATION = 10f
+private const val CHAPTER_LEVEL_COUNT = 5
 
 private fun getProgressionFraction(count: Int, position: Int): Float {
     val inverseFraction: Float =
@@ -12,79 +12,149 @@ private fun getProgressionFraction(count: Int, position: Int): Float {
     return 1f - inverseFraction
 }
 
-val gameConfigurations = hashMapOf(
-    GameChapter.SIMPLE_SINGLE to (0 until CHAPTER_LEVEL_COUNT)
+val gameConfigurations: Map<GameChapter, List<GameConfiguration>> =
+    GameChapter.entries.associateWith { chapter ->
+        when (chapter) {
+            GameChapter.SIMPLE_SINGLE -> chapter.buildSimpleSingleChapter(hardMode = false)
+            GameChapter.SIMPLE_DECOY -> chapter.buildSimpleDecoyChapter(hardMode = false)
+            GameChapter.SPLITTER -> chapter.buildSplitterChapter(hardMode = false)
+            GameChapter.SIMPLE_SINGLE_HARD -> chapter.buildSimpleSingleChapter(hardMode = true)
+            GameChapter.SIMPLE_DECOY_HARD -> chapter.buildSimpleDecoyChapter(hardMode = true)
+            GameChapter.SPLITTER_HARD -> chapter.buildSplitterChapter(hardMode = true)
+        }
+    }
+
+private fun GameChapter.buildSimpleSingleChapter(hardMode: Boolean): List<GameConfiguration> {
+    val initialDuration = 10f
+    val finalDuration = if (hardMode) 15f else 10f
+
+    return (0 until CHAPTER_LEVEL_COUNT)
         .map { index ->
             val progressFraction = getProgressionFraction(
                 CHAPTER_LEVEL_COUNT,
                 index
             )
             GameConfiguration(
-                id = GameConfigId(GameChapter.SIMPLE_SINGLE, index),
-                timeLimitSeconds = LEVEL_DURATION,
+                id = GameConfigId(this, index),
+                timeLimitSeconds = lerp(initialDuration, finalDuration, progressFraction),
                 targetConfigurations = listOf(
-                    TargetConfiguration(
+                    buildTargetConfiguration(
                         type = TargetType.TARGET,
-                        radius = 40 - 14 * progressFraction,
-                        count = (6 + 18 * progressFraction).toInt(),
-                        minSpeed = 20 + 65 * progressFraction,
-                        maxSpeed = 30 + 90 * progressFraction,
                         clickResult = SCORE,
-                    )
+                        progressFraction = progressFraction,
+                        initialRadius = if (hardMode) 40f else 50f,
+                        finalRadius = if (hardMode) 30f else 40f,
+                        initialCount = if (hardMode) 12 else 6,
+                        finalCount = if (hardMode) 28 else 18,
+                        initialMinSpeed = if (hardMode) 35f else 30f,
+                        finalMinSpeed = if (hardMode) 90f else 80f,
+                        initialMaxSpeed = if (hardMode) 50f else 40f,
+                        finalMaxSpeed = if (hardMode) 180f else 120f,
+                    ),
                 ),
                 isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
             )
-        },
-    GameChapter.SIMPLE_DECOY to (0 until CHAPTER_LEVEL_COUNT)
+        }
+}
+
+private fun GameChapter.buildSimpleDecoyChapter(hardMode: Boolean): List<GameConfiguration> {
+    val initialDuration = 10f
+    val finalDuration = if (hardMode) 20f else 10f
+
+    return (0 until CHAPTER_LEVEL_COUNT)
         .map { index ->
             val progressFraction = getProgressionFraction(
                 CHAPTER_LEVEL_COUNT,
                 index
             )
             GameConfiguration(
-                id = GameConfigId(GameChapter.SIMPLE_DECOY, index),
-                timeLimitSeconds = LEVEL_DURATION,
+                id = GameConfigId(this, index),
+                timeLimitSeconds = lerp(initialDuration, finalDuration, progressFraction),
                 targetConfigurations = listOf(
-                    TargetConfiguration(
+                    buildTargetConfiguration(
                         type = TargetType.TARGET,
-                        radius = 36 - 10 * progressFraction,
-                        count = (6 + 12 * progressFraction).toInt(),
-                        minSpeed = 30 + 65 * progressFraction,
-                        maxSpeed = 40 + 80 * progressFraction,
                         clickResult = SCORE,
+                        progressFraction = progressFraction,
+                        initialRadius = if (hardMode) 40f else 50f,
+                        finalRadius = if (hardMode) 30f else 40f,
+                        initialCount = if (hardMode) 10 else 6,
+                        finalCount = if (hardMode) 20 else 18,
+                        initialMinSpeed = if (hardMode) 35f else 30f,
+                        finalMinSpeed = if (hardMode) 90f else 80f,
+                        initialMaxSpeed = if (hardMode) 50f else 40f,
+                        finalMaxSpeed = if (hardMode) 180f else 120f,
                     ),
-                    TargetConfiguration(
+                    buildTargetConfiguration(
                         type = TargetType.DECOY,
-                        radius = 80f,
-                        count = (2 + 3 * progressFraction).toInt(),
-                        minSpeed = 20 + 30 * progressFraction,
-                        maxSpeed = 25 + 50 * progressFraction,
                         clickResult = null,
+                        progressFraction = progressFraction,
+                        initialRadius = if (hardMode) 50f else 80f,
+                        finalRadius = if (hardMode) 100f else 80f,
+                        initialCount = if (hardMode) 5 else 2,
+                        finalCount = if (hardMode) 6 else 3,
+                        initialMinSpeed = if (hardMode) 40f else 20f,
+                        finalMinSpeed = if (hardMode) 80f else 50f,
+                        initialMaxSpeed = if (hardMode) 50f else 30f,
+                        finalMaxSpeed = if (hardMode) 100f else 80f,
                     ),
                 ),
                 isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
             )
-        },
-    GameChapter.SPLITTER to (0 until CHAPTER_LEVEL_COUNT)
+        }
+}
+
+private fun GameChapter.buildSplitterChapter(hardMode: Boolean): List<GameConfiguration> {
+    val initialDuration = 10f
+    val finalDuration = if (hardMode) 18f else 15f
+
+    return (0 until CHAPTER_LEVEL_COUNT)
         .map { index ->
             val progressFraction = getProgressionFraction(
                 CHAPTER_LEVEL_COUNT,
                 index
             )
             GameConfiguration(
-                id = GameConfigId(GameChapter.SPLITTER, index),
-                timeLimitSeconds = LEVEL_DURATION,
+                id = GameConfigId(this, index),
+                timeLimitSeconds = lerp(initialDuration, finalDuration, progressFraction),
                 targetConfigurations = listOf(
-                    TargetConfiguration(
+
+                    buildTargetConfiguration(
                         type = TargetType.TARGET,
-                        radius = 42 - 6 * progressFraction,
-                        count = (3 + 6 * progressFraction).toInt(),
-                        minSpeed = 30 + 50 * progressFraction,
-                        maxSpeed = 40 + 70 * progressFraction,
                         clickResult = SPLIT,
+                        progressFraction = progressFraction,
+                        initialRadius = if (hardMode) 45f else 50f,
+                        finalRadius = if (hardMode) 36f else 40f,
+                        initialCount = if (hardMode) 6 else 3,
+                        finalCount = if (hardMode) 12 else 9,
+                        initialMinSpeed = if (hardMode) 40f else 30f,
+                        finalMinSpeed = if (hardMode) 70f else 60f,
+                        initialMaxSpeed = if (hardMode) 80f else 40f,
+                        finalMaxSpeed = if (hardMode) 150f else 100f,
                     )
                 ),
                 isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
             )
         }
-)
+}
+
+private fun buildTargetConfiguration(
+    type: TargetType,
+    clickResult: TargetConfiguration.ClickResult?,
+    progressFraction: Float,
+    initialRadius: Float,
+    finalRadius: Float,
+    initialCount: Int,
+    finalCount: Int,
+    initialMinSpeed: Float,
+    finalMinSpeed: Float,
+    initialMaxSpeed: Float,
+    finalMaxSpeed: Float,
+) =
+    TargetConfiguration(
+        type = type,
+        radius = lerp(initialRadius, finalRadius, progressFraction),
+        count = lerp(initialCount, finalCount, progressFraction),
+        minSpeed = lerp(initialMinSpeed, finalMinSpeed, progressFraction),
+        maxSpeed = lerp(initialMaxSpeed, finalMaxSpeed, progressFraction),
+        clickResult = clickResult,
+    )

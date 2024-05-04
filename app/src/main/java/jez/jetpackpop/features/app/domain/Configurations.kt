@@ -48,6 +48,9 @@ enum class GameChapter(val persistenceName: String) {
     SIMPLE_SINGLE("SIMPLE"),
     SIMPLE_DECOY("MASKED"),
     SPLITTER("SPLITTER"),
+    SIMPLE_SINGLE_HARD("SIMPLE_2"),
+    SIMPLE_DECOY_HARD("MASKED_2"),
+    SPLITTER_HARD("SPLITTER_2"),
     ;
 
     fun getNextChapter(): GameChapter? {
