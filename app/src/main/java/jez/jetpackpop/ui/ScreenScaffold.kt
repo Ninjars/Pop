@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ScreenScaffold(
-    centralSection: @Composable (Modifier) -> Unit,
-    bottomSection: @Composable (() -> Unit)? = null,
+    middleSlot: @Composable (Modifier) -> Unit,
+    bottomSlot: @Composable (() -> Unit)? = null,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -26,12 +26,12 @@ fun ScreenScaffold(
             .padding(horizontal = 24.dp)
             .fillMaxSize()
     ) {
-        centralSection(
+        middleSlot(
             Modifier
                 .fillMaxWidth(0.8f)
                 .weight(1f)
         )
-        bottomSection?.let {
+        bottomSlot?.let {
             Surface(
                 color = MaterialTheme.colors.secondary,
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),

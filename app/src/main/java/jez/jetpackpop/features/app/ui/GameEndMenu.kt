@@ -60,7 +60,7 @@ fun GameEndMenu(
         )
     }
     ScreenScaffold(
-        centralSection = {
+        middleSlot = {
             if (didWin) {
                 DisplayMenu(
                     color = MaterialTheme.colors.win,
@@ -77,7 +77,7 @@ fun GameEndMenu(
                 ) { startGameAction() }
             }
         },
-        bottomSection =
+        bottomSlot =
         if (didWin) {
             { ScoreReadout(scoreInfo) }
         } else {

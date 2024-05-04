@@ -36,14 +36,14 @@ fun MainMenu(
     val visibleButtonModels = chapterSelectButtonModels.filter { it.highScore != null }
 
     ScreenScaffold(
-        centralSection = {
+        middleSlot = {
             PopMegaButton(
                 mainText = R.string.main_menu_title,
                 onClick = startAction,
                 modifier = it,
             )
         },
-        bottomSection = if (visibleButtonModels.isEmpty()) {
+        bottomSlot = if (visibleButtonModels.isEmpty()) {
             null
         } else {
             {

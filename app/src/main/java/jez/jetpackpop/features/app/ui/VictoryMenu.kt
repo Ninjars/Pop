@@ -17,14 +17,14 @@ fun VictoryMenu(
     mainMenuAction: () -> Unit,
 ) {
     ScreenScaffold(
-        centralSection = {
+        middleSlot = {
             PopMegaButton(
                 mainText = R.string.victory_title,
                 onClick = mainMenuAction,
                 modifier = it
             )
         },
-        bottomSection = {
+        bottomSlot = {
             Button(
                 shape = CircleShape,
                 modifier = Modifier
