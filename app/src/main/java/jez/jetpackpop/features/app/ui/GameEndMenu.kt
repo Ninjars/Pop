@@ -123,7 +123,7 @@ private fun TopReadout(levelInfo: LevelInfo) {
                 text = stringResource(R.string.game_end_heading_level),
             )
             Text(
-                text = "${levelInfo.currentLevel}/${levelInfo.totalLevels}"
+                text = "${levelInfo.currentLevel + 1}/${levelInfo.totalLevels}"
             )
         }
     }
