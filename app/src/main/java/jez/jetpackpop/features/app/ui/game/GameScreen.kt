@@ -41,7 +41,7 @@ fun GameScreen(
             targets = gameState.targets,
         )
         AnimatedVisibility(
-            visible = !gameState.gameHasEnded,
+            visible = gameState.remainingTime >= 0 && !gameState.gameHasEnded,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
