@@ -52,15 +52,15 @@ enum class GameChapter(val persistenceName: String) {
 
     fun getNextChapter(): GameChapter? {
         val nextOrdinal = ordinal + 1
-        return if (nextOrdinal >= values().size)
+        return if (nextOrdinal >= entries.size)
             null
         else
-            values()[nextOrdinal]
+            entries[nextOrdinal]
     }
 
     companion object {
         fun withName(name: String) =
-            values().find { it.persistenceName == name }
+            entries.find { it.persistenceName == name }
                 ?: throw IllegalArgumentException("No GamChapter map for $name found")
     }
 }

@@ -6,6 +6,7 @@ import jez.jetpackpop.R
 import jez.jetpackpop.audio.NoOpSoundManager
 import jez.jetpackpop.features.app.ui.ChapterSelectButtonModel
 import jez.jetpackpop.features.app.ui.GameEndMenu
+import jez.jetpackpop.features.app.ui.LevelInfo
 import jez.jetpackpop.features.app.ui.MainMenu
 import jez.jetpackpop.features.app.ui.ScoreInfo
 import jez.jetpackpop.features.app.ui.VictoryMenu
@@ -38,7 +39,12 @@ fun PreviewGameEndMenuWin() {
                 levelScoreRecord = 5,
                 levelTimeRecord = 8,
                 chapterScoreRecord = 150,
-            )
+            ),
+            levelInfo = LevelInfo(
+                chapterName = "Chapter Name",
+                totalLevels = 5,
+                currentLevel = 3,
+            ),
         ) {}
     }
 }
@@ -57,7 +63,12 @@ fun PreviewGameEndMenuLose() {
                 levelScoreRecord = 15,
                 levelTimeRecord = 2,
                 chapterScoreRecord = null,
-            )
+            ),
+            levelInfo = LevelInfo(
+                chapterName = "Chapter Name",
+                totalLevels = 5,
+                currentLevel = 3,
+            ),
         ) {}
     }
 }

@@ -15,10 +15,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import jez.jetpackpop.R
+import androidx.compose.ui.res.stringResource
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.domain.GameChapter
+import jez.jetpackpop.features.app.domain.GameConfigId
+import jez.jetpackpop.features.app.domain.gameConfigurations
 import jez.jetpackpop.features.app.domain.getFirstGameConfiguration
 import jez.jetpackpop.features.app.model.AppViewModel
 import jez.jetpackpop.features.app.model.app.ActiveScreen
@@ -30,6 +32,7 @@ import jez.jetpackpop.features.app.ui.game.GameScreen
 import jez.jetpackpop.features.highscore.HighScores
 import jez.jetpackpop.ui.AppTheme
 import jez.jetpackpop.ui.overlay
+import jez.jetpackpop.ui.toTitleRes
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
@@ -164,11 +167,7 @@ private fun ShowMainMenu(
 ) {
     val chapterButtonModels = GameChapter.entries.map {
         ChapterSelectButtonModel(
-            when (it) {
-                GameChapter.SIMPLE_SINGLE -> R.string.main_menu_chap_1
-                GameChapter.SIMPLE_DECOY -> R.string.main_menu_chap_2
-                GameChapter.SPLITTER -> R.string.main_menu_chap_3
-            },
+            it.toTitleRes(),
             highScores.chapterScores[it]
         ) {
             chapterSelectAction(it)
@@ -199,6 +198,7 @@ private fun ChapterComplete(
         soundManager = soundManager,
         didWin = true,
         scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
+        levelInfo = levelId.toLevelInfo(),
         startGameAction = nextGameAction,
     )
 }
@@ -220,6 +220,7 @@ private fun LevelEnd(
         soundManager = soundManager,
         didWin = didWin,
         scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
+        levelInfo = levelId.toLevelInfo(),
         startGameAction = nextGameAction,
     )
 }
@@ -235,4 +236,12 @@ private fun GameState.toScoreInfo(
         levelScoreRecord = levelScore?.highestScore,
         levelTimeRecord = levelScore?.mostSecondsRemaining,
         chapterScoreRecord = chapterScore,
+    )
+
+@Composable
+private fun GameConfigId.toLevelInfo() =
+    LevelInfo(
+        chapterName = stringResource(chapter.toTitleRes()),
+        totalLevels = gameConfigurations[chapter]?.size ?: 0,
+        currentLevel = id,
     )

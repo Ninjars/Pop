@@ -2,6 +2,7 @@ package jez.jetpackpop.features.app.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,11 +44,18 @@ data class ScoreInfo(
     val chapterScoreRecord: Int?,
 )
 
+data class LevelInfo(
+    val chapterName: String,
+    val totalLevels: Int,
+    val currentLevel: Int,
+)
+
 @Composable
 fun GameEndMenu(
     soundManager: SoundManager,
     didWin: Boolean,
     scoreInfo: ScoreInfo,
+    levelInfo: LevelInfo,
     startGameAction: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
@@ -60,6 +68,7 @@ fun GameEndMenu(
         )
     }
     ScreenScaffold(
+        topSlot = { TopReadout(levelInfo) },
         middleSlot = {
             if (didWin) {
                 DisplayMenu(
@@ -93,6 +102,31 @@ fun GameEndMenu(
             }
         }
     )
+}
+
+@Composable
+private fun TopReadout(levelInfo: LevelInfo) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(R.string.game_end_heading_chapter),
+        )
+        Text(
+            text = levelInfo.chapterName,
+            style = MaterialTheme.typography.h4,
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.game_end_heading_level),
+            )
+            Text(
+                text = "${levelInfo.currentLevel}/${levelInfo.totalLevels}"
+            )
+        }
+    }
 }
 
 @Composable

@@ -13,6 +13,8 @@
     <string name="game_end_heading_remaining_time">Seconds Left</string>
     <string name="game_end_heading_level_score_record">Level Score Record</string>
     <string name="game_end_heading_remaining_time_record">Seconds Left Record</string>
+    <string name="game_end_heading_chapter">Chapter</string>
+    <string name="game_end_heading_level">Level</string>
     <string name="game_end_new_record">NEW RECORD!</string>
     <string name="victory_title">YOU WON</string>
     <string name="victory_next_game">NEXT ROUND</string>
