@@ -146,6 +146,7 @@ private fun HighScoreReadout(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(16.dp)
     ) {
         levelScoreRecord?.let {
             ScoreRow(
@@ -166,6 +167,7 @@ private fun HighScoreReadout(
 private fun ScoreReadout(scoreInfo: ScoreInfo) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(16.dp)
     ) {
         ScoreRow(
             stringResource(R.string.game_end_heading_total_score),

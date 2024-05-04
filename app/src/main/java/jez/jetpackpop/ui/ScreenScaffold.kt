@@ -53,8 +53,6 @@ fun ScreenScaffold(
             ) {
                 Box(
                     contentAlignment = Alignment.BottomCenter,
-                    modifier = Modifier
-                        .padding(16.dp)
                 ) {
                     it()
                 }
