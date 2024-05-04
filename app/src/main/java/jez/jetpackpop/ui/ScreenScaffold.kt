@@ -1,6 +1,5 @@
 package jez.jetpackpop.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,16 +32,17 @@ fun ScreenScaffold(
                 .weight(1f)
         )
         bottomSection?.let {
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colors.secondary,
-                        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                    )
-                    .padding(16.dp)
+            Surface(
+                color = MaterialTheme.colors.secondary,
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             ) {
-                it()
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier
+                        .padding(16.dp)
+                ) {
+                    it()
+                }
             }
         }
     }
