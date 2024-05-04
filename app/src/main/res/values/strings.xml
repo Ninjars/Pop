@@ -5,9 +5,9 @@
     <string name="main_menu_chap_2">DECOY DODGE</string>
     <string name="main_menu_chap_3">SPLITTERS</string>
     <string name="game_end_lose_title">BOO!</string>
-    <string name="game_end_lose_start">RETRY</string>
+    <string name="game_end_lose_cta">RETRY</string>
     <string name="game_end_win_title">WOO!</string>
-    <string name="game_end_win_start">NEXT</string>
+    <string name="game_end_win_cta">NEXT</string>
     <string name="game_end_heading_total_score">Chapter Score</string>
     <string name="game_end_heading_level_score">Level Score</string>
     <string name="game_end_heading_remaining_time">Seconds Left</string>
@@ -16,7 +16,6 @@
     <string name="game_end_heading_chapter">Chapter</string>
     <string name="game_end_heading_level">Level</string>
     <string name="game_end_new_record">RECORD!</string>
-    <string name="victory_title">YOU WON</string>
-    <string name="victory_next_game">NEXT ROUND</string>
+    <string name="victory_title">YOU WON!</string>
     <string name="victory_menu">MENU</string>
 </resources>

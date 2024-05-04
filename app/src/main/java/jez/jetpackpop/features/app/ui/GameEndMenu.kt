@@ -51,55 +51,63 @@ data class LevelInfo(
 )
 
 @Composable
-fun GameEndMenu(
+fun GameWinMenu(
     soundManager: SoundManager,
-    didWin: Boolean,
     scoreInfo: ScoreInfo,
     levelInfo: LevelInfo,
-    startGameAction: () -> Unit,
+    onClick: () -> Unit,
+    @StringRes titleText: Int = R.string.game_end_win_title,
+    @StringRes ctaText: Int = R.string.game_end_win_cta,
 ) {
     LaunchedEffect(Unit) {
-        soundManager.playSound(
-            if (didWin) {
-                GameSoundEffect.GAME_WIN
-            } else {
-                GameSoundEffect.GAME_LOSE
-            }
-        )
+        soundManager.playSound(GameSoundEffect.GAME_WIN)
     }
     ScreenScaffold(
         topSlot = { TopReadout(levelInfo) },
         middleSlot = {
-            if (didWin) {
-                DisplayMenu(
-                    color = MaterialTheme.colors.win,
-                    titleText = R.string.game_end_win_title,
-                    buttonText = R.string.game_end_win_start,
-                    modifier = it,
-                ) { startGameAction() }
-            } else {
-                DisplayMenu(
-                    color = MaterialTheme.colors.lose,
-                    titleText = R.string.game_end_lose_title,
-                    buttonText = R.string.game_end_lose_start,
-                    modifier = it,
-                ) { startGameAction() }
-            }
+            DisplayMenu(
+                color = MaterialTheme.colors.win,
+                titleText = titleText,
+                buttonText = ctaText,
+                modifier = it,
+                onClick = onClick,
+            )
+        },
+        bottomSlot = { ScoreReadout(scoreInfo) }
+    )
+}
+
+@Composable
+fun GameLoseMenu(
+    soundManager: SoundManager,
+    scoreInfo: ScoreInfo,
+    levelInfo: LevelInfo,
+    onClick: () -> Unit,
+) {
+    LaunchedEffect(Unit) {
+        soundManager.playSound(GameSoundEffect.GAME_LOSE)
+    }
+    ScreenScaffold(
+        topSlot = { TopReadout(levelInfo) },
+        middleSlot = {
+            DisplayMenu(
+                color = MaterialTheme.colors.lose,
+                titleText = R.string.game_end_lose_title,
+                buttonText = R.string.game_end_lose_cta,
+                modifier = it,
+                onClick = onClick,
+            )
         },
         bottomSlot =
-        if (didWin) {
-            { ScoreReadout(scoreInfo) }
-        } else {
-            if (scoreInfo.levelScoreRecord != null || scoreInfo.levelTimeRecord != null) {
-                {
-                    HighScoreReadout(
-                        scoreInfo.levelScoreRecord,
-                        scoreInfo.levelTimeRecord,
-                    )
-                }
-            } else {
-                null
+        if (scoreInfo.levelScoreRecord != null || scoreInfo.levelTimeRecord != null) {
+            {
+                HighScoreReadout(
+                    scoreInfo.levelScoreRecord,
+                    scoreInfo.levelTimeRecord,
+                )
             }
+        } else {
+            null
         }
     )
 }

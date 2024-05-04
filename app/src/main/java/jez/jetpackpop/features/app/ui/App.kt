@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import jez.jetpackpop.R
 import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.domain.GameChapter
@@ -105,10 +106,13 @@ fun UI(
             exit = fadeOut().plus(scaleOut(targetScale = 2f)),
         ) {
             VictoryMenu(
-                mainMenuAction = {
-                    appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
-                },
-            )
+                soundManager,
+                appState.highScores,
+                gameStateProvider,
+            ) {
+                soundManager.playSound(GameSoundEffect.BUTTON_TAPPED)
+                appEventFlow.tryEmit(AppInputEvent.Navigation.MainMenu)
+            }
         }
 
 
@@ -183,6 +187,28 @@ private fun ShowMainMenu(
 }
 
 @Composable
+fun VictoryMenu(
+    soundManager: SoundManager,
+    highScores: HighScores,
+    gameStateProvider: () -> GameState,
+    mainMenuAction: () -> Unit,
+) {
+    val gameState = gameStateProvider()
+    val levelId = gameState.config.id
+    val levelScore = highScores.levelScores[levelId.chapter]
+        ?.firstOrNull { it.level == levelId.id }
+    val chapterScore = highScores.chapterScores[levelId.chapter]
+    GameWinMenu(
+        soundManager = soundManager,
+        scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
+        levelInfo = levelId.toLevelInfo(),
+        onClick = mainMenuAction,
+        titleText = R.string.victory_title,
+        ctaText = R.string.victory_menu,
+    )
+}
+
+@Composable
 private fun ChapterComplete(
     soundManager: SoundManager,
     highScores: HighScores,
@@ -194,12 +220,11 @@ private fun ChapterComplete(
     val levelScore = highScores.levelScores[levelId.chapter]
         ?.firstOrNull { it.level == levelId.id }
     val chapterScore = highScores.chapterScores[levelId.chapter]
-    GameEndMenu(
+    GameWinMenu(
         soundManager = soundManager,
-        didWin = true,
         scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
         levelInfo = levelId.toLevelInfo(),
-        startGameAction = nextGameAction,
+        onClick = nextGameAction,
     )
 }
 
@@ -216,13 +241,21 @@ private fun LevelEnd(
     val levelScore = highScores.levelScores[levelId.chapter]
         ?.firstOrNull { it.level == levelId.id }
     val chapterScore = highScores.chapterScores[levelId.chapter]
-    GameEndMenu(
-        soundManager = soundManager,
-        didWin = didWin,
-        scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
-        levelInfo = levelId.toLevelInfo(),
-        startGameAction = nextGameAction,
-    )
+    if (didWin) {
+        GameWinMenu(
+            soundManager = soundManager,
+            scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
+            levelInfo = levelId.toLevelInfo(),
+            onClick = nextGameAction,
+        )
+    } else {
+        GameLoseMenu(
+            soundManager = soundManager,
+            scoreInfo = gameState.toScoreInfo(levelScore, chapterScore),
+            levelInfo = levelId.toLevelInfo(),
+            onClick = nextGameAction,
+        )
+    }
 }
 
 private fun GameState.toScoreInfo(

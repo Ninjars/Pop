@@ -5,11 +5,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import jez.jetpackpop.R
 import jez.jetpackpop.audio.NoOpSoundManager
 import jez.jetpackpop.features.app.ui.ChapterSelectButtonModel
-import jez.jetpackpop.features.app.ui.GameEndMenu
+import jez.jetpackpop.features.app.ui.GameLoseMenu
+import jez.jetpackpop.features.app.ui.GameWinMenu
 import jez.jetpackpop.features.app.ui.LevelInfo
 import jez.jetpackpop.features.app.ui.MainMenu
 import jez.jetpackpop.features.app.ui.ScoreInfo
-import jez.jetpackpop.features.app.ui.VictoryMenu
 
 
 @Preview("MainMenu")
@@ -29,9 +29,8 @@ fun PreviewMainMenu() {
 @Composable
 fun PreviewGameEndMenuWin() {
     AppTheme {
-        GameEndMenu(
+        GameWinMenu(
             soundManager = NoOpSoundManager(),
-            didWin = true,
             scoreInfo = ScoreInfo(
                 remainingSeconds = 5,
                 levelScore = 10,
@@ -45,7 +44,8 @@ fun PreviewGameEndMenuWin() {
                 totalLevels = 5,
                 currentLevel = 3,
             ),
-        ) {}
+            onClick = {},
+        )
     }
 }
 
@@ -53,9 +53,8 @@ fun PreviewGameEndMenuWin() {
 @Composable
 fun PreviewGameEndMenuLose() {
     AppTheme {
-        GameEndMenu(
+        GameLoseMenu(
             soundManager = NoOpSoundManager(),
-            didWin = false,
             scoreInfo = ScoreInfo(
                 remainingSeconds = 5,
                 levelScore = 10,
@@ -70,15 +69,5 @@ fun PreviewGameEndMenuLose() {
                 currentLevel = 3,
             ),
         ) {}
-    }
-}
-
-@Preview("Victory")
-@Composable
-fun PreviewVictory() {
-    AppTheme {
-        VictoryMenu(
-            mainMenuAction = { /* NA */ },
-        )
     }
 }
