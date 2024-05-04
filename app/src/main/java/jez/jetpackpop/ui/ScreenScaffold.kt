@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ScreenScaffold(
     middleSlot: @Composable (Modifier) -> Unit,
+    topSlot: @Composable (() -> Unit)? = null,
     bottomSlot: @Composable (() -> Unit)? = null,
 ) {
     Column(
@@ -26,6 +27,20 @@ fun ScreenScaffold(
             .padding(horizontal = 24.dp)
             .fillMaxSize()
     ) {
+        topSlot?.let {
+            Surface(
+                color = MaterialTheme.colors.secondary,
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+            ) {
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier
+                        .padding(16.dp)
+                ) {
+                    it()
+                }
+            }
+        }
         middleSlot(
             Modifier
                 .fillMaxWidth(0.8f)
