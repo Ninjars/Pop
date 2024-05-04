@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,6 +34,7 @@ import jez.jetpackpop.ui.PopMegaButton
 import jez.jetpackpop.ui.ScreenScaffold
 import jez.jetpackpop.ui.lose
 import jez.jetpackpop.ui.win
+import kotlinx.coroutines.delay
 import kotlin.math.max
 
 data class ScoreInfo(
@@ -243,6 +245,11 @@ private fun DisplayMenu(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
+    var enabled by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(750)
+        enabled = true
+    }
     PopMegaButton(
         mainText = titleText,
         subText = buttonText,
@@ -253,6 +260,7 @@ private fun DisplayMenu(
             disabledBackgroundColor = color,
             disabledContentColor = Color.White,
         ),
+        clickEnabled = enabled,
         modifier = modifier
     )
 }

@@ -41,6 +41,7 @@ fun PopMegaButton(
     modifier: Modifier = Modifier,
     @StringRes subText: Int? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
+    clickEnabled: Boolean = true,
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     val color by infiniteTransition.animateColor(
@@ -69,7 +70,9 @@ fun PopMegaButton(
         modifier = modifier.offset { IntOffset(0, position.roundToInt()) }
     ) {
         Button(
-            onClick = onClick,
+            onClick = if (clickEnabled) onClick else {
+                {}
+            },
             shape = CircleShape,
             colors = colors,
             modifier = mod,
