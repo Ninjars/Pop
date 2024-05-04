@@ -41,7 +41,6 @@ fun GameInfo(
             .fillMaxWidth()
     ) {
         Multiplier(state.scoreData.currentMultiplier)
-        ScoreReadout(state.scoreData.totalScore)
         CountdownTimer(
             remainingSeconds = state.remainingSeconds,
         )
@@ -70,18 +69,6 @@ private fun CountdownTimer(
                 .align(BiasAlignment(0f, 0.3f))
         )
     }
-}
-
-@Composable
-private fun ScoreReadout(
-    totalScore: Int,
-) {
-    AnimatedCounter(
-        count = totalScore,
-        style = MaterialTheme.typography.h3,
-        color = MaterialTheme.colors.onSurface,
-        animationSpec = softSpring,
-    )
 }
 
 @Composable

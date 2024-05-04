@@ -47,6 +47,7 @@ data class GameState(
 @Immutable
 data class CircleEffectData(
     val id: Int,
+    val score: Int?,
     val type: EffectType,
     val center: Offset,
     val startRadius: Float,

@@ -142,6 +142,7 @@ class GameLogic(
         val now = System.currentTimeMillis()
         return CircleEffectData(
             id = effectCount,
+            score = null,
             type = EffectType.MISS,
             center = position,
             startRadius = EffectRadiusMiss * 0.01f,
@@ -156,10 +157,12 @@ class GameLogic(
         position: Offset,
         radius: Float,
         targetType: TargetType,
+        score: Int,
     ): CircleEffectData {
         val now = System.currentTimeMillis()
         return CircleEffectData(
             id = effectCount,
+            score = score,
             type = when (targetType) {
                 TargetType.DECOY,
                 TargetType.TARGET -> EffectType.POP_TARGET
@@ -197,6 +200,7 @@ class GameLogic(
                 data.center,
                 data.radius,
                 data.type,
+                score = max(1, scoreData.currentMultiplier),
             )).filterNot { it.endAtMs < now },
             effectCounter = effectCounter + 1,
         )
