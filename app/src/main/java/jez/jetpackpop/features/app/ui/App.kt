@@ -9,7 +9,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -31,8 +31,8 @@ import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.model.game.GameState
 import jez.jetpackpop.features.app.ui.game.GameScreen
 import jez.jetpackpop.features.highscore.HighScores
-import jez.jetpackpop.ui.AppTheme
-import jez.jetpackpop.ui.overlay
+import jez.jetpackpop.ui.theme.AppTheme
+import jez.jetpackpop.ui.theme.gameColors
 import jez.jetpackpop.ui.toTitleRes
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -46,7 +46,7 @@ fun App(
     AppTheme {
         Box(
             modifier = Modifier
-                .background(MaterialTheme.colors.background)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             val gameState = appViewModel.gameState.collectAsState()
             val appState = appViewModel.appState.collectAsState()
@@ -75,7 +75,7 @@ fun UI(
 ) {
     val backgroundColor = animateColorAsState(
         label = "background color",
-        targetValue = if (appState.activeScreen == ActiveScreen.InGame) Color.Transparent else MaterialTheme.colors.overlay,
+        targetValue = if (appState.activeScreen == ActiveScreen.InGame) Color.Transparent else MaterialTheme.gameColors.overlay,
     )
     Box(
         contentAlignment = Alignment.Center,

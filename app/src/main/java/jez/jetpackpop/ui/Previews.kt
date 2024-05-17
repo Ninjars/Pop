@@ -10,6 +10,7 @@ import jez.jetpackpop.features.app.ui.GameWinMenu
 import jez.jetpackpop.features.app.ui.LevelInfo
 import jez.jetpackpop.features.app.ui.MainMenu
 import jez.jetpackpop.features.app.ui.ScoreInfo
+import jez.jetpackpop.ui.theme.AppTheme
 
 
 @Preview("MainMenu")

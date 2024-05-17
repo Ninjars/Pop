@@ -17,11 +17,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonColors
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -85,16 +85,16 @@ fun PopMegaButton(
             ) {
                 AutoSizeText(
                     text = stringResource(mainText),
-                    style = MaterialTheme.typography.h1,
-                    color = colors.contentColor(enabled = true).value,
+                    style = MaterialTheme.typography.displayLarge,
+                    color = colors.contentColor,
                     maxLines = 1,
                     modifier = Modifier.wrapContentSize()
                 )
                 subText?.let {
                     Text(
                         text = stringResource(it),
-                        style = MaterialTheme.typography.h5,
-                        color = colors.contentColor(enabled = true).value,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = colors.contentColor,
                         modifier = Modifier.wrapContentSize()
                     )
                 }

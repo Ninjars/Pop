@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -57,16 +57,16 @@ private fun CountdownTimer(
         Icon(
             imageVector = GameTimer,
             contentDescription = null,
-            tint = MaterialTheme.colors.primary,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .size(85.dp)
         )
         AnimatedCounter(
             count = remainingSeconds,
-            style = MaterialTheme.typography.h3,
-            color = MaterialTheme.colors.onPrimary,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
-                .align(BiasAlignment(0f, 0.3f))
+                .align(BiasAlignment(0f, 0.15f))
         )
     }
 }
@@ -84,21 +84,21 @@ private fun Multiplier(
         modifier = Modifier
             .size(70.dp)
             .background(
-                color = MaterialTheme.colors.primary,
+                color = MaterialTheme.colorScheme.primary,
                 shape = CircleShape,
             )
     ) {
         Row {
             Text(
                 text = "x",
-                style = MaterialTheme.typography.h3,
-                color = MaterialTheme.colors.onPrimary,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
             )
             AnimatedCounter(
                 count = multiplier,
-                style = MaterialTheme.typography.h3,
-                color = MaterialTheme.colors.onPrimary,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         }
     }

@@ -2,6 +2,7 @@ package jez.jetpackpop.features.app.ui.game
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -13,38 +14,40 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.math.MathUtils
 import jez.jetpackpop.features.app.domain.TargetType
 import jez.jetpackpop.features.app.model.game.TargetData
-import jez.jetpackpop.ui.target1
-import jez.jetpackpop.ui.target2
-import jez.jetpackpop.ui.target3
+import jez.jetpackpop.ui.theme.GameColorsPalette
+import jez.jetpackpop.ui.theme.gameColors
 import android.graphics.Color as AndroidColor
 
 @Composable
 fun TargetRenderer(
     targets: List<TargetData>,
 ) {
+    val colours = MaterialTheme.gameColors
+
     Canvas(
         modifier = Modifier.fillMaxSize()
     ) {
         targets.forEach {
-            drawTargetGradient(it)
+            drawTargetGradient(it, colours)
         }
     }
 }
 
-private fun DrawScope.drawTarget(data: TargetData) {
+@Composable
+private fun DrawScope.drawTarget(data: TargetData, colours: GameColorsPalette) {
     drawCircle(
-        color = data.type.toColor(),
+        color = data.type.toColor(colours),
         center = data.center * density,
         radius = data.radius * density,
     )
 }
 
-private fun DrawScope.drawTargetGradient(data: TargetData) {
+private fun DrawScope.drawTargetGradient(data: TargetData, colours: GameColorsPalette) {
     val radius = data.radius * density
     val center = data.center * density
     drawCircle(
         brush = Brush.radialGradient(
-            *getGradientColors(data.type),
+            *getGradientColors(data.type, colours),
             center = center - Offset(radius * 0.25f, radius * 0.25f),
             radius = radius,
         ),
@@ -53,8 +56,8 @@ private fun DrawScope.drawTargetGradient(data: TargetData) {
     )
 }
 
-private fun getGradientColors(targetType: TargetType) =
-    getRadialGradientColors(targetType.toColor())
+private fun getGradientColors(targetType: TargetType, colours: GameColorsPalette) =
+    getRadialGradientColors(targetType.toColor(colours))
 
 private val GradientColors: MutableMap<Color, Array<Pair<Float, Color>>> = mutableMapOf()
 fun getRadialGradientColors(baseColor: Color) =
@@ -79,11 +82,11 @@ fun getRadialGradientColors(baseColor: Color) =
         )
     }
 
-private fun TargetType.toColor() =
+private fun TargetType.toColor(colours: GameColorsPalette) =
     when (this) {
-        TargetType.TARGET -> target1
-        TargetType.DECOY -> target2
-        TargetType.SPLIT_TARGET -> target3
+        TargetType.TARGET -> colours.target1
+        TargetType.DECOY -> colours.target2
+        TargetType.SPLIT_TARGET -> colours.target3
     }
 
 @Preview(widthDp = 100, heightDp = 100)

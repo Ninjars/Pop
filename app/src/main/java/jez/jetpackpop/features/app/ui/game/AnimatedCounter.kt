@@ -11,8 +11,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -35,8 +35,8 @@ val softSpring: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessLow)
 fun AnimatedCounter(
     count: Int,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.body1,
-    color: Color = MaterialTheme.colors.onPrimary,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+    color: Color = MaterialTheme.colorScheme.onPrimary,
     fontSize: TextUnit = TextUnit.Unspecified,
     animationSpec: AnimationSpec<Float> = stiffSpring,
 ) {

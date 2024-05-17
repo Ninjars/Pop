@@ -16,9 +16,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -92,7 +92,7 @@ private fun ChapterMenu(
                     .matchParentSize()
                     .background(
                         brush = Brush.verticalGradient(
-                            0.0f to MaterialTheme.colors.secondary, 0.2f to Color.Transparent,
+                            0.0f to MaterialTheme.colorScheme.secondary, 0.2f to Color.Transparent,
                         )
                     )
                     .align(Alignment.TopCenter)
@@ -104,7 +104,7 @@ private fun ChapterMenu(
                     .matchParentSize()
                     .background(
                         brush = Brush.verticalGradient(
-                            0.8f to Color.Transparent, 1f to MaterialTheme.colors.secondary,
+                            0.8f to Color.Transparent, 1f to MaterialTheme.colorScheme.secondary,
                         )
                     )
                     .align(Alignment.BottomCenter)
@@ -131,8 +131,8 @@ private fun ChapterButton(
         ) {
             Text(
                 text = stringResource(text),
-                style = MaterialTheme.typography.h5,
-                color = MaterialTheme.colors.onPrimary,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
                     .wrapContentSize()
             )
@@ -140,11 +140,14 @@ private fun ChapterButton(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = highScore.toString(),
-                    style = MaterialTheme.typography.h5,
-                    color = MaterialTheme.colors.onSecondary,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier
                         .wrapContentSize()
-                        .background(color = MaterialTheme.colors.secondary, shape = CircleShape)
+                        .background(
+                            color = MaterialTheme.colorScheme.secondary,
+                            shape = CircleShape
+                        )
                         .padding(4.dp)
                 )
             }

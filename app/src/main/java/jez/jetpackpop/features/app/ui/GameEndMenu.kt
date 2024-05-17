@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,8 +32,7 @@ import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.ui.PopMegaButton
 import jez.jetpackpop.ui.ScreenScaffold
-import jez.jetpackpop.ui.lose
-import jez.jetpackpop.ui.win
+import jez.jetpackpop.ui.theme.gameColors
 import kotlinx.coroutines.delay
 import kotlin.math.max
 
@@ -68,7 +67,7 @@ fun GameWinMenu(
         topSlot = { TopReadout(levelInfo) },
         middleSlot = {
             DisplayMenu(
-                color = MaterialTheme.colors.win,
+                color = MaterialTheme.gameColors.win,
                 titleText = titleText,
                 buttonText = ctaText,
                 modifier = it,
@@ -93,7 +92,7 @@ fun GameLoseMenu(
         topSlot = { TopReadout(levelInfo) },
         middleSlot = {
             DisplayMenu(
-                color = MaterialTheme.colors.lose,
+                color = MaterialTheme.gameColors.lose,
                 titleText = R.string.game_end_lose_title,
                 buttonText = R.string.game_end_lose_cta,
                 modifier = it,
@@ -124,7 +123,7 @@ private fun TopReadout(levelInfo: LevelInfo) {
         )
         Text(
             text = levelInfo.chapterName,
-            style = MaterialTheme.typography.h4,
+            style = MaterialTheme.typography.headlineMedium,
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -257,9 +256,9 @@ private fun DisplayMenu(
         subText = buttonText,
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = color,
+            containerColor = color,
             contentColor = Color.White,
-            disabledBackgroundColor = color,
+            disabledContainerColor = color,
             disabledContentColor = Color.White,
         ),
         clickEnabled = enabled,

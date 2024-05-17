@@ -2,7 +2,7 @@ package jez.jetpackpop.features.app.ui.game
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -17,9 +17,8 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import jez.jetpackpop.features.app.model.game.CircleEffectData
 import jez.jetpackpop.features.app.model.game.CircleEffectData.EffectType
-import jez.jetpackpop.ui.missEffectColor
-import jez.jetpackpop.ui.target1
-import jez.jetpackpop.ui.target3
+import jez.jetpackpop.ui.theme.GameColorsPalette
+import jez.jetpackpop.ui.theme.gameColors
 import kotlin.math.max
 import kotlin.math.sqrt
 
@@ -28,18 +27,20 @@ fun EffectRenderer(
     effects: List<CircleEffectData>,
 ) {
     val textMeasurer = rememberTextMeasurer()
-    val scoreTextStyle = MaterialTheme.typography.h2
+    val scoreTextStyle = MaterialTheme.typography.displayLarge
+    val colours = MaterialTheme.gameColors
     Canvas(
         modifier = Modifier.fillMaxSize()
     ) {
         val now = System.currentTimeMillis()
         effects.forEach {
-            drawEffect(now, it, textMeasurer, scoreTextStyle)
+            drawEffect(colours, now, it, textMeasurer, scoreTextStyle)
         }
     }
 }
 
 private fun DrawScope.drawEffect(
+    colours: GameColorsPalette,
     now: Long,
     data: CircleEffectData,
     textMeasurer: TextMeasurer,
@@ -49,7 +50,7 @@ private fun DrawScope.drawEffect(
     val raw = max(0, (now - data.startAtMs)) / (data.endAtMs - data.startAtMs).toFloat()
     val progress = sqrt(raw)
     val radius = lerp(data.startRadius, data.endRadius, progress) * density
-    val color = data.type.toColor()
+    val color = data.type.toColor(colours)
     val center = data.center * density
     drawCircle(
         brush = Brush.radialGradient(
@@ -81,11 +82,11 @@ private fun DrawScope.drawEffect(
     }
 }
 
-private fun EffectType.toColor() =
+private fun EffectType.toColor(colours: GameColorsPalette) =
     when (this) {
-        EffectType.MISS -> missEffectColor
-        EffectType.POP_TARGET -> target1
-        EffectType.POP_SPLIT -> target3
+        EffectType.MISS -> colours.miss
+        EffectType.POP_TARGET -> colours.target1
+        EffectType.POP_SPLIT -> colours.target3
     }
 
 private fun lerp(start: Float, stop: Float, amount: Float): Float {

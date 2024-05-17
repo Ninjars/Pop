@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextDelegate
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -51,7 +51,7 @@ import kotlin.math.min
  * Features:
  *  1. Best performance: Utilizes a dichotomous binary search algorithm for swift and optimal text size determination without unnecessary iterations.
  *  2. Alignment support: Supports six possible alignment values via the Alignment interface.
- *  3. Material Design 3 support. (note: removed for this project which is Material 1 atm)
+ *  3. Material Design 3 support.
  *  4. Font scaling support: User-initiated font scaling doesn't affect the visual rendering output.
  *  5. Multiline Support with maxLines Parameter.
  *
@@ -405,12 +405,12 @@ enum class SuggestedFontSizesStatus {
 @Composable
 fun PreviewAutoSizeTextWithMaxLinesSetToIntMaxValue() {
     MaterialTheme {
-        Surface(color = MaterialTheme.colors.primary) {
+        Surface(color = MaterialTheme.colorScheme.primary) {
             AutoSizeText(
                 text = "This is a bunch of text that will be auto sized",
                 modifier = Modifier.fillMaxSize(),
                 alignment = Alignment.CenterStart,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }
@@ -422,14 +422,14 @@ fun PreviewAutoSizeTextWithMaxLinesSetToIntMaxValue() {
 @Composable
 fun PreviewAutoSizeTextWithMinSizeSetTo14() {
     MaterialTheme {
-        Surface(color = MaterialTheme.colors.secondary) {
+        Surface(color = MaterialTheme.colorScheme.secondary) {
             AutoSizeText(
                 text = "This is a bunch of text that will be auto sized",
                 modifier = Modifier.fillMaxSize(),
                 minTextSize = 14.sp,
                 alignment = Alignment.CenterStart,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }
@@ -441,13 +441,13 @@ fun PreviewAutoSizeTextWithMinSizeSetTo14() {
 @Composable
 fun PreviewAutoSizeTextWithMaxLinesSetToOne() {
     MaterialTheme {
-        Surface(color = MaterialTheme.colors.primary) {
+        Surface(color = MaterialTheme.colorScheme.primary) {
             AutoSizeText(
                 text = "This is a bunch of text that will be auto sized",
                 modifier = Modifier.fillMaxSize(),
                 alignment = Alignment.Center,
                 maxLines = 1,
-                style = MaterialTheme.typography.body1
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
@@ -458,12 +458,12 @@ fun PreviewAutoSizeTextWithMaxLinesSetToOne() {
 @Composable
 fun PreviewAutoSizeTextWithMCharacter() {
     MaterialTheme {
-        Surface(color = MaterialTheme.colors.error) {
+        Surface(color = MaterialTheme.colorScheme.error) {
             AutoSizeText(
                 text = "m",
                 modifier = Modifier.fillMaxSize(),
                 alignment = Alignment.Center,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.bodyMedium,
                 lineSpacingRatio = 1F,
             )
         }
@@ -475,12 +475,12 @@ fun PreviewAutoSizeTextWithMCharacter() {
 @Composable
 fun PreviewAutoSizeTextWithYCharacter() {
     MaterialTheme {
-        Surface(color = MaterialTheme.colors.error) {
+        Surface(color = MaterialTheme.colorScheme.error) {
             AutoSizeText(
                 text = "y",
                 modifier = Modifier.fillMaxSize(),
                 alignment = Alignment.Center,
-                style = MaterialTheme.typography.body1.copy(
+                style = MaterialTheme.typography.bodyMedium.copy(
                     lineHeightStyle = LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Center,
                         trim = LineHeightStyle.Trim.Both,
