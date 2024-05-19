@@ -1,10 +1,7 @@
 package jez.jetpackpop.features.app.domain
 
-import android.os.Parcelable
 import androidx.compose.runtime.Immutable
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
 @Immutable
 data class GameConfiguration(
     val id: GameConfigId,
@@ -12,24 +9,22 @@ data class GameConfiguration(
     val targetConfigurations: List<TargetConfiguration>,
     val isLastInChapter: Boolean,
     val isDemo: Boolean = false,
-) : Parcelable {
+) {
     companion object {
         val Default =
             GameConfiguration(GameConfigId.Default, -1f, emptyList(), false, isDemo = true)
     }
 }
 
-@Parcelize
 data class GameConfigId(
     val chapter: GameChapter,
     val id: Int,
-) : Parcelable {
+) {
     companion object {
         val Default = GameConfigId(GameChapter.SIMPLE_SINGLE, -1)
     }
 }
 
-@Parcelize
 data class TargetConfiguration(
     val type: TargetType,
     val radius: Float,
@@ -37,7 +32,7 @@ data class TargetConfiguration(
     val minSpeed: Float,
     val maxSpeed: Float,
     val clickResult: ClickResult?,
-) : Parcelable {
+) {
     enum class ClickResult {
         SCORE,
         SPLIT,
