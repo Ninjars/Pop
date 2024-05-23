@@ -8,13 +8,13 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 class TargetFactory(
-    private val width: Float,
-    private val height: Float,
     private val random: Random = Random.Default
 ) {
     fun createTargets(
-        isDemo: Boolean,
+        width: Float,
+        height: Float,
         configurations: List<TargetConfiguration>,
+        interactionEnabled: Boolean,
     ): List<TargetData> {
         return configurations.flatMap { targetConfig ->
             (0 until targetConfig.count).map {
@@ -31,7 +31,7 @@ class TargetFactory(
                         targetConfig.minSpeed,
                         targetConfig.maxSpeed
                     ),
-                    clickResult = if (isDemo) null else {
+                    clickResult = if (!interactionEnabled) null else {
                         when (targetConfig.clickResult) {
                             null -> null
                             TargetConfiguration.ClickResult.SCORE -> TargetData.ClickResult.SCORE

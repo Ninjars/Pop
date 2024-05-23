@@ -96,7 +96,6 @@ class AppLogic(
     private fun demoConfiguration(): GameConfiguration =
         GameConfiguration(
             id = GameConfigId(GameChapter.SIMPLE_SINGLE, -1),
-            isDemo = true,
             timeLimitSeconds = -1f,
             targetConfigurations = listOf(
                 TargetConfiguration(
@@ -109,6 +108,8 @@ class AppLogic(
                 )
             ),
             isLastInChapter = false,
+            gameLoopHandler = DemoGameLoop,
+            targetFactory = TargetFactory(),
         )
 
     private fun handleGameEnd(appState: AppState, gameEndState: GameEndState): AppState {

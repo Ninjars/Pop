@@ -8,11 +8,22 @@ data class GameConfiguration(
     val timeLimitSeconds: Float,
     val targetConfigurations: List<TargetConfiguration>,
     val isLastInChapter: Boolean,
-    val isDemo: Boolean = false,
+    val gameLoopHandler: GameLoop,
+    val targetFactory: TargetFactory,
 ) {
+
+    val interactionEnabled = gameLoopHandler != DemoGameLoop
+
     companion object {
         val Default =
-            GameConfiguration(GameConfigId.Default, -1f, emptyList(), false, isDemo = true)
+            GameConfiguration(
+                id = GameConfigId.Default,
+                timeLimitSeconds = -1f,
+                targetConfigurations = emptyList(),
+                isLastInChapter = false,
+                gameLoopHandler = DemoGameLoop,
+                targetFactory = TargetFactory(),
+            )
     }
 }
 

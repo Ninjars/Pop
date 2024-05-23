@@ -52,7 +52,9 @@ private fun GameChapter.buildSimpleSingleChapter(hardMode: Boolean): List<GameCo
                         finalMaxSpeed = if (hardMode) 180f else 120f,
                     ),
                 ),
-                isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
+                isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1,
+                gameLoopHandler = ChapterLevelGameLoop,
+                targetFactory = TargetFactory(),
             )
         }
 }
@@ -98,7 +100,9 @@ private fun GameChapter.buildSimpleDecoyChapter(hardMode: Boolean): List<GameCon
                         finalMaxSpeed = if (hardMode) 100f else 80f,
                     ),
                 ),
-                isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
+                isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1,
+                gameLoopHandler = ChapterLevelGameLoop,
+                targetFactory = TargetFactory(),
             )
         }
 }
@@ -132,7 +136,9 @@ private fun GameChapter.buildSplitterChapter(hardMode: Boolean): List<GameConfig
                         finalMaxSpeed = if (hardMode) 150f else 100f,
                     )
                 ),
-                isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1
+                isLastInChapter = index == CHAPTER_LEVEL_COUNT - 1,
+                gameLoopHandler = ChapterLevelGameLoop,
+                targetFactory = TargetFactory(),
             )
         }
 }

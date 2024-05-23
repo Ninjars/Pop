@@ -7,7 +7,6 @@ import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.audio.SoundManager.SoundVariance
 import jez.jetpackpop.features.app.model.game.CircleEffectData
 import jez.jetpackpop.features.app.model.game.CircleEffectData.EffectType
-import jez.jetpackpop.features.app.model.game.GameEndState
 import jez.jetpackpop.features.app.model.game.GameInputEvent
 import jez.jetpackpop.features.app.model.game.GameProcessState
 import jez.jetpackpop.features.app.model.game.GameScoreData
@@ -16,7 +15,6 @@ import jez.jetpackpop.features.app.model.game.TargetData
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
@@ -29,7 +27,6 @@ class GameLogic(
     private val soundManager: SoundManager,
     private val width: Float,
     private val height: Float,
-    private val targetFactory: TargetFactory = TargetFactory(width, height),
 ) {
     private val _gameState = MutableStateFlow(
         GameState(
@@ -83,7 +80,12 @@ class GameLogic(
         resetScore: Boolean,
         scoreData: GameScoreData,
     ): GameState {
-        val targets = targetFactory.createTargets(config.isDemo, config.targetConfigurations)
+        val targets = config.targetFactory.createTargets(
+            width,
+            height,
+            config.targetConfigurations,
+            config.interactionEnabled
+        )
         return GameState(
             config = config,
             processState = GameProcessState.RUNNING,
@@ -113,7 +115,7 @@ class GameLogic(
         }
 
     private fun GameState.onTap(position: Offset): GameState {
-        if (processState != GameProcessState.RUNNING || config.isDemo) {
+        if (!config.interactionEnabled || processState != GameProcessState.RUNNING) {
             return this
         }
 
@@ -188,7 +190,7 @@ class GameLogic(
                 targets.filter { it.id != data.id }
                     .toMutableList()
                     .apply {
-                        addAll(targetFactory.createSplitTargets(data, 3))
+                        addAll(config.targetFactory.createSplitTargets(data, 3))
                     }
         }
         val now = System.currentTimeMillis()
@@ -212,84 +214,10 @@ class GameLogic(
             if (gameHasEnded) {
                 copy(overtime = overtime + deltaSeconds)
             } else {
-                iterateState(deltaSeconds)
+                config.gameLoopHandler.iterate(this, deltaSeconds, outputEvents)
             }
         }
         else this
-
-    private fun GameState.iterateState(deltaSeconds: Float): GameState {
-        val nextRemainingTime =
-            if (remainingTime == -1f) -1f else max(0f, remainingTime - deltaSeconds)
-
-        val isDemo = config.isDemo
-        val nextProcessState = when {
-            nextRemainingTime <= 0f && !isDemo -> GameProcessState.END_LOSE
-            targets.none { it.clickResult != null } && !isDemo -> GameProcessState.END_WIN
-            else -> processState
-        }
-        val processStateHasChanged = nextProcessState != processState
-        return copy(
-            remainingTime = nextRemainingTime,
-            processState = nextProcessState,
-            targets = targets.map {
-                it.update(deltaSeconds, this)
-            }
-        ).also {
-            if (processStateHasChanged) {
-                when (it.processState) {
-                    GameProcessState.END_WIN,
-                    GameProcessState.END_LOSE -> {
-                        outputEvents.tryEmit(
-                            GameLogicEvent.GameEnded(it.toEndState())
-                        )
-                    }
-
-                    else -> Unit
-                }
-            }
-        }
-    }
-
-    private fun GameState.toEndState(): GameEndState =
-        if (config.isLastInChapter) {
-            GameEndState.ChapterEndState(
-                config.id,
-                remainingSeconds,
-                scoreData,
-                processState == GameProcessState.END_WIN,
-            )
-        } else {
-            GameEndState.LevelEndState(
-                config.id,
-                remainingSeconds,
-                scoreData,
-                processState == GameProcessState.END_WIN,
-            )
-        }
-
-    private fun TargetData.update(deltaTime: Float, state: GameState): TargetData {
-        val projectedPosition = center + velocity * deltaTime
-        var newVelocity: Offset = velocity
-        if (projectedPosition.x - radius < 0) {
-            newVelocity = Offset(velocity.x.absoluteValue, velocity.y)
-        } else if (projectedPosition.x + radius >= state.width) {
-            newVelocity = Offset(-velocity.x.absoluteValue, velocity.y)
-        }
-        if (projectedPosition.y - radius < 0) {
-            newVelocity = Offset(velocity.x, velocity.y.absoluteValue)
-        } else if (projectedPosition.y + radius >= state.height) {
-            newVelocity = Offset(velocity.x, -velocity.y.absoluteValue)
-        }
-
-        val intendedPos = center + newVelocity * deltaTime
-        return copy(
-            center = Offset(
-                x = max(radius, min(state.width - radius, intendedPos.x)),
-                y = max(radius, min(state.height - radius, intendedPos.y)),
-            ),
-            velocity = newVelocity,
-        )
-    }
 
     private fun createGameScore(initialScore: Int) =
         GameScoreData(
