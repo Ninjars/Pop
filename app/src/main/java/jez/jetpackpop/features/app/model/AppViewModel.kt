@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import jez.jetpackpop.features.app.domain.AppLogic
 import jez.jetpackpop.features.app.domain.GameLogic
 import jez.jetpackpop.features.app.domain.GameLogicEvent
-import jez.jetpackpop.features.app.model.app.ActiveScreen
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
 import jez.jetpackpop.features.app.model.game.GameEndState
@@ -69,16 +68,6 @@ class AppViewModel(
 
         appLogic.startDemoGame()
     }
-
-    fun handleBackPressed(): Boolean =
-        if (appState.value.activeScreen == ActiveScreen.MainMenu) {
-            false
-        } else {
-            viewModelScope.launch {
-                appLogic.processInputEvent(AppInputEvent.Navigation.MainMenu)
-            }
-            true
-        }
 
     private fun recordGameEnd(
         state: GameEndState,

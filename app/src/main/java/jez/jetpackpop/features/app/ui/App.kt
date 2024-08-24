@@ -1,5 +1,6 @@
 package jez.jetpackpop.features.app.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
@@ -50,6 +51,12 @@ fun App(
         ) {
             val gameState = appViewModel.gameState.collectAsState()
             val appState = appViewModel.appState.collectAsState()
+
+            BackHandler(
+                enabled = appState.value.activeScreen != ActiveScreen.MainMenu
+            ) {
+                appEventFlow.tryEmit(AppInputEvent.Navigation.Back)
+            }
 
             GameScreen(
                 gameState = gameState.value,

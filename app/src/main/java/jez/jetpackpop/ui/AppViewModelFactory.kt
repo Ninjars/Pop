@@ -33,6 +33,7 @@ class AppViewModelFactory(
                     val highScores = highScoresRepository.highScoresFlow.first()
                     val appLogic = AppLogic(
                         highScores,
+                        soundManager,
                         highScoresRepository,
                         gameInputEventFlow,
                     )

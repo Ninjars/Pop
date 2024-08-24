@@ -1,5 +1,7 @@
 package jez.jetpackpop.features.app.domain
 
+import jez.jetpackpop.audio.GameSoundEffect
+import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.features.app.model.app.ActiveScreen
 import jez.jetpackpop.features.app.model.app.AppInputEvent
 import jez.jetpackpop.features.app.model.app.AppState
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.first
 
 class AppLogic(
     initialHighScore: HighScores,
+    private val soundManager: SoundManager,
     private val highScoresRepository: HighScoresRepository,
     private val gameEventFlow: MutableSharedFlow<GameInputEvent>,
 ) {
@@ -23,7 +26,7 @@ class AppLogic(
     suspend fun processInputEvent(event: AppInputEvent) {
         with(_appState.value) {
             _appState.value = when (event) {
-                is AppInputEvent.Navigation -> handleNavigation(event)
+                is AppInputEvent.Navigation -> handleNavigation(this, event)
                 is AppInputEvent.StartNewGame ->
                     handleStartNewGame(this, event.config)
 
@@ -140,20 +143,33 @@ class AppLogic(
         }
     }
 
-    private suspend fun handleNavigation(event: AppInputEvent.Navigation): AppState =
+    private suspend fun handleNavigation(
+        appState: AppState,
+        event: AppInputEvent.Navigation
+    ): AppState =
         when (event) {
-            is AppInputEvent.Navigation.MainMenu -> {
-                startDemoGame()
+            is AppInputEvent.Navigation.MainMenu -> navigateToMainMenu()
 
-                highScoresRepository.highScoresFlow.first().let {
-                    AppState(
-                        highScores = it,
-                        activeScreen = ActiveScreen.MainMenu,
-                        activeGameConfig = demoConfiguration(),
-                    )
+            AppInputEvent.Navigation.Back -> {
+                if (appState.activeScreen == ActiveScreen.MainMenu) {
+                    appState
+                } else {
+                    soundManager.playSound(GameSoundEffect.BACK_INVOKED)
+                    navigateToMainMenu()
                 }
             }
         }
+
+    private suspend fun navigateToMainMenu(): AppState {
+        startDemoGame()
+        return highScoresRepository.highScoresFlow.first().let {
+            AppState(
+                highScores = it,
+                activeScreen = ActiveScreen.MainMenu,
+                activeGameConfig = demoConfiguration(),
+            )
+        }
+    }
 
     fun startDemoGame() {
         gameEventFlow.tryEmit(

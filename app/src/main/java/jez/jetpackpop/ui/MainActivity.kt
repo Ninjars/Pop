@@ -10,7 +10,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModelProvider
 import jez.jetpackpop.HighScoresProto
-import jez.jetpackpop.audio.GameSoundEffect
 import jez.jetpackpop.audio.SoundManager
 import jez.jetpackpop.audio.SoundManagerImpl
 import jez.jetpackpop.features.app.model.AppViewModel
@@ -72,15 +71,6 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         gameEventFlow.tryEmit(GameInputEvent.Resume)
-    }
-
-    @Deprecated("onBackPressedDispatcher doesn't prevent onBackPressed propagation on api 32 and lower and so is unsuitable")
-    override fun onBackPressed() {
-        if (!appViewModel.handleBackPressed()) {
-            super.onBackPressed()
-        } else {
-            soundManager.playSound(GameSoundEffect.BACK_INVOKED)
-        }
     }
 
     private companion object {
